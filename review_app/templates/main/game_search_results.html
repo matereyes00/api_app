@@ -1,0 +1,15 @@
+<h1>Search Results for "{{ query }}"</h1>
+
+{% if games %}
+    <ul>
+        {% for game in games %}
+            <li>
+                <a href="{% url 'game_detail' game.id %}?q={{query}}">{{ game.name }}</a> ({{ game.yearpublished }})
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No games found.</p>
+{% endif %}
+
+<a href="/">Back to Home</a>

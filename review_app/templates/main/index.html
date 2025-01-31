@@ -1,0 +1,26 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% comment %} {% block content %}
+<h1>Homepage</h1>
+<button type="submit"><a href="{% url 'register' %}">Register</a></button>
+{% endblock content %} {% endcomment %}
+
+{% block content %}
+    {% if not user.is_authenticated %}
+        <p>You are not logged in</p>
+        <a href="{% url 'login' %}">Log In</a>
+        <a href="{% url 'register' %}">Register</a>
+    {% else %}
+        Hi {{ user.username }}!
+        {% comment %} <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Log Out</button>
+            <button><a href={% url 'search_movies_tv' %}>Movie/TV Search</a></button>
+            <button><a href={% url 'search_games' %}> Games Search</a></button>
+            <button><a href={% url 'search_books' %}> Books Search</a></button>
+          </form> {% endcomment %}
+    {% endif %}
+{% endblock %}

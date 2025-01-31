@@ -1,0 +1,15 @@
+<h1>Search Results for "{{ title }}"</h1>
+
+{% if movie %}  {# Check if 'movie' exists and is not empty #}
+    <ul>
+        {% for m in movie %}  {# Iterate over 'movie' (the list) #}
+            <li>
+                <a href="{% url 'movie_tv_detail' m.Title %}">{{ m.Title }} ({{m.Year}})</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No movies found.</p>
+{% endif %}
+
+<a href="/">Back to Home</a>

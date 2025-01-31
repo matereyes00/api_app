@@ -1,0 +1,21 @@
+{% if books %}
+    <ul>
+        {% for book in books %}
+            <li>
+                {% if book.olid %}
+                    <a href="{% url 'book_detail' book.olid %}">{{ book.title }}</a>  {# Link using OLID #}
+                {% elif book.isbn %}
+                    <a href="{% url 'book_detail' book.isbn %}">{{ book.title }}</a>  {# Fallback to ISBN #}
+                {% else %}
+                    {{ book.title }}  {# No identifier available #}
+                {% endif %}
+
+                {% if book.author_name %}
+                    by {{ book.author_name|join:", " }}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No books found.</p>
+{% endif %}

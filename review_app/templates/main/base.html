@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+{% load static %} 
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="{% static 'review_app.css' %}">
+  <title>{% block title %}Django Auth Tutorial{% endblock %}</title>
+</head>
+
+<body>
+  <main>
+    <h1> Entertainment tracker </h1>
+    <form action="{% url 'logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit">Log Out</button>
+    </form>
+    <button><a href={% url 'search_movies_tv' %}>Movie/TV Search</a></button>
+    <button><a href={% url 'search_games' %}> Games Search</a></button>
+    <button><a href={% url 'search_books' %}> Books Search</a></button>
+    <button><a href={% url 'profile' %}> Profile</a></button>
+
+    {% block content %}
+    {% endblock content %}
+  </main>
+</body>
+
+</html>

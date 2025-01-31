@@ -1,0 +1,30 @@
+<h1>{{ game.name }}</h1>  {% if game.yearpublished %}
+    <p>Year Published: {{ game.yearpublished }}</p>
+{% endif %}
+
+{% if game.description %}
+    <p>Description: {{ game.description|safe }}</p>  {% endif %}
+
+{% if game.minplayers %}
+    <p>Min Players: {{ game.minplayers }}</p>
+{% endif %}
+
+{% if game.maxplayers %}
+    <p>Max Players: {{ game.maxplayers }}</p>
+{% endif %}
+
+{% if game.playingtime %}
+    <p>Playing Time: {{ game.playingtime }} minutes</p>
+{% endif %}
+
+{% if game.ratingaverage %}
+    <p>Average Rating: {{ game.ratingaverage }}</p>
+{% endif %}
+
+{% if game.image %}
+    <img src="{{ game.image }}" alt="{{ game.name }} Image" width="300">
+{% endif %}
+
+
+<a href="{% url 'search_games' %}?q={{ query }}">Back to Search Results</a>
+<a href="/">Back to Home</a>

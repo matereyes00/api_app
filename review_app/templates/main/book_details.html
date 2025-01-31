@@ -1,0 +1,34 @@
+{% if book %}
+<h1>{{ book.title }}</h1>
+
+{% if book.authors %}
+    <p>Author(s): 
+        {% for author in book.authors %}
+            {{ author.author.key|slice:"10:" }} {# Slice to remove "/authors/" from the key #}
+            {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </p>
+{% endif %}
+
+{% if book.publish_date %}
+    <p>Published: {{ book.publish_date }}</p>
+{% endif %}
+
+{% if book.number_of_pages %}
+    <p>Pages: {{ book.number_of_pages }}</p>
+{% endif %}
+
+{% if book.isbn_13 %}
+    <p>ISBN: {{ book.isbn_13.0 }}</p> {# Access the first ISBN-13 if available #}
+{% endif %}
+
+{% if book.cover_url %}
+    <img src="{{ book.cover_url }}" alt="{{ book.title }} cover">
+{% endif %}
+
+{% else %}
+<p>Book details not found.</p>
+{% endif %}
+
+<a href="{% url 'search_books' %}?q={{ query }}">Back to Book Search Results</a>
+<a href="/">Back to Home</a>
