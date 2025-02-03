@@ -12,16 +12,17 @@ from django.shortcuts import render
 from django.core.cache import cache
 from .forms import RegisterForm, LoginForm
 
+from django.urls import reverse
+
+
 
 load_dotenv()  # Load environment variables from.env
 
 def index(request):
     return render(request, 'main/index.html')
 
-@login_required(login_url='accounts/login/')
-def profile_view(request):
-    profile = request.user.profile  # Access the user's profile
-    return render(request, 'main/profile.html', {'profile': profile})
+def profile_view_extend(request):
+    return redirect(reverse('accounts:profile'))
 
 @login_required(login_url='accounts/login/')
 def search_movies_tv(request):
@@ -42,6 +43,7 @@ def search_movies_tv(request):
     else:
         return render(request, 'main/movie_tv_search.html')
 
+
 @login_required(login_url='accounts/login/')
 def movie_tv_detail(request, Title):
     api_key = os.getenv('OMDB_API_KEY')
@@ -49,6 +51,7 @@ def movie_tv_detail(request, Title):
     response = requests.get(url)
     movie_data = response.json()
     return render(request, 'main/movie_details.html', {'movie': movie_data})
+    
     
 @login_required(login_url='accounts/login/')
 def search_games(request):
@@ -81,6 +84,7 @@ def search_games(request):
 
     else:
         return render(request, 'main/game_search.html')
+
 
 def get_bgg_game_info(game_id):
     url = f"https://www.boardgamegeek.com/xmlapi2/thing?id={game_id}&stats=1"
@@ -117,6 +121,7 @@ def get_bgg_game_info(game_id):
     except ET.ParseError as e:
         print(f"Error: {e}")
         return None
+
 
 @login_required(login_url='accounts/login/')   
 def game_detail(request, game_id):

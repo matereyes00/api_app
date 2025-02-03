@@ -4,7 +4,7 @@
     <ul>
         {% for m in movie %}  {# Iterate over 'movie' (the list) #}
             <li>
-                <a href="{% url 'movie_tv_detail' m.Title %}">{{ m.Title }} ({{m.Year}})</a>
+                <a href="{% url 'review_app:movie_tv_detail' m.Title %}">{{ m.Title }} ({{m.Year}})</a>
             </li>
         {% endfor %}
     </ul>

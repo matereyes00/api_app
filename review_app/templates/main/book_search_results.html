@@ -3,9 +3,9 @@
         {% for book in books %}
             <li>
                 {% if book.olid %}
-                    <a href="{% url 'book_detail' book.olid %}">{{ book.title }}</a>  {# Link using OLID #}
+                    <a href="{% url 'review_app:book_detail' book.olid %}">{{ book.title }}</a>  {# Link using OLID #}
                 {% elif book.isbn %}
-                    <a href="{% url 'book_detail' book.isbn %}">{{ book.title }}</a>  {# Fallback to ISBN #}
+                    <a href="{% url 'review_app:book_detail' book.isbn %}">{{ book.title }}</a>  {# Fallback to ISBN #}
                 {% else %}
                     {{ book.title }}  {# No identifier available #}
                 {% endif %}

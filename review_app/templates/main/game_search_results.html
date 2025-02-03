@@ -4,7 +4,7 @@
     <ul>
         {% for game in games %}
             <li>
-                <a href="{% url 'game_detail' game.id %}?q={{query}}">{{ game.name }}</a> ({{ game.yearpublished }})
+                <a href="{% url 'review_app:game_detail' game.id %}?q={{query}}">{{ game.name }}</a> ({{ game.yearpublished }})
             </li>
         {% endfor %}
     </ul>
