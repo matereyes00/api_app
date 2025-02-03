@@ -23,5 +23,8 @@ def create_profile(sender, instance, created, **kwargs):
         profile.save()
 
 @receiver(post_save, sender=User)
-def save_profile(sender, instance, **kwargs):
-    instance.profile.save()
+def save_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+    else:
+        instance.profile.save()  # Use the related_name 'profile'

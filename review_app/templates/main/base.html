@@ -11,11 +11,11 @@
 <body>
   <main>
     <h1> Entertainment tracker </h1>
-    <form action="{% url 'logout' %}" method="post">
+    <form action="{% url 'logout' %}" method="post"> 
       {% csrf_token %}
       <button type="submit">Log Out</button>
     </form>
-    <button><a href={% url 'review_app:search_movies_tv' %}>Movie/TV Search</a></button>
+     <button><a href={% url 'review_app:search_movies_tv' %}>Movie/TV Search</a></button>
     <button><a href={% url 'review_app:search_games' %}> Games Search</a></button>
     <button><a href={% url 'review_app:search_books' %}> Books Search</a></button>
     <button><a href={% url 'accounts:profile' %}> Profile</a></button>

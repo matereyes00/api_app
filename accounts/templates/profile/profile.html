@@ -9,4 +9,5 @@
 {% endif %}
 
 <p>Bio: {{ profile.bio }}</p>
+<button><a href="{% url 'accounts:edit_profile' %}">Edit Profile</a></button>
 {% endblock %}
