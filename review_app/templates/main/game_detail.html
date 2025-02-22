@@ -25,6 +25,11 @@
     <img src="{{ game.image }}" alt="{{ game.name }} Image" width="300">
 {% endif %}
 
+{% comment %} ADD 'PLAYED' BUTTON {% endcomment %}
+<button><p>Played?</p></button>
+<button>Add to list?</button>
+
+
 
 <a href="{% url 'review_app:search_games' %}?q={{ query }}">Back to Search Results</a>
 <a href="/">Back to Home</a>

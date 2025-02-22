@@ -11,8 +11,8 @@ def create_profile(sender, instance, created, **kwargs):
     if created:
         profile = Profile.objects.create(user=instance)
 
+        # Set default profile picture if it exists
         default_image_path = os.path.join(settings.MEDIA_ROOT, 'default.jpg')
-
         if os.path.exists(default_image_path):
             try:
                 with open(default_image_path, 'rb') as f:
@@ -23,8 +23,6 @@ def create_profile(sender, instance, created, **kwargs):
         profile.save()
 
 @receiver(post_save, sender=User)
-def save_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-    else:
-        instance.profile.save()  # Use the related_name 'profile'
+def save_profile(sender, instance, **kwargs):
+    """ Save profile after user instance is saved. """
+    instance.profile.save()  # Save existing profile, no need to create again

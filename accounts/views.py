@@ -31,3 +31,11 @@ def edit_profile(request):
     else:
         form = CustomUserCreationForm(instance=profile)  # Pass the instance here
     return render(request, 'profile/editProfile.html', {'form': form})
+
+# @login_required
+# def add_watched_movie(request, imdb_id):
+#     watched, created = WatchedMovie.objects.get_or_create(user=request.user, imdb_id=imdb_id)
+    
+#     if created:
+#         return JsonResponse({'message': 'Movie added to watched list!'})
+#     return JsonResponse({'message': 'Movie already in watched list!'})

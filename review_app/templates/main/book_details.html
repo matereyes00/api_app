@@ -26,9 +26,13 @@
     <img src="{{ book.cover_url }}" alt="{{ book.title }} cover">
 {% endif %}
 
+{% comment %} ADD 'WATCHED' BUTTON {% endcomment %}
+<button>Read?</button>
+<button>Add to list?</button>
+
 {% else %}
 <p>Book details not found.</p>
 {% endif %}
 
-<a href="{% url 'search_books' %}?q={{ query }}">Back to Book Search Results</a>
+<a href="{% url 'review_app:search_books' %}?q={{ query }}">Back to Book Search Results</a>
 <a href="/">Back to Home</a>
