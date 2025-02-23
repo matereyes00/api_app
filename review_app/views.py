@@ -14,8 +14,6 @@ from .forms import RegisterForm, LoginForm
 
 from django.urls import reverse
 
-
-
 load_dotenv()  # Load environment variables from.env
 
 def index(request):
@@ -99,6 +97,7 @@ def get_bgg_game_info(game_id):
 
         root = ET.fromstring(response.content)
         game_data = {}
+        game_data = {"gameID": game_id}  # Store game_id here
 
         # More robust way to extract data, handling missing elements:
         name_element = root.find('.//name[@type="primary"]')  # Get the primary name
@@ -130,6 +129,7 @@ def get_bgg_game_info(game_id):
 @login_required(login_url='accounts/login/')   
 def game_detail(request, game_id):
     game_data = get_bgg_game_info(game_id)
+    print(game_data)
     query = request.GET.get('q')
     if game_data:
         return render(request, 'main/game_detail.html', {'game': game_data, 'query': query})
@@ -157,7 +157,9 @@ def book_detail(request, olid):  # Changed parameter to 'olid'
 
         book_data['cover_url'] = cover_url  # Set the cover_url in book_data
 
-        return render(request, 'main/book_details.html', {'book': book_data})
+        return render(request, 'main/book_details.html', {
+            'book': book_data, 
+            'book_olid':olid})
 
     except requests.exceptions.RequestException as e:
         print(f"Error: {e}")

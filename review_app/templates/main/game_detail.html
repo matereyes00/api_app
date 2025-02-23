@@ -25,11 +25,10 @@
     <img src="{{ game.image }}" alt="{{ game.name }} Image" width="300">
 {% endif %}
 
-{% comment %} ADD 'PLAYED' BUTTON {% endcomment %}
-<button><p>Played?</p></button>
-<button>Add to list?</button>
+<form action="{% url 'accounts:add_to_watchlist' 'game' game.gameID %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Add to Gamelist</button>
+</form>
 
-
-
-<a href="{% url 'review_app:search_games' %}?q={{ query }}">Back to Search Results</a>
+<a href="{% url 'review_app:search' 'games' %}?q={{ query }}">Back to Search Results</a>
 <a href="/">Back to Home</a>

@@ -3,11 +3,67 @@
 {%block title %} Profile Page {%endblock title %}
 {% block content %}
 <h1>{{ profile.user.username }}'s Profile</h1>
+<p>Bio: {{ profile.bio }}</p>
+<button><a href="{% url 'accounts:edit_profile' %}">Edit Profile</a></button>
 
 {% if profile.profile_picture %}
     <img src="{{ profile.profile_picture.url }}" alt="Profile Picture">
 {% endif %}
 
-<p>Bio: {{ profile.bio }}</p>
-<button><a href="{% url 'accounts:edit_profile' %}">Edit Profile</a></button>
+<div class="list-section">
+    <h1> Movies/TV </h1>
+    {% if profile.watchlist.movies %}
+        <ul>
+            {% for movie in profile.watchlist.movies %}
+                <div class="card" style="width: 18rem;">
+                    <img class="card-img-top" src="{{ movie.poster }}" alt="{{ movie.title }} Poster">
+                    <div class="card-body">
+                        <p class="card-text"><strong>{{ movie.title }}</strong> ({{ movie.year }})</p>
+                        <p class="card-text">Directed by: {{ movie.director }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No movies in your watchlist yet.</p>
+    {% endif %}
+</div>
+
+<div class="list-section">
+    <h1> Games </h1>
+    {% if profile.watchlist.games %}
+        <ul>
+            {% for game in profile.watchlist.games %}
+                {% comment %} <li>{{ game }}</li> {% endcomment %}
+                <div class="card" style="width: 18rem;">
+                    <img class="card-img-top" 
+                        src="{{ game.poster }}" 
+                        alt="{{ game.title }} Poster">
+                    <div class="card-body">
+                        <p class="card-text"><strong>{{ game.title }}</strong> ({{ game.year }})</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+
+<div class="list-section book-section">
+    <h1> Books </h1>
+    {% if profile.watchlist.books %}
+        <ul>
+            {% for book in profile.watchlist.books %}
+            <div class="card" style="width: 18rem;">
+                <img class="card-img-top" 
+                    src="{{ book.cover_url }}" 
+                    alt="{{ book.title }} Poster">
+                <div class="card-body">
+                    <p class="card-text"><strong>{{ book.title }}</strong></p>
+                    <p class="card-text">Authored by: {{ book.author }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
 {% endblock %}

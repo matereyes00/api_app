@@ -26,13 +26,14 @@
     <img src="{{ book.cover_url }}" alt="{{ book.title }} cover">
 {% endif %}
 
-{% comment %} ADD 'WATCHED' BUTTON {% endcomment %}
-<button>Read?</button>
-<button>Add to list?</button>
+<form action="{% url 'accounts:add_to_watchlist' 'book' book_olid %}" method="POST">
+    {% csrf_token %}
+    <button type="submit">Add to Booklist</button>
+</form>
 
 {% else %}
 <p>Book details not found.</p>
 {% endif %}
 
-<a href="{% url 'review_app:search_books' %}?q={{ query }}">Back to Book Search Results</a>
+<a href="{% url 'review_app:search' 'books' %}?q={{ query }}">Back to Book Search Results</a>
 <a href="/">Back to Home</a>
