@@ -1,5 +1,5 @@
-<form action="{% url 'review_app:search_games' %}" method="post">  {# Form points to the search_games view #}
+<form method="post" action="{% url 'review_app:search' 'games' %}">
     {% csrf_token %}
-    <input type="text" name="q" placeholder="Search for games..." value="{{ query }}"> 
+    <input type="text" name="query" placeholder="Search for games..." value="{{ query }}"> 
     <button type="submit">Search</button>
 </form>

@@ -1,11 +1,11 @@
-{% if books %}
+{% if results %}
     <ul>
-        {% for book in books %}
+        {% for book in results %}
             <li>
                 {% if book.olid %}
                     <a href="{% url 'review_app:book_detail' book.olid %}">{{ book.title }}</a>  {# Link using OLID #}
-                {% elif book.isbn %}
-                    <a href="{% url 'review_app:book_detail' book.isbn %}">{{ book.title }}</a>  {# Fallback to ISBN #}
+                {% elif book.isbn and book.isbn.0 %}
+                    <a href="{% url 'review_app:book_detail' book.isbn.0 %}">{{ book.title }}</a>  {# Fallback to first ISBN #}
                 {% else %}
                     {{ book.title }}  {# No identifier available #}
                 {% endif %}
@@ -19,3 +19,5 @@
 {% else %}
     <p>No books found.</p>
 {% endif %}
+
+<a href="/">Back to Home</a>

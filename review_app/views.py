@@ -25,23 +25,62 @@ def profile_view_extend(request):
     return redirect(reverse('accounts:profile'))
 
 @login_required(login_url='accounts/login/')
-def search_movies_tv(request):
+def search(request, category):
     if request.method == 'POST':
-        title = request.POST.get('title')
-        api_key = os.getenv('OMDB_API_KEY')
-        url = f'http://www.omdbapi.com/?s={title}&apikey={api_key}'  # Use 's' for search
-        response = requests.get(url)
-        movie_data = response.json()
-        if movie_data.get('Search'):  # Check if 'Search' key exists (important!)
-            movies = movie_data['Search']  # Access the list of movies
-            return render(request, 'main/movie_search_results.html', {'movie': movies, 'title': title})  # Pass the list
-        elif movie_data.get('Error'): # Check if the api returned an error.
-            error_message = movie_data['Error']
-            return render(request, 'main/movie_tv_search.html', {'error_message': error_message}) # If it did, return the error message.
+        query = request.POST.get('query')  # Use the same input name for all searches
+
+        if category == 'movies_tv':
+            api_key = os.getenv('OMDB_API_KEY')
+            url = f'http://www.omdbapi.com/?s={query}&apikey={api_key}'
+            response = requests.get(url)
+            data = response.json()
+            results = data.get('Search', [])
+            error_message = data.get('Error', None)
+            template = 'main/movie_search_results.html'
+
+        elif category == 'games':
+            url = f"https://boardgamegeek.com/xmlapi2/search?query={query}&type=boardgame,boardgameexpansion,videogame"
+            response = requests.get(url)
+            root = ET.fromstring(response.content)
+            results = []
+            for item in root.findall('item'):
+                game_id = item.get('id')
+                name_element = item.find('name')
+                name = name_element.get('value') if name_element is not None else "No Name"
+                
+                year_element = item.find('yearpublished')
+                yearpublished = year_element.get('value') if year_element is not None else "No Year"
+
+                results.append({
+                    'id': game_id,
+                    'name': name,
+                    'yearpublished': yearpublished
+                })
+            
+            template = 'main/game_search_results.html'
+
+        elif category == 'books':
+            url = f"https://openlibrary.org/search.json?q={query}"
+            response = requests.get(url)
+            data = response.json()
+            books = data.get('docs', [])
+            results = [
+                {
+                    'title': book.get('title'),
+                    'author_name': book.get('author_name'),
+                    'olid': book.get('key').split('/')[-1] if book.get('key') else None,
+                    'isbn': book.get('isbn')
+                }
+                for book in books
+            ]
+            template = 'main/book_search_results.html'
+
         else:
-            return render(request, 'main/movie_search_results.html', {'movie': None, 'title': title}) # Handle no results case
-    else:
-        return render(request, 'main/movie_tv_search.html')
+            return render(request, 'main/base_search.html', {'error_message': 'Invalid category'})
+
+        return render(request, template, {'results': results, 'query': query, 'error_message': error_message if 'error_message' in locals() else None})
+    
+    return render(request, 'main/base_search.html', {'category': category})
 
 
 @login_required(login_url='accounts/login/')
@@ -52,39 +91,6 @@ def movie_tv_detail(request, Title):
     movie_data = response.json()
     return render(request, 'main/movie_details.html', {'movie': movie_data})
     
-    
-@login_required(login_url='accounts/login/')
-def search_games(request):
-    if request.method == 'POST':
-        query = request.POST.get('q')
-        url = f"https://boardgamegeek.com/xmlapi2/search?query={query}&type=boardgame,boardgameexpansion,videogame"
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            root = ET.fromstring(response.content)
-            items = root.findall('.//item')
-            results = []
-            for item in items:
-                game_id = item.get('id')
-                name = item.find('name').get('value') if item.find('name') is not None else "No Name"
-                yearpublished = item.find('yearpublished').get('value') if item.find('yearpublished') is not None else "No Year"
-                results.append({
-                    'id': game_id,
-                    'name': name,
-                    'yearpublished': yearpublished
-                })
-            return render(request, 'main/game_search_results.html', {'games': results, 'query': query})
-
-        except requests.exceptions.RequestException as e:
-            print(f"Error: {e}")
-            return render(request, 'main/game_search.html', {'error_message': 'Error searching games.'})
-        except ET.ParseError as e:
-            print(f"XML Parse Error: {e}")
-            return render(request, 'main/game_search.html', {'error_message': 'Error parsing BGG response.'})
-
-    else:
-        return render(request, 'main/game_search.html')
-
 
 def get_bgg_game_info(game_id):
     url = f"https://www.boardgamegeek.com/xmlapi2/thing?id={game_id}&stats=1"
@@ -122,7 +128,6 @@ def get_bgg_game_info(game_id):
         print(f"Error: {e}")
         return None
 
-
 @login_required(login_url='accounts/login/')   
 def game_detail(request, game_id):
     game_data = get_bgg_game_info(game_id)
@@ -131,46 +136,6 @@ def game_detail(request, game_id):
         return render(request, 'main/game_detail.html', {'game': game_data, 'query': query})
     else:
         return render(request, 'main/game_search.html', {'error_message': 'Game not found.'})
-
-
-@login_required(login_url='accounts/login/')
-def search_books(request):
-    if request.method == 'POST':
-        query = request.POST.get('title')
-        # encoded_query = quote(query)  # URL encode the query
-        url = f"https://openlibrary.org/search.json?q={query}"
-        try:
-            response = requests.get(url)
-            response.raise_for_status()  # Check for HTTP errors
-            book_data = response.json()
-            books = book_data.get('docs', [])  # Extract the book list
-
-            books_for_template = []
-            for book in books:
-                olid = None
-                if book.get('key'): # Check if OLID exists
-                    olid = book['key'].split('/')[-1] # Extract OLID from the key
-                books_for_template.append({
-                    'title': book.get('title'),
-                    'author_name': book.get('author_name'),
-                    'olid': olid, # Add OLID
-                    'isbn': book.get('isbn') # Keep ISBN if available
-                })
-
-            if books_for_template: # Check if the list is not empty
-                return render(request, 'main/book_search_results.html', {'books': books_for_template, 'query': query})
-            else:
-                return render(request, 'main/search.html', {'error_message': 'No books found for that search.'}) # Display a no results message
-
-        except requests.exceptions.RequestException as e:
-            print(f"Error: {e}")
-            return render(request, 'main/search.html', {'error_message': 'Error searching books.'})
-        except (KeyError, TypeError) as e:
-            print(f"Error processing JSON: {e}")
-            return render(request, 'main/search.html', {'error_message': 'Error processing book data.'})
-
-    else:
-        return render(request, 'main/search.html')
 
 
 @login_required(login_url='accounts/login/')

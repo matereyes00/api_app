@@ -1,0 +1,24 @@
+{% extends "main/base.html" %}
+
+{% block title %} Search Results {% endblock %}
+
+{% block content %}
+    <h2>Search Results for {{ category|title }}</h2>
+
+    <form method="post" action="{% url 'review_app:search' category %}">
+        {% csrf_token %}
+        <input type="text" name="query" placeholder="Search for {{ category }}..." value="{{ query }}">
+        <button type="submit">Search</button>
+    </form>
+
+    {% if results %}
+        <ul>
+            {% for item in results %}
+                <li>{{ item.title }}</li>  {# Adjust fields based on your data structure #}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No results found.</p>
+    {% endif %}
+
+{% endblock %}
