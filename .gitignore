@@ -2,3 +2,11 @@
 *.jpg
 db.sqlite3
 *.pyc
+
+# Ignore Python cache files
+accounts/__pycache__/
+review_app/__pycache__/
+*.pyc
+
+# Ignore SQLite database
+db.sqlite3
