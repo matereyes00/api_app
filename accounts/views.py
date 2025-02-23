@@ -60,13 +60,15 @@ def add_to_watchlist(request, item_type, item_id):
 
     # Retrieve or initialize the watchlist
     if not profile.watchlist or not isinstance(profile.watchlist, dict):
-        watchlist = {"movies": [], "games": [], "books": []}  # Default structure
+        watchlist = {"movies": [], "tv": [], "games": [], "books": []}  # Default structure
     else:
         watchlist = profile.watchlist  # Retrieve existing watchlist
 
     # Ensure the key exists
     if "movies" not in watchlist:
         watchlist["movies"] = []
+    if "tv" not in watchlist:
+        watchlist["tv"] = []
     if "games" not in watchlist:
         watchlist["games"] = []
     if "books" not in watchlist:
@@ -78,17 +80,23 @@ def add_to_watchlist(request, item_type, item_id):
         api_url = f"https://www.omdbapi.com/?t={movie_title}&apikey={api_key}"
         response = requests.get(api_url)
         movie_data = response.json()
+        print(movie_data)
         
         if item_type == "movie" and movie_data.get("Response") == "True":
             movie_info = {
                 "title": movie_data["Title"],
+                "format": movie_data['Type'],
                 "year": movie_data["Year"],
                 "poster": movie_data["Poster"],
                 "director": movie_data["Director"],
                 "imdbID": movie_data["imdbID"],
             }
-        if movie_info not in watchlist["movies"]:
-            watchlist["movies"].append(movie_info)
+        if movie_info['format'] == 'movie':
+            if movie_info not in watchlist["movies"]:
+                watchlist["movies"].append(movie_info)
+        if movie_info['format'] == 'series':
+            if movie_info not in watchlist["movies"]:
+                watchlist["tv"].append(movie_info)
 
     # Handle adding games
     if item_type == "game":

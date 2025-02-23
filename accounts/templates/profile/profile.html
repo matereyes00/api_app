@@ -11,59 +11,99 @@
 {% endif %}
 
 <div class="list-section">
-    <h1> Movies/TV </h1>
+    <h1> Movies </h1>
     {% if profile.watchlist.movies %}
-        <ul>
-            {% for movie in profile.watchlist.movies %}
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="{{ movie.poster }}" alt="{{ movie.title }} Poster">
-                    <div class="card-body">
-                        <p class="card-text"><strong>{{ movie.title }}</strong> ({{ movie.year }})</p>
-                        <p class="card-text">Directed by: {{ movie.director }}</p>
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                {% for movie in profile.watchlist.movies|slice:"-4:" %}
+                    <div class="col">
+                        <div class="card h-100" style="width: 18rem;">
+                            <img class="card-img-top" src="{{ movie.poster }}" alt="{{ show.title }} Poster">
+                            <div class="card-body">
+                                <p class="card-text"><strong>{{ movie.title }}</strong> ({{ movie.year }})</p>
+                                <p class="card-text">Directed by: {{ movie.director }}</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
-        </ul>
+                {% endfor %}
+            </div>
+        </div>
     {% else %}
-        <p>No movies in your watchlist yet.</p>
+        <p>No shows in your watchlist yet.</p>
     {% endif %}
 </div>
 
 <div class="list-section">
+    <h1> TV </h1>
+    {% if profile.watchlist.tv %}
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                {% for show in profile.watchlist.tv %}
+                    <div class="col">
+                        <div class="card h-100" style="width: 18rem;">
+                            <img class="card-img-top" src="{{ show.poster }}" alt="{{ show.title }} Poster">
+                            <div class="card-body">
+                                <p class="card-text"><strong>{{ show.title }}</strong> ({{ show.year }})</p>
+                                <p class="card-text">Directed by: {{ show.director }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <p>No shows in your watchlist yet.</p>
+    {% endif %}
+</div>
+
+
+<div class="list-section">
     <h1> Games </h1>
     {% if profile.watchlist.games %}
-        <ul>
-            {% for game in profile.watchlist.games %}
-                {% comment %} <li>{{ game }}</li> {% endcomment %}
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" 
-                        src="{{ game.poster }}" 
-                        alt="{{ game.title }} Poster">
-                    <div class="card-body">
-                        <p class="card-text"><strong>{{ game.title }}</strong> ({{ game.year }})</p>
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                {% for game in profile.watchlist.games %}
+                    <div class="col">
+                        <div class="card h-100" style="width: 18rem;">
+                            <img class="card-img-top" 
+                                src="{{ game.poster }}" 
+                                alt="{{ game.title }} Poster">
+                            <div class="card-body">
+                                <p class="card-text"><strong>{{ game.title }}</strong> ({{ game.year }})</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
-        </ul>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <p>No games in your watchlist yet.</p>
     {% endif %}
 </div>
 
 <div class="list-section book-section">
     <h1> Books </h1>
     {% if profile.watchlist.books %}
-        <ul>
-            {% for book in profile.watchlist.books %}
-            <div class="card" style="width: 18rem;">
-                <img class="card-img-top" 
-                    src="{{ book.cover_url }}" 
-                    alt="{{ book.title }} Poster">
-                <div class="card-body">
-                    <p class="card-text"><strong>{{ book.title }}</strong></p>
-                    <p class="card-text">Authored by: {{ book.author }}</p>
-                </div>
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                {% for book in profile.watchlist.books %}
+                    <div class="col">
+                        <div class="card h-100" style="width: 18rem;">
+                            <img class="card-img-top" 
+                                src="{{ book.cover_url }}" 
+                                alt="{{ book.title }} Cover">
+                            <div class="card-body">
+                                <p class="card-text"><strong>{{ book.title }}</strong></p>
+                                <p class="card-text">Authored by: {{ book.author }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </ul>
+        </div>
+    {% else %}
+        <p>No books in your watchlist yet.</p>
     {% endif %}
 </div>
+
 {% endblock %}
