@@ -117,6 +117,9 @@ def get_bgg_game_info(game_id):
         image_element = root.find('.//image')
         game_data['image'] = image_element.text if image_element is not None else None
 
+        game_type = get_bgg_game_type(game_data['name'])
+        game_data['type'] = game_type
+
         return game_data
 
     except requests.exceptions.RequestException as e:
@@ -125,6 +128,27 @@ def get_bgg_game_info(game_id):
     except ET.ParseError as e:
         print(f"Error: {e}")
         return None
+
+def get_bgg_game_type(game_name):
+    """Fetches the game type (boardgame, RPG, videogame, etc.) from the BoardGameGeek search API."""
+    search_url = f"https://www.boardgamegeek.com/xmlapi2/search?query={game_name}&exact=1"
+    try:
+        response = requests.get(search_url)
+        response.raise_for_status()
+
+        root = ET.fromstring(response.content)
+        item = root.find('.//item')
+
+        if item is not None:
+            return item.get('type')  # Example: "boardgame", "rpgitem", "videogame"
+        return "Unknown"
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching game type: {e}")
+        return "Unknown"
+    except ET.ParseError as e:
+        print(f"XML Parse Error: {e}")
+        return "Unknown"
 
 @login_required(login_url='accounts/login/')   
 def game_detail(request, game_id):

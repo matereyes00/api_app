@@ -1,3 +1,6 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
 <h1>{{ game.name }}</h1>  {% if game.yearpublished %}
     <p>Year Published: {{ game.yearpublished }}</p>
 {% endif %}
@@ -29,6 +32,11 @@
     {% csrf_token %}
     <button type="submit" class="btn btn-primary">Add to Gamelist</button>
 </form>
+<form action="{% url 'accounts:remove_from_watchlist' 'game' game.gameID %}" method="POST">
+    {% csrf_token %}
+    <button class="btn btn-danger">Remove from gamelist</button>
+</form>
 
 <a href="{% url 'review_app:search' 'games' %}?q={{ query }}">Back to Search Results</a>
 <a href="/">Back to Home</a>
+{% endblock %}

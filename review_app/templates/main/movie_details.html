@@ -1,12 +1,21 @@
-<h2>{{ movie.Title }}</h2>
-<p>Year: {{ movie.Year }}</p>
-<p>Director: {{ movie.Director }}</p>
-<p>Actors: {{ movie.Actors }}</p>
-<p>Plot: {{ movie.Plot }}</p>
-<img src="{{ movie.Poster }}" alt="{{ movie.Title }} Poster">
+{% extends 'main/base.html' %}
 
-{% comment %} ADD 'WATCHED' BUTTON {% endcomment %}
-<form action="{% url 'accounts:add_to_watchlist' 'movie' movie.Title|slugify %}" method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-primary">Add to Watchlist</button>
-</form>
+{%block content%}
+    <h2>{{ movie.Title }}</h2>
+    <p>Year: {{ movie.Year }}</p>
+    <p>Director: {{ movie.Director }}</p>
+    <p>Actors: {{ movie.Actors }}</p>
+    <p>Plot: {{ movie.Plot }}</p>
+    <img src="{{ movie.Poster }}" alt="{{ movie.Title }} Poster">
+
+    {% comment %} ADD 'WATCHED' BUTTON {% endcomment %}
+    <form action="{% url 'accounts:add_to_watchlist' 'movie' movie.Title|slugify %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Add to Watchlist</button>
+    </form>
+    <form action="{% url 'accounts:remove_from_watchlist' 'movie' movie.Title %}" method="POST">
+        {% csrf_token %}
+        <button class="btn btn-danger">Remove from watchlist</button>
+    </form>
+
+{% endblock %}
