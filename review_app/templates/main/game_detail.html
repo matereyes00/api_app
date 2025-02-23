@@ -28,14 +28,25 @@
     <img src="{{ game.image }}" alt="{{ game.name }} Image" width="300">
 {% endif %}
 
-<form action="{% url 'accounts:add_to_watchlist' 'game' game.gameID %}" method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-primary">Add to Gamelist</button>
-</form>
-<form action="{% url 'accounts:remove_from_watchlist' 'game' game.gameID %}" method="POST">
-    {% csrf_token %}
-    <button class="btn btn-danger">Remove from gamelist</button>
-</form>
+{% if game.type == 'boardgame' %}
+    <form action="{% url 'accounts:add_to_watchlist' 'game' game.gameID %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Add to Boardgame list</button>
+    </form>
+    <form action="{% url 'accounts:remove_from_watchlist' 'game' game.gameID %}" method="POST">
+        {% csrf_token %}
+        <button class="btn btn-danger">Remove from Boardgame List</button>
+    </form>
+{% else %}
+    <form action="{% url 'accounts:add_to_watchlist' 'video_game' game.gameID %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Add to played Video Game list</button>
+    </form>
+    <form action="{% url 'accounts:remove_from_watchlist' 'video_game' game.gameID %}" method="POST">
+        {% csrf_token %}
+        <button class="btn btn-danger">Remove from played Video Games List</button>
+    </form>
+{% endif %}
 
 <a href="{% url 'review_app:search' 'games' %}?q={{ query }}">Back to Search Results</a>
 <a href="/">Back to Home</a>

@@ -87,7 +87,7 @@ def movie_tv_detail(request, Title):
     response = requests.get(url)
     movie_data = response.json()
     return render(request, 'main/movie_details.html', {'movie': movie_data})
-    
+
 
 def get_bgg_game_info(game_id):
     url = f"https://www.boardgamegeek.com/xmlapi2/thing?id={game_id}&stats=1"

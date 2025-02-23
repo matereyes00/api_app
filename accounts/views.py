@@ -81,10 +81,10 @@ def remove_from_watchlist(request, category, item_id):
         api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
         response = requests.get(api_url)
         tv_data = response.json()
-        tv_id = tv_data["imdbID"]
-        if tv_id:
-            watchlist['tv'] = [tv for tv in watchlist.get('tv', []) if tv['imdbID'] != tv_id]
-        watchlist['tv'] = [show for show in watchlist.get('tv', []) if show['Title'] != item_id]
+        if 'imdbID' in tv_data:
+            tv_id = tv_data["imdbID"]
+            print(watchlist['tv'])
+            watchlist['tv'] = [t for t in watchlist.get('tv', []) if t.get('imdbID') != tv_id]
     elif category == 'movie':
         title = item_id.replace("-", " ")  # Convert slug back to title
         api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
