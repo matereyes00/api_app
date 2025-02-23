@@ -1,3 +1,7 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block content %}
 <h1>Search Results for "{{ query }}"</h1>
 
 {% if results %}
@@ -13,3 +17,4 @@
 {% endif %}
 
 <a href="/">Back to Home</a>
+{% endblock %}

@@ -1,3 +1,8 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block content %}
+
 {% if results %}
     <ul>
         {% for book in results %}
@@ -21,3 +26,5 @@
 {% endif %}
 
 <a href="/">Back to Home</a>
+
+{% endblock %}

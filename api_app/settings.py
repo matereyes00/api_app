@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'review_app',
     'accounts',
+    'bootstrap5',
 ]
 
 MIDDLEWARE = [

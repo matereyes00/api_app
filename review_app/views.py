@@ -29,7 +29,7 @@ def search(request, category):
     if request.method == 'POST':
         query = request.POST.get('query')  # Use the same input name for all searches
 
-        if category == 'movies_tv':
+        if category == 'Movies and TV':
             api_key = os.getenv('OMDB_API_KEY')
             url = f'http://www.omdbapi.com/?s={query}&apikey={api_key}'
             response = requests.get(url)
@@ -81,7 +81,6 @@ def search(request, category):
         return render(request, template, {'results': results, 'query': query, 'error_message': error_message if 'error_message' in locals() else None})
     
     return render(request, 'main/base_search.html', {'category': category})
-
 
 @login_required(login_url='accounts/login/')
 def movie_tv_detail(request, Title):

@@ -1,3 +1,8 @@
 h1 {
     color: red;
 }
+
+.template {
+    margin: 0 auto;
+    text-align: center;
+}

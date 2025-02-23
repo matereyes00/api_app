@@ -1,19 +1,17 @@
 {% extends "main/base.html" %}
 {% load static %}
-
 {% block title %}Home{% endblock %}
 
 {% comment %} {% block content %}
 <h1>Homepage</h1>
 <button type="submit"><a href="{% url 'register' %}">Register</a></button>
 {% endblock content %} {% endcomment %}
-
-{% block content %}
-    {% if not user.is_authenticated %}
-        <p>You are not logged in</p>
-        <a href="{% url 'login' %}">Log In</a>
-        <a href="{% url 'accounts:register' %}">Register</a>
-    {% else %}
-        Hi {{ user.username }}!
-    {% endif %}
-{% endblock %}
+<div class="template">
+    {% block content %}
+        {% if not user.is_authenticated %}
+            <p>You are not logged in</p>
+        {% else %}
+            <p>Hi {{ user.username }}!</p>
+        {% endif %}
+    {% endblock %}
+</div>
