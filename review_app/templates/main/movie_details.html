@@ -6,5 +6,7 @@
 <img src="{{ movie.Poster }}" alt="{{ movie.Title }} Poster">
 
 {% comment %} ADD 'WATCHED' BUTTON {% endcomment %}
-<button><p>Watched?</p></button>
-<button>Add to list?</button>
+<form action="{% url 'accounts:add_to_watchlist' 'movie' movie.Title|slugify %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Add to Watchlist</button>
+</form>
