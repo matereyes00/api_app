@@ -2,13 +2,23 @@
 
 {%block title %} Profile Page {%endblock title %}
 {% block content %}
-<h1>{{ profile.user.username }}'s Profile</h1>
-<p>Bio: {{ profile.bio }}</p>
-<button><a href="{% url 'accounts:edit_profile' %}">Edit Profile</a></button>
+<div class="section">
+    <h1>{{ profile.user.username }}'s Profile</h1>
 
+<div class="section">
 {% if profile.profile_picture %}
     <img src="{{ profile.profile_picture.url }}" alt="Profile Picture">
 {% endif %}
+</div>
+
+<div class="section">
+    <p>Bio: {{ profile.bio }}</p>
+</div>
+
+<div class="section btn-group">
+    <a href="{% url 'accounts:edit_profile' %}"><button type="button" class="btn btn-secondary">Edit Profile</button></a>
+    <a href="#"><button type="button" class="btn btn-secondary">View Favorites</button></a>
+</div>
 
 <div class="list-section movie-section">
     <h1> Movies </h1>

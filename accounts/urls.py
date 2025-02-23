@@ -11,4 +11,5 @@ urlpatterns = [
     path('edit_profile/', v.edit_profile, name='edit_profile'),
     path("add_to_watchlist/<str:item_type>/<str:item_id>/", v.add_to_watchlist, name="add_to_watchlist"),
     path("remove_from_watchlist/<str:category>/<str:item_id>/", v.remove_from_watchlist, name="remove_from_watchlist"),
+    path("add_to_favorites/<str:category>/<str:item_id>/", v.add_movietvto_favorites, name="add_to_favorites"),
 ]

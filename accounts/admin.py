@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile
+from .models import Profile, Favorite
 
 
 # Register your models here.
@@ -13,5 +13,5 @@ class ProfileAdmin(admin.ModelAdmin):
 
     formatted_watchlist.short_description = "Watchlist (Formatted)"
 
-
 admin.site.register(Profile, ProfileAdmin)
+admin.site.register(Favorite)

@@ -14,6 +14,23 @@ class Profile(models.Model):
         null=True
     )
     watchlist = models.JSONField(default=dict)  # Stores movies, books, and games
-
+    
     def __str__(self):
         return self.user.username
+
+class Favorite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="favorites")
+    category = models.CharField(max_length=20, choices=[
+        ('movie', 'Movie'),
+        ('tv', 'TV Show'),
+        ('book', 'Book'),
+        ('boardgame', 'Board Game'),
+        ('videogame', 'Video Game')
+    ])
+    item_id = models.CharField(max_length=255)  # Unique ID for the favorite item (IMDB ID, OLID, etc.)
+    title = models.CharField(max_length=255)  # The name of the item
+
+    def __str__(self):
+        return f"{self.user.username} - {self.category}: {self.title}"
+
+

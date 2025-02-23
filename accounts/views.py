@@ -10,7 +10,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
 from.forms import CustomUserCreationForm, ProfileUpdateForm
-from.models import Profile
+from.models import Profile, Favorite
 
 import json
 import requests
@@ -33,7 +33,7 @@ def profile_view(request):
 
     # Ensure watchlist is always a dictionary
     if not profile.watchlist or not isinstance(profile.watchlist, dict):
-        profile.watchlist = {"movies": [], "games": [], "books": []}
+        profile.watchlist = {"movies": [], "games": [], "books": [], "tv":[], "video_games":[]}
     
     # Convert string JSON to dict if necessary
     if isinstance(profile.watchlist, str):
@@ -186,6 +186,25 @@ def add_to_watchlist(request, item_type, item_id):
     profile.save()
 
     return redirect("accounts:profile")  # Redirect to the profile page
+
+
+@login_required
+def add_movietvto_favorites(request, category, item_id):
+    profile = request.user.profile
+    # Fetch movie/TV show details from OMDb API
+    api_url = f"https://www.omdbapi.com/?i={item_id}&apikey={api_key}"
+    response = requests.get(api_url)
+    data = response.json()
+
+    # Ensure API call was successful and title exists
+    if response.status_code == 200 and data.get("Title"):
+        title = data["Title"]
+        # Check if it already exists in the favorites list
+        if not Favorite.objects.filter(user=request.user, category=category, item_id=item_id).exists():
+            Favorite.objects.create(user=request.user, category=category, item_id=item_id, title=title)
+
+    return redirect("accounts:profile")
+
 
 
 # RETRIEVING API INFO
