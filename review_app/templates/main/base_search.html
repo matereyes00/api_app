@@ -15,6 +15,14 @@
         <ul>
             {% for item in results %}
                 <li>{{ item.title }}</li>  {# Adjust fields based on your data structure #}
+                {% if category == 'Movies and TV' %}
+                    <a href="{% url 'review_app:movie_tv_detail' item.Title %}">{{ item.Title }} ({{ item.Year }})</a>
+
+                {% elif category == 'games' %}
+                    <li><a href="{% url 'review_app:game_detail' item.id %}">{{ item.name }} ({{ item.yearpublished }})</a></li>
+                {% elif category == 'books' %}
+                    <a href="{% url 'review_app:book_detail' item.olid %}">{{ item.title }}</a>
+                {% endif %}
             {% endfor %}
         </ul>
     {% else %}

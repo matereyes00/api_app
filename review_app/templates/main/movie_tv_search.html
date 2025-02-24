@@ -1,6 +1,0 @@
-<form method="post" action="{% url 'review_app:search' 'Movies and TV' %}">
-  {% csrf_token %}
-  <label for="title">Movie Title:</label>
-  <input type="text" id="title" name="query" required>
-  <button type="submit">Search</button>
-</form>
