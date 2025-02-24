@@ -9,7 +9,7 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "formatted_watchlist")
 
     def formatted_watchlist(self, obj):
-        return json.dumps(obj.watchlist, indent=2) if obj.watchlist else "No Watchlist"
+        return json.dumps(obj.watchlist_past, indent=2) if obj.watchlist_past else "No Watchlist"
 
     formatted_watchlist.short_description = "Watchlist (Formatted)"
 

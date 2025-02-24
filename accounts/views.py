@@ -32,16 +32,27 @@ def profile_view(request):
     profile = request.user.profile  
 
     # Ensure watchlist is always a dictionary
-    if not profile.watchlist or not isinstance(profile.watchlist, dict):
-        profile.watchlist = {"movies": [], "games": [], "books": [], "tv":[], "video_games":[]}
+    if not profile.watchlist_past or not isinstance(profile.watchlist_past, dict):
+        profile.watchlist_past = {"movies": [], "games": [], "books": [], "tv":[], "video_games":[]}
     
     # Convert string JSON to dict if necessary
-    if isinstance(profile.watchlist, str):
-        profile.watchlist = json.loads(profile.watchlist)
+    if isinstance(profile.watchlist_past, str):
+        profile.watchlist_past = json.loads(profile.watchlist_past)
 
-    watchlist = profile.watchlist
+    watchlist = profile.watchlist_past
 
-    return render(request, "profile/profile.html", {"profile": profile})
+    # handles logic for switching between views in the profile 
+    # watchlist view (seen/unseen) , favorites view 
+    selected_content = request.GET.get("lists", "view_favorites")  
+    # dislpay the given media
+    selected_display_watchlist_item = request.GET.get("display_watchlist_item", "movie") 
+
+    return render(request, "profile/profile.html", 
+    {
+        "profile": profile, 
+        "selected_content": selected_content,
+        "selected_display_watchlist_item": selected_display_watchlist_item,
+    })
 
 @login_required
 def edit_profile(request):
@@ -73,7 +84,7 @@ def edit_profile(request):
 @login_required
 def remove_from_watchlist(request, category, item_id):
     profile = request.user.profile
-    watchlist = profile.watchlist  # Get current watchlist
+    watchlist = profile.watchlist_past  # Get current watchlist
     if category == 'book':
         watchlist['books'] = [book for book in watchlist.get('books', []) if book['olid'] != item_id]
     elif category == 'tv':
@@ -98,7 +109,7 @@ def remove_from_watchlist(request, category, item_id):
     elif category == 'video_game':
         watchlist['video_games'] = [game for game in watchlist.get('video_games', []) if game['gameID'] != item_id]
     # Save updated watchlist
-    profile.watchlist = watchlist
+    profile.watchlist_past = watchlist
     profile.save()
 
     return redirect('accounts:profile')  # Success
@@ -109,10 +120,10 @@ def add_to_watchlist(request, item_type, item_id):
     profile = request.user.profile  # Get user's profile
 
     # Retrieve or initialize the watchlist
-    if not profile.watchlist or not isinstance(profile.watchlist, dict):
+    if not profile.watchlist_past or not isinstance(profile.watchlist_past, dict):
         watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games":[]}  # Default structure
     else:
-        watchlist = profile.watchlist  # Retrieve existing watchlist
+        watchlist = profile.watchlist_past  # Retrieve existing watchlist
 
     # Ensure the key exists
     if "movies" not in watchlist:

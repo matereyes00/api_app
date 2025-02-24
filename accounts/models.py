@@ -13,7 +13,8 @@ class Profile(models.Model):
         blank=True, 
         null=True
     )
-    watchlist = models.JSONField(default=dict)  # Stores movies, books, and games
+    watchlist_past = models.JSONField(default=dict)  # Stores movies, books, and games
+    watchlist_future = models.JSONField(default=dict)  # Stores movies, books, and games
     
     def __str__(self):
         return self.user.username

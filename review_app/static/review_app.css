@@ -2,12 +2,37 @@ h1 {
     color: red;
 }
 
+.section {
+    display: block;
+}
+
 .template {
     margin: 0 auto;
     text-align: center;
 }
 
 .card-deck {
-    border: 1px green solid;
     margin: 0 auto;
+}
+
+
+/* switching of list views in profile */
+.watchlist-items {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    width: 90%;
+    margin: 0 auto;
+}
+.flex-left {
+    display: flex;
+    flex-basis: 10%;
+    align-items: flex-end;
+
+}
+.flex-right {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 90%;
+
 }
