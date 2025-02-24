@@ -34,7 +34,7 @@ def search(request, category):
             data = response.json()
             results = data.get('Search', [])
             error_message = data.get('Error', None)
-            template = 'main/movie_search_results.html'
+            template = 'main/base_search.html'
 
         elif category == 'games':
             url = f"https://boardgamegeek.com/xmlapi2/search?query={query}&type=boardgame,boardgameexpansion,videogame"
@@ -55,7 +55,7 @@ def search(request, category):
                     'yearpublished': yearpublished
                 })
             
-            template = 'main/game_search_results.html'
+            template = 'main/base_search.html'
 
         elif category == 'books':
             url = f"https://openlibrary.org/search.json?q={query}"
@@ -71,22 +71,55 @@ def search(request, category):
                 }
                 for book in books
             ]
-            template = 'main/book_search_results.html'
+            template = 'main/base_search.html'
 
         else:
             return render(request, 'main/base_search.html', {'error_message': 'Invalid category'})
 
-        return render(request, template, {'results': results, 'query': query, 'error_message': error_message if 'error_message' in locals() else None})
+        return render(request, template, {'category':category,'results': results, 'query': query, 'error_message': error_message if 'error_message' in locals() else None})
     
     return render(request, 'main/base_search.html', {'category': category})
 
 @login_required(login_url='accounts/login/')
-def movie_tv_detail(request, Title):
-    api_key = os.getenv('OMDB_API_KEY')
-    url = f'http://www.omdbapi.com/?t={Title}&apikey={api_key}'  # Use 't' for title lookup
-    response = requests.get(url)
-    movie_data = response.json()
-    return render(request, 'main/movie_details.html', {'movie': movie_data})
+def item_details(request, category, item_id):
+    context = {'category':category}
+    if category == "books":
+        url = f"https://openlibrary.org/works/{item_id}.json"  # Use works endpoint
+        print(item_id)
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            book_data = response.json()
+            cover_url = None  # Initialize cover_url
+            if book_data.get('covers'): # Check if the covers key exists
+                cover_id = book_data['covers'][0]
+                cover_url = f"http://covers.openlibrary.org/b/id/{cover_id}-M.jpg" 
+            elif olid: # If no covers key exists, try to construct the url with the olid
+                cover_url = f"http://covers.openlibrary.org/b/olid/{olid}-M.jpg"  # Use 'olid' as the key
+            book_data['cover_url'] = cover_url  # Set the cover_url in book_data
+            book_data['olid'] = item_id
+            print(book_data)
+            context['book'] = book_data
+        
+        except requests.exceptions.RequestException as e:
+            print(f"Error: {e}")
+            return render(request, 'main/base_search.html', {'error_message': 'Error fetching book details.'})
+        except json.JSONDecodeError as e:  # Catch potential JSON errors
+            print(f"Error processing JSON: {e}")
+            return render(request, 'main/base_search.html', {'error_message': 'Error processing book data.'})
+
+    elif category == "games":
+        game_data = get_bgg_game_info(item_id)
+        query = request.GET.get('q')
+        context['game'] = game_data
+
+    elif category == "Movies and TV":
+        api_key = os.getenv('OMDB_API_KEY')
+        url = f'http://www.omdbapi.com/?t={item_id}&apikey={api_key}'  # Use 't' for title lookup
+        response = requests.get(url)
+        movie_data = response.json()
+        context['movie']=movie_data
+    return render(request, "main/base_item_details.html", context)
 
 
 def get_bgg_game_info(game_id):
@@ -150,44 +183,3 @@ def get_bgg_game_type(game_name):
         print(f"XML Parse Error: {e}")
         return "Unknown"
 
-@login_required(login_url='accounts/login/')   
-def game_detail(request, game_id):
-    game_data = get_bgg_game_info(game_id)
-    print(game_data)
-    query = request.GET.get('q')
-    if game_data:
-        return render(request, 'main/game_detail.html', {'game': game_data, 'query': query})
-    else:
-        return render(request, 'main/game_search.html', {'error_message': 'Game not found.'})
-
-
-@login_required(login_url='accounts/login/')
-def book_detail(request, olid):  # Changed parameter to 'olid'
-    url = f"https://openlibrary.org/works/{olid}.json"  # Use works endpoint
-
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        book_data = response.json()
-
-        cover_url = None  # Initialize cover_url
-
-        if book_data.get('covers'): # Check if the covers key exists
-            cover_id = book_data['covers'][0]
-            cover_url = f"http://covers.openlibrary.org/b/id/{cover_id}-M.jpg" # Use 'id' as the key
-
-        elif olid: # If no covers key exists, try to construct the url with the olid
-            cover_url = f"http://covers.openlibrary.org/b/olid/{olid}-M.jpg"  # Use 'olid' as the key
-
-        book_data['cover_url'] = cover_url  # Set the cover_url in book_data
-
-        return render(request, 'main/book_details.html', {
-            'book': book_data, 
-            'book_olid':olid})
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error: {e}")
-        return render(request, 'main/search.html', {'error_message': 'Error fetching book details.'})
-    except json.JSONDecodeError as e:  # Catch potential JSON errors
-        print(f"Error processing JSON: {e}")
-        return render(request, 'main/search.html', {'error_message': 'Error processing book data.'})

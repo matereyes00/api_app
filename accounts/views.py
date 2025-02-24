@@ -26,33 +26,64 @@ class RegisterView(CreateView):
     form_class = CustomUserCreationForm  # Use the custom form
     success_url = reverse_lazy("login")
     template_name = "registration/register.html"
-    
+
 @login_required
 def profile_view(request):
     profile = request.user.profile  
-
     # Ensure watchlist is always a dictionary
     if not profile.watchlist_past or not isinstance(profile.watchlist_past, dict):
-        profile.watchlist_past = {"movies": [], "games": [], "books": [], "tv":[], "video_games":[]}
-    
+        profile.watchlist_past = {"movies": [], "games": [], "books": [], "tv": [], "video_games": []}
     # Convert string JSON to dict if necessary
     if isinstance(profile.watchlist_past, str):
         profile.watchlist_past = json.loads(profile.watchlist_past)
-
     watchlist = profile.watchlist_past
+    # Get selected item to display details
+    category = request.GET.get("category")  # Example: 'books', 'games', etc.
+    item_id = request.GET.get("item_id")  # ID for API request
+    item_data = None  # Default no data
 
-    # handles logic for switching between views in the profile 
-    # watchlist view (seen/unseen) , favorites view 
-    selected_content = request.GET.get("lists", "view_favorites")  
-    # dislpay the given media
-    selected_display_watchlist_item = request.GET.get("display_watchlist_item", "movie") 
+    # Fetch API data if a category and item_id are selected
+    if category and item_id:
+        if category == "books":
+            url = f"https://openlibrary.org/works/{item_id}.json"
+            try:
+                response = requests.get(url)
+                response.raise_for_status()
+                item_data = response.json()
+                # Get book cover if available
+                cover_url = None
+                if item_data.get("covers"):
+                    cover_id = item_data["covers"][0]
+                    cover_url = f"http://covers.openlibrary.org/b/id/{cover_id}-M.jpg"
+                item_data["cover_url"] = cover_url
+            except requests.exceptions.RequestException as e:
+                print(f"Error fetching book: {e}")
 
-    return render(request, "profile/profile.html", 
-    {
-        "profile": profile, 
+        elif category == "games":
+            item_data = get_bgg_game_info(item_id)  # Assuming this function is already defined
+
+        elif category == "Movies and TV":
+            api_key = os.getenv("OMDB_API_KEY")
+            url = f"http://www.omdbapi.com/?t={item_id}&apikey={api_key}"
+            try:
+                response = requests.get(url)
+                item_data = response.json()
+            except requests.exceptions.RequestException as e:
+                print(f"Error fetching movie/TV: {e}")
+
+    # Handles logic for switching between views in the profile 
+    selected_content = request.GET.get("lists", "view_favorites")
+    selected_display_watchlist_item = request.GET.get("display_watchlist_item", "movie")
+
+    return render(request, "profile/profile.html", {
+        "profile": profile,
+        "watchlist": watchlist,
         "selected_content": selected_content,
         "selected_display_watchlist_item": selected_display_watchlist_item,
+        "category": category,
+        "item_data": item_data,  # Pass the fetched API data to the template
     })
+
 
 @login_required
 def edit_profile(request):
@@ -82,7 +113,7 @@ def edit_profile(request):
 
 
 @login_required
-def remove_from_watchlist(request, category, item_id):
+def remove_from_consumed_media(request, category, item_id):
     profile = request.user.profile
     watchlist = profile.watchlist_past  # Get current watchlist
     if category == 'book':
@@ -116,7 +147,7 @@ def remove_from_watchlist(request, category, item_id):
 
 
 @login_required
-def add_to_watchlist(request, item_type, item_id):
+def add_to_consumed_media(request, item_type, item_id):
     profile = request.user.profile  # Get user's profile
 
     # Retrieve or initialize the watchlist

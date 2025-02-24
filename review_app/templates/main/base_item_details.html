@@ -1,0 +1,159 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+    {% if book %}
+        <h1>{{ book.title }}</h1>
+
+        {% if book.authors %}
+            <p>Author(s): 
+                {% for author in book.authors %}
+                    {{ author.author.key|slice:"10:" }}
+                    {% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+        {% endif %}
+
+        {% if book.publish_date %}
+            <p>Published: {{ book.publish_date }}</p>
+        {% endif %}
+
+        {% if book.number_of_pages %}
+            <p>Pages: {{ book.number_of_pages }}</p>
+        {% endif %}
+
+        {% if book.isbn_13 %}
+            <p>ISBN: {{ book.isbn_13.0 }}</p>
+        {% endif %}
+
+        {% if book.cover_url %}
+            <img src="{{ book.cover_url }}" alt="{{ book.title }} cover">
+        {% endif %}
+
+        {% if book.description.value %}
+            <p>{{book.description.value}}</p>
+        {% endif %}
+
+        {% comment %} <form action="{% url 'accounts:add_to_watchlist' 'book' book.olid %}" method="POST">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">Add to Booklist</button>
+        </form> {% endcomment %}
+        {% if book.olid %}
+            <form action="{% url 'accounts:add_to_watchlist' 'book' book.olid %}" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">Add to Booklist</button>
+            </form>
+        {% else %}
+            <p>Book ID not available, cannot add to watchlist.</p>
+        {% endif %}
+
+        {% if book.olid %}
+            <form action="{% url 'accounts:remove_from_watchlist' 'book' book.olid %}" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-danger">Remove from Booklist</button>
+            </form>
+        {% else %}
+            <p>Book ID not available, cannot remove from watchlist.</p>
+        {% endif %}
+
+
+        <a href="{% url 'review_app:search' 'books' %}?q={{ query }}">Back to Book Search Results</a>
+
+    {% elif game %}
+        <h1>{{ game.name }}</h1>
+
+        {% if game.yearpublished %}
+            <p>Year Published: {{ game.yearpublished }}</p>
+        {% endif %}
+
+        {% if game.description %}
+            <p>Description: {{ game.description|safe }}</p>
+        {% endif %}
+
+        {% if game.minplayers %}
+            <p>Min Players: {{ game.minplayers }}</p>
+        {% endif %}
+
+        {% if game.maxplayers %}
+            <p>Max Players: {{ game.maxplayers }}</p>
+        {% endif %}
+
+        {% if game.playingtime %}
+            <p>Playing Time: {{ game.playingtime }} minutes</p>
+        {% endif %}
+
+        {% if game.ratingaverage %}
+            <p>Average Rating: {{ game.ratingaverage }}</p>
+        {% endif %}
+
+        {% if game.image %}
+            <img src="{{ game.image }}" alt="{{ game.name }} Image" width="300">
+        {% endif %}
+
+        {% if game.type == 'boardgame' %}
+            <form action="{% url 'accounts:add_to_watchlist' 'game' game.gameID %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Add to Boardgame List</button>
+            </form>
+            <form action="{% url 'accounts:remove_from_watchlist' 'game' game.gameID %}" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-danger">Remove from Boardgame List</button>
+            </form>
+        {% else %}
+            <form action="{% url 'accounts:add_to_watchlist' 'video_game' game.gameID %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Add to Played Video Game List</button>
+            </form>
+            <form action="{% url 'accounts:remove_from_watchlist' 'video_game' game.gameID %}" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-danger">Remove from Played Video Games List</button>
+            </form>
+        {% endif %}
+
+        <a href="{% url 'review_app:search' 'games' %}?q={{ query }}">Back to Game Search Results</a>
+
+    {% elif movie %}
+        <h2>{{ movie.Title }}</h2>
+        <p>Year: {{ movie.Year }}</p>
+        <p>Director: {{ movie.Director }}</p>
+        <p>Actors: {{ movie.Actors }}</p>
+        <p>Plot: {{ movie.Plot }}</p>
+
+        {% if movie.Poster %}
+            <img src="{{ movie.Poster }}" alt="{{ movie.Title }} Poster">
+        {% endif %}
+
+        {% if movie.Type == 'movie' %}
+            <form action="{% url 'accounts:add_to_watchlist' 'movie' movie.Title|slugify %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Add to Watchlist</button>
+            </form>
+            <form action="{% url 'accounts:remove_from_watchlist' 'movie' movie.Title %}" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-danger">Remove from Watchlist</button>
+            </form>
+            <form action="{% url 'accounts:add_to_favorites' 'movie' movie.imdbID %}" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-primary">Favorite</button>
+            </form>
+        {% else %}
+            <form action="{% url 'accounts:add_to_watchlist' 'movie' movie.Title|slugify %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Add to TV Watchlist</button>
+            </form>
+            <form action="{% url 'accounts:remove_from_watchlist' 'tv' movie.Title %}" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-danger">Remove from TV Watchlist</button>
+            </form>
+            <form action="{% url 'accounts:add_to_favorites' 'tv' movie.imdbID %}" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-primary">Favorite</button>
+            </form>
+        {% endif %}
+
+        <a href="{% url 'review_app:search' 'movies' %}?q={{ query }}">Back to Movie Search Results</a>
+    {% else %}
+        <p>Details not found.</p>
+    {% endif %}
+
+    <a href="/">Back to Home</a>
+{% endblock %}

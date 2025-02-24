@@ -14,15 +14,14 @@
     {% if results %}
         <ul>
             {% for item in results %}
-                <li>{{ item.title }}</li>  {# Adjust fields based on your data structure #}
                 {% if category == 'Movies and TV' %}
-                    <a href="{% url 'review_app:movie_tv_detail' item.Title %}">{{ item.Title }} ({{ item.Year }})</a>
-
+                    <a href="{% url 'review_app:item_details' category item.Title %}">{{ item.Title }} ({{ item.Year }})</a>
                 {% elif category == 'games' %}
-                    <li><a href="{% url 'review_app:game_detail' item.id %}">{{ item.name }} ({{ item.yearpublished }})</a></li>
+                    <a href="{% url 'review_app:item_details' category item.id %}">{{ item.name }} ({{ item.yearpublished }})</a>
                 {% elif category == 'books' %}
-                    <a href="{% url 'review_app:book_detail' item.olid %}">{{ item.title }}</a>
+                    <a href="{% url 'review_app:item_details' category item.olid %}">{{ item.title }}</a>
                 {% endif %}
+            <li>
             {% endfor %}
         </ul>
     {% else %}
