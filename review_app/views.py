@@ -82,7 +82,7 @@ def search(request, category):
 
 @login_required(login_url='accounts/login/')
 def item_details(request, category, item_id):
-    context = {'category':category}
+    context = {}
     if category == "books":
         url = f"https://openlibrary.org/works/{item_id}.json"  # Use works endpoint
         print(item_id)
@@ -100,6 +100,9 @@ def item_details(request, category, item_id):
             book_data['olid'] = item_id
             print(book_data)
             context['book'] = book_data
+            book_olid = book_data['olid']
+            context['book_olid'] = book_olid
+            context['category'] = category
         
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
@@ -112,6 +115,10 @@ def item_details(request, category, item_id):
         game_data = get_bgg_game_info(item_id)
         query = request.GET.get('q')
         context['game'] = game_data
+        game_id = game_data['gameID']
+        context['game_id'] = game_id
+        context['category'] = category
+
 
     elif category == "Movies and TV":
         api_key = os.getenv('OMDB_API_KEY')
@@ -119,6 +126,11 @@ def item_details(request, category, item_id):
         response = requests.get(url)
         movie_data = response.json()
         context['movie']=movie_data
+        movietv_id = movie_data['imdbID']
+        context['movietv_id'] = movietv_id
+        context['category'] = category
+
+    print(context)
     return render(request, "main/base_item_details.html", context)
 
 

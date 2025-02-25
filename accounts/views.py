@@ -149,7 +149,6 @@ def remove_from_consumed_media(request, category, item_id):
 @login_required
 def add_to_consumed_media(request, item_type, item_id):
     profile = request.user.profile  # Get user's profile
-
     # Retrieve or initialize the watchlist
     if not profile.watchlist_past or not isinstance(profile.watchlist_past, dict):
         watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games":[]}  # Default structure
@@ -168,6 +167,8 @@ def add_to_consumed_media(request, item_type, item_id):
     if "video_games" not in watchlist:
         watchlist["video_games"] = []
     # Fetch full movie details from the API
+    
+    print(f"{item_type}:{item_id}")
     if item_type == "movie" or item_type == 'tv':
         title = item_id.replace("-", " ")  # Convert slug back to title
         api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
@@ -209,6 +210,7 @@ def add_to_consumed_media(request, item_type, item_id):
                 watchlist["video_games"].append(game_info)
             elif game_info['type'] == 'boardgame':
                 watchlist["games"].append(game_info)
+    
     if item_type == "book":
         book_olid = item_id  # This is the OLID from the URL
         book_data = get_book_info(book_olid)
@@ -222,9 +224,10 @@ def add_to_consumed_media(request, item_type, item_id):
 
         if book_info not in watchlist["books"]:  # Avoid duplicates
             watchlist["books"].append(book_info)
+    print(watchlist)
 
     # Save updated watchlist
-    profile.watchlist = watchlist
+    profile.watchlist_past = watchlist
     profile.save()
 
     return redirect("accounts:profile")  # Redirect to the profile page
