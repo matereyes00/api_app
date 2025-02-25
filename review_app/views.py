@@ -12,6 +12,8 @@ from django.shortcuts import render
 from django.core.cache import cache
 from .forms import RegisterForm, LoginForm
 
+from accounts.models import Profile, Favorite
+
 from django.urls import reverse
 
 load_dotenv()  # Load environment variables from.env
@@ -83,9 +85,16 @@ def search(request, category):
 @login_required(login_url='accounts/login/')
 def item_details(request, category, item_id):
     context = {}
+    user_profile = request.user.profile
+    watchlist_past = user_profile.watchlist_past
+    context['watchlist_past']=watchlist_past
+    if isinstance(watchlist_past, str):
+        watchlist_past = json.loads(watchlist_past)
+
+    consumed_media = watchlist_past.get(category, [])  # Get list of books
+    context['consumed_media'] = consumed_media
     if category == "books":
         url = f"https://openlibrary.org/works/{item_id}.json"  # Use works endpoint
-        print(item_id)
         try:
             response = requests.get(url)
             response.raise_for_status()
@@ -98,11 +107,14 @@ def item_details(request, category, item_id):
                 cover_url = f"http://covers.openlibrary.org/b/olid/{olid}-M.jpg"  # Use 'olid' as the key
             book_data['cover_url'] = cover_url  # Set the cover_url in book_data
             book_data['olid'] = item_id
-            print(book_data)
             context['book'] = book_data
             book_olid = book_data['olid']
             context['book_olid'] = book_olid
             context['category'] = category
+            
+            # singling out
+            b = any(item["olid"] == item_id for item in consumed_media)
+            context['book_in_consumed_media'] = b
         
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
@@ -118,7 +130,8 @@ def item_details(request, category, item_id):
         game_id = game_data['gameID']
         context['game_id'] = game_id
         context['category'] = category
-
+        g = any(item["gameID"] == item_id for item in consumed_media)
+        context['game_in_consumed_media'] = g
 
     elif category == "Movies and TV":
         api_key = os.getenv('OMDB_API_KEY')
@@ -129,10 +142,10 @@ def item_details(request, category, item_id):
         movietv_id = movie_data['imdbID']
         context['movietv_id'] = movietv_id
         context['category'] = category
+        mtv = any(item["imdbID"] == item_id for item in consumed_media)
+        context['movietv_in_consumed_media'] = mtv
 
-    print(context)
     return render(request, "main/base_item_details.html", context)
-
 
 def get_bgg_game_info(game_id):
     url = f"https://www.boardgamegeek.com/xmlapi2/thing?id={game_id}&stats=1"

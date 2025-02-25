@@ -11,6 +11,9 @@ from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
 from.forms import CustomUserCreationForm, ProfileUpdateForm
 from.models import Profile, Favorite
+from django.shortcuts import redirect
+from django.contrib import messages
+
 
 import json
 import requests
@@ -111,45 +114,25 @@ def edit_profile(request):
         'password_form': password_form
     })
 
-
 @login_required
 def remove_from_consumed_media(request, category, item_id):
-    profile = request.user.profile
-    watchlist = profile.watchlist_past  # Get current watchlist
-    if category == 'book':
-        watchlist['books'] = [book for book in watchlist.get('books', []) if book['olid'] != item_id]
-    elif category == 'tv':
-        title = item_id.replace("-", " ")  # Convert slug back to title
-        api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
-        response = requests.get(api_url)
-        tv_data = response.json()
-        if 'imdbID' in tv_data:
-            tv_id = tv_data["imdbID"]
-            print(watchlist['tv'])
-            watchlist['tv'] = [t for t in watchlist.get('tv', []) if t.get('imdbID') != tv_id]
-    elif category == 'movie':
-        title = item_id.replace("-", " ")  # Convert slug back to title
-        api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
-        response = requests.get(api_url)
-        movie_data = response.json()
-        movie_id = movie_data["imdbID"]
-        if movie_id:
-            watchlist['movies'] = [movie for movie in watchlist.get('movies', []) if movie['imdbID'] != movie_id]
-    elif category == 'game':
-        watchlist['games'] = [game for game in watchlist.get('games', []) if game['gameID'] != item_id]
-    elif category == 'video_game':
-        watchlist['video_games'] = [game for game in watchlist.get('video_games', []) if game['gameID'] != item_id]
-    # Save updated watchlist
-    profile.watchlist_past = watchlist
-    profile.save()
-
-    return redirect('accounts:profile')  # Success
-
+    user_profile = request.user.profile  # Get user profile
+    watchlist = user_profile.watchlist_past  # This is your JSON dict
+    # Convert string JSON to a dictionary if necessary
+    if isinstance(watchlist, str):
+        watchlist = json.loads(watchlist)
+    # Remove the item if it exists
+    if category in watchlist and item_id in watchlist[category]:
+        watchlist[category].remove(item_id)
+    # Save back to the profile
+        user_profile.watchlist_past = json.dumps(watchlist)
+        user_profile.save()
+        messages.success(request, "Item removed from consumed media.")
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required
 def add_to_consumed_media(request, item_type, item_id):
     profile = request.user.profile  # Get user's profile
-    # Retrieve or initialize the watchlist
     if not profile.watchlist_past or not isinstance(profile.watchlist_past, dict):
         watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games":[]}  # Default structure
     else:
@@ -168,7 +151,6 @@ def add_to_consumed_media(request, item_type, item_id):
         watchlist["video_games"] = []
     # Fetch full movie details from the API
     
-    print(f"{item_type}:{item_id}")
     if item_type == "movie" or item_type == 'tv':
         title = item_id.replace("-", " ")  # Convert slug back to title
         api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
@@ -203,9 +185,6 @@ def add_to_consumed_media(request, item_type, item_id):
                 "poster": game_data["image"],
                 "gameID": game_id,
             }
-
-            print(game_info)
-
             if game_info['type'] == 'videogame' or game_info['type'] == 'rpgitem':
                 watchlist["video_games"].append(game_info)
             elif game_info['type'] == 'boardgame':
@@ -224,13 +203,12 @@ def add_to_consumed_media(request, item_type, item_id):
 
         if book_info not in watchlist["books"]:  # Avoid duplicates
             watchlist["books"].append(book_info)
-    print(watchlist)
 
     # Save updated watchlist
     profile.watchlist_past = watchlist
     profile.save()
 
-    return redirect("accounts:profile")  # Redirect to the profile page
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required

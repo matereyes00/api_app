@@ -1,5 +1,6 @@
 {% extends "main/base.html" %}
 
+
 {% block content %}
     {% comment %} Media to display details for {% endcomment %}
     {% if book %}
@@ -87,25 +88,31 @@
     <div class="btn btn-group">
         {% comment %} === BOOK === {% endcomment %}
         {% if book %}
-            {% if book_olid %}
                 <div class="watchlist-past-buttons">
-                    <form action="{% url 'accounts:add_to_watchlist' 'book' book_olid %}" method="POST">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-primary" for="btncheck1"><i class="fa-solid fa-plus"></i>readlist</button>
+                    {% comment %} if the user has the book in their watchlist_past {% endcomment %}
+                    <form action="
+                        {% url 'accounts:remove_from_consumed_media' category='book' item_id=book_olid %}" method="POST">
+                            {% csrf_token %}
+                            <button class="btn btn-outline-danger" 
+                            for="btncheck1" name="readlist_not_done">
+                            <i class="fa-solid fa-minus"></i>readlist</button>
                     </form>
-                    <form action="{% url 'accounts:remove_from_watchlist' 'book' book_olid %}" method="POST">
+                        <form action="{% url 'accounts:add_to_watchlist' 'book' book_olid %}" 
+                    method="POST">
                         {% csrf_token %}
-                        <button class="btn btn-outline-danger" for="btncheck1"><i class="fa-solid fa-minus"></i>readlist</button>
+                        <button type="submit" class="btn btn-outline-primary" 
+                        for="btncheck1" name="readlist_done">
+                        <i class="fa-solid fa-plus"></i>readlist</button>
                     </form>
                 </div>
                 <div class="watchlist-future-buttons">
                     <button type="submit" class="btn btn-outline-primary" for="btncheck1"><i class="fa-solid fa-plus"></i>TO READ</button>
-                    <button class="btn btn-outline-danger" for="btncheck1"><i class="fa-solid fa-minus"></i>TO READ</button>
+                    {% comment %} <button class="btn btn-outline-danger" for="btncheck1"><i class="fa-solid fa-minus"></i>TO READ</button> {% endcomment %}
                 </div>
                 <div class="favorites"></div>
-            {% endif %}
+        {% endif %}
         {% comment %} === BOARDGAMES === {% endcomment %}
-        {% elif game.type == 'boardgame' %}
+        {% if game.type == 'boardgame' %}
             <div class="watch-list-past-btn">
                 <form action="{% url 'accounts:add_to_watchlist' 'game' game.gameID %}" method="post">
                     {% csrf_token %}
