@@ -1,6 +1,7 @@
 {% extends "main/base.html" %}
 
 {% block content %}
+    {% comment %} Media to display details for {% endcomment %}
     {% if book %}
         <h1>{{ book.title }}</h1>
 
@@ -37,7 +38,6 @@
             {% csrf_token %}
             <button class="btn btn-primary" type="submit">Add to Booklist</button>
         </form> {% endcomment %}
-       
 
 
         <a href="{% url 'review_app:search' 'books' %}?q={{ query }}">Back to Book Search Results</a>
@@ -80,7 +80,6 @@
             <img src="{{ movie.Poster }}" alt="{{ movie.Title }} Poster">
         {% endif %}
 
-        <a href="{% url 'review_app:search' 'movies' %}?q={{ query }}">Back to Movie Search Results</a>
     {% else %}
         <p>Details not found.</p>
     {% endif %}
@@ -92,25 +91,60 @@
                 <div class="watchlist-past-buttons">
                     <form action="{% url 'accounts:add_to_watchlist' 'book' book_olid %}" method="POST">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-primary" for="btncheck1">Add to readlist</button>
+                        <button type="submit" class="btn btn-outline-primary" for="btncheck1"><i class="fa-solid fa-plus"></i>readlist</button>
                     </form>
                     <form action="{% url 'accounts:remove_from_watchlist' 'book' book_olid %}" method="POST">
                         {% csrf_token %}
-                        <button class="btn btn-outline-primary" for="btncheck1">Remove from readlist</button>
+                        <button class="btn btn-outline-danger" for="btncheck1"><i class="fa-solid fa-minus"></i>readlist</button>
                     </form>
                 </div>
                 <div class="watchlist-future-buttons">
+                    <button type="submit" class="btn btn-outline-primary" for="btncheck1"><i class="fa-solid fa-plus"></i>TO READ</button>
+                    <button class="btn btn-outline-danger" for="btncheck1"><i class="fa-solid fa-minus"></i>TO READ</button>
                 </div>
+                <div class="favorites"></div>
             {% endif %}
         {% comment %} === BOARDGAMES === {% endcomment %}
         {% elif game.type == 'boardgame' %}
-            <p>sample</p>
+            <div class="watch-list-past-btn">
+                <form action="{% url 'accounts:add_to_watchlist' 'game' game.gameID %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Add to Played Boardgames List</button>
+                </form>
+                <form action="{% url 'accounts:remove_from_watchlist' 'game' game.gameID %}" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-danger">Remove from Played Boardgames List</button>
+                </form>
+            </div>
         {% comment %} === VIDEO GAMES === {% endcomment %}
         {% elif game.type == 'videogame' %}
-            <p>sample</p>
+            <div class="watchlist-past-btns videogame-watchlist-past-btns">
+                <form action="{% url 'accounts:add_to_watchlist' 'video_game' game.gameID %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Add to Played Video Games List</button>
+                </form>
+                <form action="{% url 'accounts:remove_from_watchlist' 'video_game' game.gameID %}" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-danger">Remove from Played Video Games List</button>
+                </form>
+            </div>
         {% comment %} === MOVIES === {% endcomment %}
         {% elif movie.Type == 'movie' %}
-            <p>sample</p>
+            <div class="watchlist-past-btns movie-watchlist-past-btns">
+                <form action="{% url 'accounts:add_to_watchlist' 'movie' movie.Title|slugify %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-primary">Add to watched movies list</button>
+                </form>
+                <form action="{% url 'accounts:remove_from_watchlist' 'movie' movie.Title %}" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-danger">Remove from watched movies list</button>
+                </form>
+                <form action="{% url 'accounts:add_to_favorites' 'movie' movie.imdbID %}" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-primary">Favorite</button>
+                </form>
+            </div>
+            <a href="{% url 'review_app:search' 'movies' %}?q={{ query }}">Back to Movie Search Results</a>
         {% comment %} === TV SERIES === {% endcomment %}
         {% elif movie.Type == 'series' %}
             <div class="watchlist-past-buttons">
@@ -144,75 +178,7 @@
         {% endif %}
     </div>
 
-    {% comment %} BUTTON SECTION {% endcomment %}
-    <div class"btn btn-group">
-        {% comment %} {% if book %}
-            {% if book.olid %}
-                <form action="{% url 'accounts:add_to_watchlist' 'book' book.olid %}" method="POST">
-                    {% csrf_token %}
-                    <button class="btn btn-primary" type="submit">Add to Booklist</button>
-                </form>
-            {% else %}
-                <p>Book ID not available, cannot add to watchlist.</p>
-            {% endif %}
-            {% if book.olid %}
-                <form action="{% url 'accounts:remove_from_watchlist' 'book' book.olid %}" method="POST">
-                    {% csrf_token %}
-                    <button class="btn btn-danger">Remove from Booklist</button>
-                </form>
-            {% else %}
-                <p>Book ID not available, cannot remove from watchlist.</p>
-            {% endif %} {% endcomment %}
-        {% comment %} === BOARDGAMES === {% endcomment %}
-        {% if game.type == 'boardgame' %}
-            <form action="{% url 'accounts:add_to_watchlist' 'game' game.gameID %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Add to Boardgame List</button>
-            </form>
-            <form action="{% url 'accounts:remove_from_watchlist' 'game' game.gameID %}" method="POST">
-                {% csrf_token %}
-                <button class="btn btn-danger">Remove from Boardgame List</button>
-            </form>
-        {% comment %} === video games === {% endcomment %}
-        {% elif game.type == 'videogame' %}
-            <form action="{% url 'accounts:add_to_watchlist' 'video_game' game.gameID %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Add to Played Video Game List</button>
-            </form>
-            <form action="{% url 'accounts:remove_from_watchlist' 'video_game' game.gameID %}" method="POST">
-                {% csrf_token %}
-                <button class="btn btn-danger">Remove from Played Video Games List</button>
-            </form>
-        {% comment %} === movies === {% endcomment %}
-        {% elif movie.Type == 'movie' %}
-            <form action="{% url 'accounts:add_to_watchlist' 'movie' movie.Title|slugify %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Add to Watchlist</button>
-            </form>
-            <form action="{% url 'accounts:remove_from_watchlist' 'movie' movie.Title %}" method="POST">
-                {% csrf_token %}
-                <button class="btn btn-danger">Remove from Watchlist</button>
-            </form>
-            <form action="{% url 'accounts:add_to_favorites' 'movie' movie.imdbID %}" method="POST">
-                {% csrf_token %}
-                <button class="btn btn-primary">Favorite</button>
-            </form>
-        {% comment %} === tv series === {% endcomment %}
-        {% comment %} {% elif movie.Type == 'series' %} {% endcomment %}
-            <form action="{% url 'accounts:add_to_watchlist' 'movie' movie.Title|slugify %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Add to TV Watchlist</button>
-            </form>
-            <form action="{% url 'accounts:remove_from_watchlist' 'tv' movie.Title %}" method="POST">
-                {% csrf_token %}
-                <button class="btn btn-danger">Remove from TV Watchlist</button>
-            </form>
-            <form action="{% url 'accounts:add_to_favorites' 'tv' movie.imdbID %}" method="POST">
-                {% csrf_token %}
-                <button class="btn btn-primary">Favorite</button>
-            </form>
-        {% endif %}
-    </div>
-
     <a href="/">Back to Home</a>
+
+
 {% endblock %}

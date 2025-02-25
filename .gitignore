@@ -10,3 +10,11 @@ review_app/__pycache__/
 
 # Ignore SQLite database
 db.sqlite3
+accounts/__pycache__/admin.cpython-311.pyc
+accounts/__pycache__/forms.cpython-311.pyc
+accounts/__pycache__/models.cpython-311.pyc
+accounts/__pycache__/urls.cpython-311.pyc
+accounts/__pycache__/views.cpython-311.pyc
+api_app/__pycache__/settings.cpython-311.pyc
+review_app/__pycache__/urls.cpython-311.pyc
+review_app/__pycache__/views.cpython-311.pyc
