@@ -89,21 +89,21 @@
         {% comment %} === BOOK === {% endcomment %}
         {% if book %}
                 <div class="watchlist-past-buttons">
-                    {% comment %} if the user has the book in their watchlist_past {% endcomment %}
-                    <form action="
-                        {% url 'accounts:remove_from_consumed_media' category='book' item_id=book_olid %}" method="POST">
+                    {% if book_in_consumed_media == False %}
+                        <form action="{% url 'accounts:add_to_watchlist' 'book' book_olid %}"  method="POST">
                             {% csrf_token %}
-                            <button class="btn btn-outline-danger" 
-                            for="btncheck1" name="readlist_not_done">
-                            <i class="fa-solid fa-minus"></i>readlist</button>
-                    </form>
-                        <form action="{% url 'accounts:add_to_watchlist' 'book' book_olid %}" 
-                    method="POST">
+                            <button type="submit" class="btn btn-outline-primary" 
+                            for="btncheck1" name="readlist_done">
+                            <i class="fa-solid fa-plus"></i>readlist</button>
+                        </form>
+                    {% else %}
+                    <form action="{% url 'accounts:remove_from_watchlist' 'book' book_olid %}" method="POST">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-primary" 
-                        for="btncheck1" name="readlist_done">
-                        <i class="fa-solid fa-plus"></i>readlist</button>
+                        <button class="btn btn-outline-danger" 
+                        for="btncheck1" name="readlist_not_done">
+                        <i class="fa-solid fa-minus"></i>readlist</button>
                     </form>
+                    {% endif %}
                 </div>
                 <div class="watchlist-future-buttons">
                     <button type="submit" class="btn btn-outline-primary" for="btncheck1"><i class="fa-solid fa-plus"></i>TO READ</button>
@@ -114,14 +114,17 @@
         {% comment %} === BOARDGAMES === {% endcomment %}
         {% if game.type == 'boardgame' %}
             <div class="watch-list-past-btn">
-                <form action="{% url 'accounts:add_to_watchlist' 'game' game.gameID %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary">Add to Played Boardgames List</button>
-                </form>
+                {% if game_in_consumed_media == False %}
+                    <form action="{% url 'accounts:add_to_watchlist' 'game' game.gameID %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-primary">Add to Played Boardgames List</button>
+                    </form>
+                {% else %}
                 <form action="{% url 'accounts:remove_from_watchlist' 'game' game.gameID %}" method="POST">
                     {% csrf_token %}
-                    <button class="btn btn-danger">Remove from Played Boardgames List</button>
+                    <button class="btn btn-outline-danger">Remove from Played Boardgames List</button>
                 </form>
+                {% endif %}
             </div>
         {% comment %} === VIDEO GAMES === {% endcomment %}
         {% elif game.type == 'videogame' %}
@@ -187,5 +190,7 @@
 
     <a href="/">Back to Home</a>
 
-
+<script>
+    
+</script>
 {% endblock %}

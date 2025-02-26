@@ -87,63 +87,69 @@ def item_details(request, category, item_id):
     context = {}
     user_profile = request.user.profile
     watchlist_past = user_profile.watchlist_past
-    context['watchlist_past']=watchlist_past
+    # Ensure watchlist_past is a dictionary
     if isinstance(watchlist_past, str):
-        watchlist_past = json.loads(watchlist_past)
-
-    consumed_media = watchlist_past.get(category, [])  # Get list of books
+        watchlist_past = json.loads(watchlist_past) if watchlist_past else {}
+    consumed_media = watchlist_past.get(category, [])  # Get list of consumed items
     context['consumed_media'] = consumed_media
+    context['category'] = category
+    # Ensure item_id is a string for consistent comparison
+    item_id = str(item_id)
     if category == "books":
-        url = f"https://openlibrary.org/works/{item_id}.json"  # Use works endpoint
+        url = f"https://openlibrary.org/works/{item_id}.json"
         try:
             response = requests.get(url)
             response.raise_for_status()
             book_data = response.json()
-            cover_url = None  # Initialize cover_url
-            if book_data.get('covers'): # Check if the covers key exists
-                cover_id = book_data['covers'][0]
-                cover_url = f"http://covers.openlibrary.org/b/id/{cover_id}-M.jpg" 
-            elif olid: # If no covers key exists, try to construct the url with the olid
-                cover_url = f"http://covers.openlibrary.org/b/olid/{olid}-M.jpg"  # Use 'olid' as the key
-            book_data['cover_url'] = cover_url  # Set the cover_url in book_data
-            book_data['olid'] = item_id
-            context['book'] = book_data
-            book_olid = book_data['olid']
-            context['book_olid'] = book_olid
-            context['category'] = category
             
-            # singling out
-            b = any(item["olid"] == item_id for item in consumed_media)
-            context['book_in_consumed_media'] = b
-        
+            # Handle cover image
+            cover_url = None
+            if book_data.get('covers'):
+                cover_id = book_data['covers'][0]
+                cover_url = f"http://covers.openlibrary.org/b/id/{cover_id}-M.jpg"
+            book_data['cover_url'] = cover_url
+            book_data['olid'] = item_id  # Explicitly store the OLID
+            context['book'] = book_data
+            context['book_olid'] = item_id  # Set OLID in context
+            
+            # Determine if the book is in consumed media
+            if isinstance(consumed_media, list):
+                if all(isinstance(item, dict) for item in consumed_media):  
+                    book_in_consumed_media = any(str(item.get("olid")) == item_id for item in consumed_media)
+                else:  
+                    book_in_consumed_media = item_id in consumed_media
+            else:
+                book_in_consumed_media = False  # Default to False if data format is unexpected
+
+            context['book_in_consumed_media'] = book_in_consumed_media
+
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
             return render(request, 'main/base_search.html', {'error_message': 'Error fetching book details.'})
-        except json.JSONDecodeError as e:  # Catch potential JSON errors
+        except json.JSONDecodeError as e:
             print(f"Error processing JSON: {e}")
             return render(request, 'main/base_search.html', {'error_message': 'Error processing book data.'})
 
     elif category == "games":
         game_data = get_bgg_game_info(item_id)
-        query = request.GET.get('q')
         context['game'] = game_data
-        game_id = game_data['gameID']
-        context['game_id'] = game_id
-        context['category'] = category
-        g = any(item["gameID"] == item_id for item in consumed_media)
-        context['game_in_consumed_media'] = g
+        context['game_id'] = str(game_data['gameID'])
+        # Check if game is in consumed media
+        game_in_consumed_media = any(str(item.get("gameID")) == item_id for item in consumed_media) if isinstance(consumed_media, list) else False
+        context['game_in_consumed_media'] = game_in_consumed_media
 
     elif category == "Movies and TV":
         api_key = os.getenv('OMDB_API_KEY')
-        url = f'http://www.omdbapi.com/?t={item_id}&apikey={api_key}'  # Use 't' for title lookup
+        url = f'http://www.omdbapi.com/?t={item_id}&apikey={api_key}'
         response = requests.get(url)
         movie_data = response.json()
-        context['movie']=movie_data
-        movietv_id = movie_data['imdbID']
+        context['movie'] = movie_data
+        movietv_id = str(movie_data.get('imdbID', ''))
         context['movietv_id'] = movietv_id
-        context['category'] = category
-        mtv = any(item["imdbID"] == item_id for item in consumed_media)
-        context['movietv_in_consumed_media'] = mtv
+        # Check if movie is in consumed media
+        movietv_in_consumed_media = any(str(item.get("imdbID")) == item_id for item in consumed_media) if isinstance(consumed_media, list) else False
+        context['movietv_in_consumed_media'] = movietv_in_consumed_media
+
 
     return render(request, "main/base_item_details.html", context)
 
