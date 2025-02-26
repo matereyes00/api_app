@@ -14,10 +14,21 @@ class Profile(models.Model):
         null=True
     )
     watchlist_past = models.JSONField(default=dict)  # Stores movies, books, and games
-    watchlist_future = models.JSONField(default=dict)  # Stores movies, books, and games
     
     def __str__(self):
         return self.user.username
+
+class FutureWatchlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="future_watchlist")
+    category = models.CharField(max_length=20, choices=[('books', 'Books'), ('movies', 'Movies'), ('games', 'Games')])
+    item_id = models.CharField(max_length=255)  # Store OLID, IMDbID, Game ID
+    date_added = models.DateTimeField(auto_now_add=True)  # Timestamp for sorting/filtering
+    
+    class Meta:
+        unique_together = ('user', 'category', 'item_id')  # Prevent duplicate entries
+
+    def __str__(self):
+        return f"{self.user.username} - {self.category}: {self.item_id}"
 
 class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="favorites")

@@ -10,10 +10,9 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
 from.forms import CustomUserCreationForm, ProfileUpdateForm
-from.models import Profile, Favorite
+from.models import Profile, Favorite, FutureWatchlist
 from django.shortcuts import redirect
 from django.contrib import messages
-
 
 import json
 import requests
@@ -44,6 +43,7 @@ def profile_view(request):
     category = request.GET.get("category")  # Example: 'books', 'games', etc.
     item_id = request.GET.get("item_id")  # ID for API request
     item_data = None  # Default no data
+    print(f"category:{category} || item_id:{item_id}")
 
     # Fetch API data if a category and item_id are selected
     if category and item_id:
@@ -65,7 +65,7 @@ def profile_view(request):
         elif category == "games":
             item_data = get_bgg_game_info(item_id)  # Assuming this function is already defined
 
-        elif category == "Movies and TV":
+        elif category == "movies":
             api_key = os.getenv("OMDB_API_KEY")
             url = f"http://www.omdbapi.com/?t={item_id}&apikey={api_key}"
             try:
@@ -118,113 +118,108 @@ def edit_profile(request):
 def remove_from_consumed_media(request, category, item_id):
     profile = request.user.profile
     watchlist = profile.watchlist_past  # Get current watchlist
-    if category == 'book':
-        watchlist['books'] = [book for book in watchlist.get('books', []) if book['olid'] != item_id]
-    elif category == 'tv':
-        title = item_id.replace("-", " ")  # Convert slug back to title
-        api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
-        response = requests.get(api_url)
-        tv_data = response.json()
-        if 'imdbID' in tv_data:
-            tv_id = tv_data["imdbID"]
-            print(watchlist['tv'])
-            watchlist['tv'] = [t for t in watchlist.get('tv', []) if t.get('imdbID') != tv_id]
-    elif category == 'movie':
-        title = item_id.replace("-", " ")  # Convert slug back to title
-        api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
-        response = requests.get(api_url)
+    # Ensure watchlist structure
+    if not watchlist or not isinstance(watchlist, dict):
+        watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games": []}
+    api_key = os.getenv('OMDB_API_KEY')  # Ensure API key is loaded
+    print(f"Category: {category}")
+    
+    if category == 'books':
+        watchlist['books'] = [book for book in watchlist.get('books', []) if str(book.get('olid')) != str(item_id)]
+    elif category == 'movies-tv':
+        response = get_movietv_info(item_id)
         movie_data = response.json()
-        movie_id = movie_data["imdbID"]
-        if movie_id:
-            watchlist['movies'] = [movie for movie in watchlist.get('movies', []) if movie['imdbID'] != movie_id]
+        print(f"movies metadata: {movie_data}")
+        if movie_data.get("Response") == "True":
+            if movie_data['Type'] == 'movie':
+                watchlist['movies'] = [m for m in watchlist.get('movies', []) if str(m.get('imdbID')) != str(movie_data['imdbID'])]
+            elif movie_data['Type'] == 'series':
+                watchlist['tv'] = [t for t in watchlist.get('tv', []) if str(t.get('imdbID')) != str(movie_data['imdbID'])]
     elif category == 'game':
-        watchlist['games'] = [game for game in watchlist.get('games', []) if game['gameID'] != item_id]
-    elif category == 'video_game':
-        watchlist['video_games'] = [game for game in watchlist.get('video_games', []) if game['gameID'] != item_id]
-    # Save updated watchlist
+        item_data = get_bgg_game_info(item_id)
+        if item_data['type'] == 'videogame':
+            watchlist['video_games'] = [game for game in watchlist.get('video_games', []) if str(game.get('gameID')) != str(item_id)]
+        else: 
+            watchlist['games'] = [game for game in watchlist.get('games', []) if str(game.get('gameID')) != str(item_id)]
+
+    # Save the updated watchlist
     profile.watchlist_past = watchlist
     profile.save()
 
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
-    return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect to refresh
 
 
 @login_required
 def add_to_consumed_media(request, item_type, item_id):
-    profile = request.user.profile  # Get user's profile
-    if not profile.watchlist_past or not isinstance(profile.watchlist_past, dict):
-        watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games":[]}  # Default structure
-    else:
-        watchlist = profile.watchlist_past  # Retrieve existing watchlist
-    if "movies" not in watchlist:
-        watchlist["movies"] = []
-    if "tv" not in watchlist:
-        watchlist["tv"] = []
-    if "games" not in watchlist:
-        watchlist["games"] = []
-    if "books" not in watchlist:
-        watchlist["books"] = []
-    if "video_games" not in watchlist:
-        watchlist["video_games"] = []
-    
-    if item_type == "movie" or item_type == 'tv':
-        title = item_id.replace("-", " ")  # Convert slug back to title
-        api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
-        response = requests.get(api_url)
-        movie_data = response.json()
-        
-        if item_type == "movie" and movie_data.get("Response") == "True":
+    profile = request.user.profile
+    watchlist_past = profile.watchlist_past
+    if request.method == "POST":
+        if not watchlist_past or not isinstance(watchlist_past, dict):
+            watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games": []}
+        else:
+            watchlist = watchlist_past
+
+        api_key = os.getenv('OMDB_API_KEY')
+        print(f"This is the item_type: {item_type}")
+
+        if item_type == 'movies-tv':
+            itemid = item_id
+            title = item_id.replace("-", " ")  # Convert slug back to title
+            # print(f"=={title}")
+            api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
+            response = requests.get(api_url)
+            movie_data = response.json()
+            
+            # if  movie_data.get("Response") == "True":
             movie_info = {
                 "title": movie_data["Title"],
                 "format": movie_data['Type'],
                 "year": movie_data["Year"],
                 "poster": movie_data["Poster"],
                 "director": movie_data["Director"],
-                "imdbID": movie_data["imdbID"],
+                "imdbID": movie_data['imdbID'],
+                "format" : movie_data['Type']
             }
-        if movie_info['format'] == 'movie':
-            if movie_info not in watchlist["movies"]:
-                watchlist["movies"].append(movie_info)
-        if movie_info['format'] == 'series':
-            if movie_info not in watchlist["movies"]:
-                watchlist["tv"].append(movie_info)
+            if movie_info['format'] == 'movie':
+                if movie_info not in watchlist["movies"]:
+                    watchlist["movies"].append(movie_info)
+            if movie_info['format'] == 'series':
+                print(movie_info['format'])
+                if movie_info not in watchlist["tv"]:
+                    watchlist["tv"].append(movie_info)
 
-    if item_type == "game" or "video_game":
-        game_id = item_id  # Since item_id is already game_id from the URL
-        game_data = get_bgg_game_info(game_id)  # Fetch game data
-        if game_data["name"] != "No Name":  # Ensure valid data was retrieved
-            game_info = {
-                "title": game_data["name"],
-                "year": game_data["yearpublished"],
-                "type": game_data["type"],
-                "poster": game_data["image"],
-                "gameID": game_id,
-            }
-            if game_info['type'] == 'videogame' or game_info['type'] == 'rpgitem':
-                watchlist["video_games"].append(game_info)
-            elif game_info['type'] == 'boardgame':
-                watchlist["games"].append(game_info)
-    
-    if item_type == "book":
-        book_olid = item_id  # This is the OLID from the URL
-        book_data = get_book_info(book_olid)
-        
-        book_info = {
-            "title": book_data.get("title", "Unknown"),
-            "author": book_data.get("author", "Unknown"),
-            "cover_url": book_data.get("cover_url"),
-            "olid": book_olid,
-        }
+            # print(watchlist['movies'])
+            # print(watchlist['tv'])
+        elif item_type == "book":
+            if "books" not in watchlist:
+                watchlist["books"] = []
+            book_info = {"olid": item_id}
+            if book_info not in watchlist["books"]:
+                watchlist["books"].append(book_info)
+        elif item_type in ["game", "video_game"]:
+            if item_type == "game":
+                watchlist["games"].append({"gameID": item_id})
+            elif item_type == "video_game":
+                watchlist["video_games"].append({"gameID": item_id})
 
-        if book_info not in watchlist["books"]:  # Avoid duplicates
-            watchlist["books"].append(book_info)
+        # Save the updated watchlist
+        profile.watchlist_past = watchlist
+        profile.save()
 
-    # Save updated watchlist
-    profile.watchlist_past = watchlist
-    profile.save()
-
+        return redirect(request.META.get('HTTP_REFERER', '/'))
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
+
+
+@login_required
+def add_to_future_watchlist(request, category, item_id):
+    profile = request.user.profile
+    future_watchlist = FutureWatchlist.objects.filter(user=request.user)
+
+    future_watchlist.item_id = item_id
+    future_watchlist.category = category
+    future_watchlist.save()
 
 @login_required
 def add_movietvto_favorites(request, category, item_id):
@@ -306,6 +301,12 @@ def get_bgg_game_type(game_name):
     except ET.ParseError as e:
         print(f"XML Parse Error: {e}")
         return "Unknown"
+
+def get_movietv_info(movietv_title):
+    api_key = os.getenv('OMDB_API_KEY')
+    url = f'http://www.omdbapi.com/?t={movietv_title}&apikey={api_key}'
+    response = requests.get(url)
+    return response
 
 def get_book_info(book_olid):
     url = f"https://openlibrary.org/works/{book_olid}.json"

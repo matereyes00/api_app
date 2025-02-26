@@ -14,7 +14,7 @@
     {% if results %}
         <ul>
             {% for item in results %}
-                {% if category == 'Movies and TV' %}
+                {% if category == 'movies-tv' %}
                     <a href="{% url 'review_app:item_details' category item.Title %}">{{ item.Title }} ({{ item.Year }})</a>
                 {% elif category == 'games' %}
                     <a href="{% url 'review_app:item_details' category item.id %}">{{ item.name }} ({{ item.yearpublished }})</a>

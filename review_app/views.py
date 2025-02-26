@@ -29,7 +29,7 @@ def search(request, category):
     if request.method == 'POST':
         query = request.POST.get('query')  # Use the same input name for all searches
 
-        if category == 'Movies and TV':
+        if category == 'movies-tv':
             api_key = os.getenv('OMDB_API_KEY')
             url = f'http://www.omdbapi.com/?s={query}&apikey={api_key}'
             response = requests.get(url)
@@ -87,13 +87,11 @@ def item_details(request, category, item_id):
     context = {}
     user_profile = request.user.profile
     watchlist_past = user_profile.watchlist_past
-    # Ensure watchlist_past is a dictionary
     if isinstance(watchlist_past, str):
         watchlist_past = json.loads(watchlist_past) if watchlist_past else {}
-    consumed_media = watchlist_past.get(category, [])  # Get list of consumed items
+    consumed_media = user_profile.watchlist_past.get(category, [])  # Get list of consumed items
     context['consumed_media'] = consumed_media
     context['category'] = category
-    # Ensure item_id is a string for consistent comparison
     item_id = str(item_id)
     if category == "books":
         url = f"https://openlibrary.org/works/{item_id}.json"
@@ -101,7 +99,6 @@ def item_details(request, category, item_id):
             response = requests.get(url)
             response.raise_for_status()
             book_data = response.json()
-            
             # Handle cover image
             cover_url = None
             if book_data.get('covers'):
@@ -120,7 +117,6 @@ def item_details(request, category, item_id):
                     book_in_consumed_media = item_id in consumed_media
             else:
                 book_in_consumed_media = False  # Default to False if data format is unexpected
-
             context['book_in_consumed_media'] = book_in_consumed_media
 
         except requests.exceptions.RequestException as e:
@@ -134,22 +130,33 @@ def item_details(request, category, item_id):
         game_data = get_bgg_game_info(item_id)
         context['game'] = game_data
         context['game_id'] = str(game_data['gameID'])
-        # Check if game is in consumed media
-        game_in_consumed_media = any(str(item.get("gameID")) == item_id for item in consumed_media) if isinstance(consumed_media, list) else False
+        if isinstance(consumed_media, list):
+            if all(isinstance(item, dict) for item in consumed_media):  
+                game_in_consumed_media = any(str(item.get("gameID")) == str(item_id) for item in consumed_media)
+            else:  
+                game_in_consumed_media = item_id in consumed_media
+        else:
+            game_in_consumed_media = False  # Default to False if data format is unexpected
         context['game_in_consumed_media'] = game_in_consumed_media
 
-    elif category == "Movies and TV":
-        api_key = os.getenv('OMDB_API_KEY')
-        url = f'http://www.omdbapi.com/?t={item_id}&apikey={api_key}'
-        response = requests.get(url)
+    elif category == "movies-tv":
+        response = get_movietv_info(item_id)
         movie_data = response.json()
         context['movie'] = movie_data
         movietv_id = str(movie_data.get('imdbID', ''))
-        context['movietv_id'] = movietv_id
-        # Check if movie is in consumed media
-        movietv_in_consumed_media = any(str(item.get("imdbID")) == item_id for item in consumed_media) if isinstance(consumed_media, list) else False
+        consumed_media = user_profile.watchlist_past.get('movies', [])  # Get list of consumed items
+        consumed_media += user_profile.watchlist_past.get('tv', [])  # Get list of consumed items
+        context['consumed_media'] = consumed_media
+        context['category'] = 'movies-tv'
+        if isinstance(consumed_media, list):
+            if all(isinstance(item, dict) for item in consumed_media):  
+                movietv_in_consumed_media = any(str(item.get("imdbID")) == movietv_id for item in consumed_media)
+            else:  
+                movietv_in_consumed_media = item_id in consumed_media
+        else:
+            movietv_in_consumed_media = False  # Default to False if data format is unexpected
         context['movietv_in_consumed_media'] = movietv_in_consumed_media
-
+        print(f"{movie_data['Title']} is in movietv watchlist: {movietv_in_consumed_media}")
 
     return render(request, "main/base_item_details.html", context)
 
@@ -214,3 +221,8 @@ def get_bgg_game_type(game_name):
         print(f"XML Parse Error: {e}")
         return "Unknown"
 
+def get_movietv_info(movietv_title):
+    api_key = os.getenv('OMDB_API_KEY')
+    url = f'http://www.omdbapi.com/?t={movietv_title}&apikey={api_key}'
+    response = requests.get(url)
+    return response
