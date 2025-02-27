@@ -2,7 +2,6 @@ import os
 import json  
 import requests
 import xml.etree.ElementTree as ET
-
 from dotenv import load_dotenv
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
@@ -13,6 +12,9 @@ from django.core.cache import cache
 from .forms import RegisterForm, LoginForm
 
 from accounts.models import Profile, Favorite
+from .get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info 
+from .get import search_api_book, search_api_moviestv, search_api_games
+from .get import is_book_in_consumed_media,is_game_in_consumed_media
 
 from django.urls import reverse
 
@@ -28,19 +30,13 @@ def profile_view_extend(request):
 def search(request, category):
     if request.method == 'POST':
         query = request.POST.get('query')  # Use the same input name for all searches
-
         if category == 'movies-tv':
-            api_key = os.getenv('OMDB_API_KEY')
-            url = f'http://www.omdbapi.com/?s={query}&apikey={api_key}'
-            response = requests.get(url)
+            response = search_api_moviestv(query)
             data = response.json()
             results = data.get('Search', [])
             error_message = data.get('Error', None)
-            template = 'main/base_search.html'
-
         elif category == 'games':
-            url = f"https://boardgamegeek.com/xmlapi2/search?query={query}&type=boardgame,boardgameexpansion,videogame"
-            response = requests.get(url)
+            response = search_api_games(query)
             root = ET.fromstring(response.content)
             results = []
             for item in root.findall('item'):
@@ -56,12 +52,8 @@ def search(request, category):
                     'name': name,
                     'yearpublished': yearpublished
                 })
-            
-            template = 'main/base_search.html'
-
         elif category == 'books':
-            url = f"https://openlibrary.org/search.json?q={query}"
-            response = requests.get(url)
+            response = search_api_book(query)
             data = response.json()
             books = data.get('docs', [])
             results = [
@@ -73,11 +65,11 @@ def search(request, category):
                 }
                 for book in books
             ]
-            template = 'main/base_search.html'
 
         else:
             return render(request, 'main/base_search.html', {'error_message': 'Invalid category'})
 
+        template = 'main/base_search.html'
         return render(request, template, {'category':category,'results': results, 'query': query, 'error_message': error_message if 'error_message' in locals() else None})
     
     return render(request, 'main/base_search.html', {'category': category})
@@ -89,9 +81,11 @@ def item_details(request, category, item_id):
     watchlist_past = user_profile.watchlist_past
     if isinstance(watchlist_past, str):
         watchlist_past = json.loads(watchlist_past) if watchlist_past else {}
-    consumed_media = user_profile.watchlist_past.get(category, [])  # Get list of consumed items
-    context['consumed_media'] = consumed_media
     context['category'] = category
+    print(f"Category: {category}")
+    print(watchlist_past)
+    
+   
     item_id = str(item_id)
     if category == "books":
         url = f"https://openlibrary.org/works/{item_id}.json"
@@ -108,16 +102,9 @@ def item_details(request, category, item_id):
             book_data['olid'] = item_id  # Explicitly store the OLID
             context['book'] = book_data
             context['book_olid'] = item_id  # Set OLID in context
-            
+            book_attr_id = "olid"
             # Determine if the book is in consumed media
-            if isinstance(consumed_media, list):
-                if all(isinstance(item, dict) for item in consumed_media):  
-                    book_in_consumed_media = any(str(item.get("olid")) == item_id for item in consumed_media)
-                else:  
-                    book_in_consumed_media = item_id in consumed_media
-            else:
-                book_in_consumed_media = False  # Default to False if data format is unexpected
-            context['book_in_consumed_media'] = book_in_consumed_media
+            context['book_in_consumed_media'] = is_book_in_consumed_media(consumed_media, book_attr_id, item_id)
 
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
@@ -130,14 +117,15 @@ def item_details(request, category, item_id):
         game_data = get_bgg_game_info(item_id)
         context['game'] = game_data
         context['game_id'] = str(game_data['gameID'])
-        if isinstance(consumed_media, list):
-            if all(isinstance(item, dict) for item in consumed_media):  
-                game_in_consumed_media = any(str(item.get("gameID")) == str(item_id) for item in consumed_media)
-            else:  
-                game_in_consumed_media = item_id in consumed_media
+        games_attr_id = "gameID"
+        if game_data['type'] == 'videogames':
+            consumed_media = watchlist_past.get('video_games', []) 
+            context['consumed_media'] = consumed_media
+            context['game_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
         else:
-            game_in_consumed_media = False  # Default to False if data format is unexpected
-        context['game_in_consumed_media'] = game_in_consumed_media
+            consumed_media = watchlist_past.get('games', []) 
+            context['consumed_media'] = consumed_media
+            context['game_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
 
     elif category == "movies-tv":
         response = get_movietv_info(item_id)
@@ -159,70 +147,3 @@ def item_details(request, category, item_id):
         print(f"{movie_data['Title']} is in movietv watchlist: {movietv_in_consumed_media}")
 
     return render(request, "main/base_item_details.html", context)
-
-def get_bgg_game_info(game_id):
-    url = f"https://www.boardgamegeek.com/xmlapi2/thing?id={game_id}&stats=1"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  # Check for HTTP errors
-
-        root = ET.fromstring(response.content)
-        game_data = {}
-        game_data = {"gameID": game_id}  # Store game_id here
-
-        # More robust way to extract data, handling missing elements:
-        name_element = root.find('.//name[@type="primary"]')  # Get the primary name
-        game_data['name'] = name_element.get('value') if name_element is not None else "No Name"
-        year_element = root.find('.//yearpublished')
-        game_data['yearpublished'] = year_element.get('value') if year_element is not None else "No Year"
-        description_element = root.find('.//description')
-        game_data['description'] = description_element.text if description_element is not None else "No Description"
-        minplayers_element = root.find('.//minplayers')
-        game_data['minplayers'] = minplayers_element.get('value') if minplayers_element is not None else "No Min Players"
-        maxplayers_element = root.find('.//maxplayers')
-        game_data['maxplayers'] = maxplayers_element.get('value') if maxplayers_element is not None else "No Max Players"
-        playingtime_element = root.find('.//playingtime')
-        game_data['playingtime'] = playingtime_element.get('value') if playingtime_element is not None else "No Playing Time"
-        average_element = root.find('.//average')
-        game_data['ratingaverage'] = average_element.get('value') if average_element is not None else "No Rating"
-        image_element = root.find('.//image')
-        game_data['image'] = image_element.text if image_element is not None else None
-
-        game_type = get_bgg_game_type(game_data['name'])
-        game_data['type'] = game_type
-
-        return game_data
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error: {e}")
-        return None
-    except ET.ParseError as e:
-        print(f"Error: {e}")
-        return None
-
-def get_bgg_game_type(game_name):
-    """Fetches the game type (boardgame, RPG, videogame, etc.) from the BoardGameGeek search API."""
-    search_url = f"https://www.boardgamegeek.com/xmlapi2/search?query={game_name}&exact=1"
-    try:
-        response = requests.get(search_url)
-        response.raise_for_status()
-
-        root = ET.fromstring(response.content)
-        item = root.find('.//item')
-
-        if item is not None:
-            return item.get('type')  # Example: "boardgame", "rpgitem", "videogame"
-        return "Unknown"
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching game type: {e}")
-        return "Unknown"
-    except ET.ParseError as e:
-        print(f"XML Parse Error: {e}")
-        return "Unknown"
-
-def get_movietv_info(movietv_title):
-    api_key = os.getenv('OMDB_API_KEY')
-    url = f'http://www.omdbapi.com/?t={movietv_title}&apikey={api_key}'
-    response = requests.get(url)
-    return response

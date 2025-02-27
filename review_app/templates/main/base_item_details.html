@@ -129,12 +129,12 @@
             {% comment %} === VIDEO GAMES === {% endcomment %}
             {% elif game.type == 'videogame' %}
                     {% if game_in_consumed_media == False %}
-                        <form action="{% url 'accounts:add_to_watchlist' 'game' game_id %}" method="post">
+                        <form action="{% url 'accounts:add_to_watchlist' 'games' game_id %}" method="post">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-outline-primary">Add to Played Video Games List</button>
                         </form>
                     {% else %}
-                        <form action="{% url 'accounts:remove_from_watchlist' 'game' game_id %}" method="POST">
+                        <form action="{% url 'accounts:remove_from_watchlist' 'games' game_id %}" method="POST">
                             {% csrf_token %}
                             <button class="btn btn-outline-danger">Remove from Played Video Games List</button>
                         </form>
