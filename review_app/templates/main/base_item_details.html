@@ -43,7 +43,8 @@
         <a href="{% url 'review_app:search' 'books' %}?q={{ query }}">Back to Book Search Results</a>
 
     {% elif game %}
-        <h1>{{ game.name }}</h1>
+        <h1>{{ game.name }} </h1>
+        <h4>{{ game.type }} </h4>
         {% if game.yearpublished %}
             <p>Year Published: {{ game.yearpublished }}</p>
         {% endif %}
@@ -112,36 +113,50 @@
         {% endif %}
         
         {% comment %} === GAMES === {% endcomment %}
+        {% comment %} {% if games %}
+            <h1> ffdfsfja </h1>
+            {% if videogame_in_consumed_media == False  %}
+                <form action="{% url 'accounts:add_to_watchlist' 'game' game_id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-primary">Add to Played VG List</button>
+                </form>
+            {% else %}
+                <form action="{% url 'accounts:remove_from_watchlist' 'game' game_id %}" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-danger">Remove from Played BoarVGdgames List</button>
+                </form>
+            {% endif %}
+        {% endif %} {% endcomment %}
+        {% comment %} === VIDEO GAMES === {% endcomment %}
         {% if game %}
-            <div class="watchlist-past-btns videogame-watchlist-past-btns">
-            {% if game.type == 'boardgame' %}
-                {% if game_in_consumed_media == False %}
+            {% if game.type == 'videogame' or game.type == 'rpg' or game.type == 'videogamecompany' or game.type == 'rpgcompany' or game.type == 'rpgperson' %}
+                {% if not videogame_in_consumed_media  %}
                     <form action="{% url 'accounts:add_to_watchlist' 'game' game_id %}" method="post">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-primary">Add to Played Boardgames List</button>
+                        <button type="submit" class="btn btn-outline-primary">Add to Video Games  List</button>
                     </form>
                 {% else %}
                     <form action="{% url 'accounts:remove_from_watchlist' 'game' game_id %}" method="POST">
                         {% csrf_token %}
-                        <button class="btn btn-outline-danger">Remove from Played Boardgames List</button>
+                        <button class="btn btn-outline-danger">Remove from Played Video Games List</button>
                     </form>
                 {% endif %}
-            {% comment %} === VIDEO GAMES === {% endcomment %}
-            {% elif game.type == 'videogame' %}
-                    {% if game_in_consumed_media == False %}
-                        <form action="{% url 'accounts:add_to_watchlist' 'games' game_id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-primary">Add to Played Video Games List</button>
-                        </form>
-                    {% else %}
-                        <form action="{% url 'accounts:remove_from_watchlist' 'games' game_id %}" method="POST">
-                            {% csrf_token %}
-                            <button class="btn btn-outline-danger">Remove from Played Video Games List</button>
-                        </form>
-                    {% endif %}
-                </div>
+            {% else %}
+                {% if not boardgame_in_consumed_media %} 
+                    <form action="{% url 'accounts:add_to_watchlist' 'game' game_id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-primary">Add to Played Board Games List</button>
+                    </form>
+                {% else %}
+                    <form action="{% url 'accounts:remove_from_watchlist' 'game' game_id %}" method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-danger">Remove from Played Board Games List</button>
+                    </form> 
+                {% endif %}
             {% endif %}
         {% endif %}
+            {% comment %} {% endif %} {% endcomment %}
+            
                 
         {% comment %} === MOVIES/TV === {% endcomment %}
         {% if movie %}
@@ -197,8 +212,8 @@
                         </form>
                     </div>
                 {% endif %}
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
 
     <a href="/">Back to Home</a>
 {% endblock %}

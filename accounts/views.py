@@ -45,7 +45,6 @@ def profile_view(request):
     category = request.GET.get("category")  # Example: 'books', 'games', etc.
     item_id = request.GET.get("item_id")  # ID for API request
     item_data = None  # Default no data
-    print(f"category:{category} || item_id:{item_id}")
 
     # Fetch API data if a category and item_id are selected
     if category and item_id:
@@ -55,7 +54,6 @@ def profile_view(request):
                 response = requests.get(url)
                 response.raise_for_status()
                 item_data = response.json()
-                # Get book cover if available
                 cover_url = None
                 if item_data.get("covers"):
                     cover_id = item_data["covers"][0]
@@ -65,8 +63,8 @@ def profile_view(request):
                 print(f"Error fetching book: {e}")
 
         elif category == "games":
-            item_data = get_bgg_game_info(item_id)  # Assuming this function is already defined
-
+            item_data = get_bgg_game_info(item_id) 
+        
         elif category == "movies":
             api_key = os.getenv("OMDB_API_KEY")
             url = f"http://www.omdbapi.com/?t={item_id}&apikey={api_key}"
@@ -86,7 +84,7 @@ def profile_view(request):
         "selected_content": selected_content,
         "selected_display_watchlist_item": selected_display_watchlist_item,
         "category": category,
-        "item_data": item_data,  # Pass the fetched API data to the template
+        "item_data": item_data,
     })
 
 
@@ -119,12 +117,11 @@ def edit_profile(request):
 @login_required
 def remove_from_consumed_media(request, category, item_id):
     profile = request.user.profile
-    watchlist = profile.watchlist_past  # Get current watchlist
-    # Ensure watchlist structure
+    watchlist = profile.watchlist_past 
     if request.method == 'POST':
         if not watchlist or not isinstance(watchlist, dict):
             watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games": []}
-        api_key = os.getenv('OMDB_API_KEY')  # Ensure API key is loaded
+        
         if category == 'book':
             book_data = get_book_info(item_id)
             watchlist['books'] = [book for book in watchlist.get('books', []) if str(book.get('olid')) != str(book_data['olid'])]
@@ -138,7 +135,7 @@ def remove_from_consumed_media(request, category, item_id):
                     watchlist['tv'] = [t for t in watchlist.get('tv', []) if str(t.get('imdbID')) != str(movie_data['imdbID'])]
         elif category == 'game':
             item_data = get_bgg_game_info(item_id)
-            if item_data['type'] == 'videogame':
+            if item_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
                 watchlist['video_games'] = [game for game in watchlist.get('video_games', []) if str(game.get('gameID')) != str(item_id)]
             else: 
                 watchlist['games'] = [game for game in watchlist.get('games', []) if str(game.get('gameID')) != str(item_id)]
@@ -148,9 +145,10 @@ def remove_from_consumed_media(request, category, item_id):
         profile.save()
 
         return redirect(request.META.get('HTTP_REFERER', '/'))
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required
-def add_to_consumed_media(request, item_type, item_id):
+def add_to_consumed_media(request, category, item_id):
     profile = request.user.profile
     watchlist_past = profile.watchlist_past
     if request.method == "POST":
@@ -160,17 +158,14 @@ def add_to_consumed_media(request, item_type, item_id):
             watchlist = watchlist_past
 
         api_key = os.getenv('OMDB_API_KEY')
-        print(f"This is the item_type: {item_type}")
-
-        if item_type == 'movies-tv':
+        
+        if category == 'movies-tv':
             itemid = item_id
             title = item_id.replace("-", " ")  # Convert slug back to title
-            # print(f"=={title}")
             api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
             response = requests.get(api_url)
             movie_data = response.json()
             
-            # if  movie_data.get("Response") == "True":
             movie_info = {
                 "title": movie_data["Title"],
                 "format": movie_data['Type'],
@@ -184,28 +179,23 @@ def add_to_consumed_media(request, item_type, item_id):
                 if movie_info not in watchlist["movies"]:
                     watchlist["movies"].append(movie_info)
             if movie_info['format'] == 'series':
-                print(movie_info['format'])
                 if movie_info not in watchlist["tv"]:
                     watchlist["tv"].append(movie_info)
-
-            # print(watchlist['movies'])
-            # print(watchlist['tv'])
-        elif item_type == "book":
+        elif category == "book":
             response = get_book_info(item_id)
             book_data = response
             if "books" not in watchlist:
                 watchlist["books"] = []
             if book_data not in watchlist["books"]:
                 watchlist["books"].append(book_data)
-        elif item_type == 'game':
+        elif category == 'game': 
             game_data = get_bgg_game_info(item_id)
-            if game_data['type'] == "videogame":
-                print(f"This is the game type: {game_data['type']}")
-                watchlist["video_games"].append(game_data)
-            else :
+            if game_data['type'] in ['boardgame', 'boardgameperson', 'boardgamecompany']:
                 watchlist["games"].append(game_data)
+            elif game_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
+                watchlist["video_games"].append(game_data)
+                print(watchlist['video_games'])
 
-        # Save the updated watchlist
         profile.watchlist_past = watchlist
         profile.save()
 

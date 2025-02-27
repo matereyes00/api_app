@@ -13,7 +13,8 @@ from .forms import RegisterForm, LoginForm
 
 from accounts.models import Profile, Favorite
 from .get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info 
-from .get import search_api_book, search_api_moviestv, search_api_games
+from .get import search_api_book, search_api_movies_tv
+from .get import search_api_games
 from .get import is_book_in_consumed_media,is_game_in_consumed_media
 
 from django.urls import reverse
@@ -29,9 +30,9 @@ def profile_view_extend(request):
 @login_required(login_url='accounts/login/')
 def search(request, category):
     if request.method == 'POST':
-        query = request.POST.get('query')  # Use the same input name for all searches
+        query = request.POST.get('query')
         if category == 'movies-tv':
-            response = search_api_moviestv(query)
+            response = search_api_movies_tv(query) 
             data = response.json()
             results = data.get('Search', [])
             error_message = data.get('Error', None)
@@ -43,10 +44,8 @@ def search(request, category):
                 game_id = item.get('id')
                 name_element = item.find('name')
                 name = name_element.get('value') if name_element is not None else "No Name"
-                
                 year_element = item.find('yearpublished')
                 yearpublished = year_element.get('value') if year_element is not None else "No Year"
-
                 results.append({
                     'id': game_id,
                     'name': name,
@@ -82,10 +81,7 @@ def item_details(request, category, item_id):
     if isinstance(watchlist_past, str):
         watchlist_past = json.loads(watchlist_past) if watchlist_past else {}
     context['category'] = category
-    print(f"Category: {category}")
-    print(watchlist_past)
     
-   
     item_id = str(item_id)
     if category == "books":
         url = f"https://openlibrary.org/works/{item_id}.json"
@@ -104,6 +100,7 @@ def item_details(request, category, item_id):
             context['book_olid'] = item_id  # Set OLID in context
             book_attr_id = "olid"
             # Determine if the book is in consumed media
+            consumed_media = user_profile.watchlist_past.get("books", [])
             context['book_in_consumed_media'] = is_book_in_consumed_media(consumed_media, book_attr_id, item_id)
 
         except requests.exceptions.RequestException as e:
@@ -112,28 +109,28 @@ def item_details(request, category, item_id):
         except json.JSONDecodeError as e:
             print(f"Error processing JSON: {e}")
             return render(request, 'main/base_search.html', {'error_message': 'Error processing book data.'})
-
+    
     elif category == "games":
         game_data = get_bgg_game_info(item_id)
         context['game'] = game_data
         context['game_id'] = str(game_data['gameID'])
         games_attr_id = "gameID"
-        if game_data['type'] == 'videogames':
-            consumed_media = watchlist_past.get('video_games', []) 
+        if game_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
+            consumed_media = user_profile.watchlist_past.get("video_games", [])
             context['consumed_media'] = consumed_media
-            context['game_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
+            context['videogame_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
         else:
-            consumed_media = watchlist_past.get('games', []) 
+            consumed_media = user_profile.watchlist_past.get("games", [])
             context['consumed_media'] = consumed_media
-            context['game_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
+            context['boardgame_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
 
     elif category == "movies-tv":
         response = get_movietv_info(item_id)
         movie_data = response.json()
         context['movie'] = movie_data
         movietv_id = str(movie_data.get('imdbID', ''))
-        consumed_media = user_profile.watchlist_past.get('movies', [])  # Get list of consumed items
-        consumed_media += user_profile.watchlist_past.get('tv', [])  # Get list of consumed items
+        consumed_media = user_profile.watchlist_past.get('movies', [])
+        consumed_media += user_profile.watchlist_past.get('tv', [])  
         context['consumed_media'] = consumed_media
         context['category'] = 'movies-tv'
         if isinstance(consumed_media, list):
