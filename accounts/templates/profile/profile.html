@@ -41,6 +41,7 @@
             </form>
         </ul>
     </div>
+    
     {% if selected_content == "view_lists" %}
         <div class='flex-right'>
             {% if selected_display_watchlist_item == 'movie' %}
@@ -81,7 +82,6 @@
                     {% endif %}
                 </div>
             {% elif  selected_display_watchlist_item == 'tvseries'%}
-                {% comment %} <form method="get"></form> {% endcomment %}
                 <form method="get" class="row1">
                     <input type="hidden" name="display_watchlist_item" value="tvseries">
                     <ul class="nav justify-content-center">
@@ -117,7 +117,6 @@
                     {% endif %}
                 </div>
             {% elif  selected_display_watchlist_item == 'boardgame'%}
-                {% comment %} <form method="get"></form> {% endcomment %}
                 <form method="get" class="row1">
                     <input type="hidden" name="display_watchlist_item" value="boardgame">
                     <ul class="nav justify-content-center">
@@ -130,18 +129,19 @@
                     </ul>
                 </form>
                 <div class="list-section boardgames-section">
-                    <h1> Games </h1>
+                    <h1> Board Games </h1>
                     {% if profile.watchlist_past.games %}
+                        {% comment %} <h1> {{ profile.watchlist_past.games}}</h1> {% endcomment %}
                         <div class="container">
                             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
                                 {% for game in profile.watchlist_past.games|slice:"-4:" %}
                                     <div class="col">
                                         <div class="card h-100" style="width: 18rem;">
                                             <img class="card-img-top" 
-                                                src="{{ game.poster }}" 
-                                                alt="{{ game.title }} Poster">
+                                                src="{{ game.image }}" 
+                                                alt="{{ game.name }} Poster">
                                             <div class="card-body">
-                                                <a href="{% url 'review_app:item_details' 'games' game.gameID %}"><p class="card-text"><strong>{{ game.title }}</strong> ({{ game.year }})</p></a>
+                                                <a href="{% url 'review_app:item_details' 'games' game.gameID %}"><p class="card-text"><strong>{{ game.name }}</strong> ({{ game.yearpublished }})</p></a>
                                             </div>
                                         </div>
                                     </div>
@@ -165,6 +165,7 @@
                         </li>
                     </ul>
                 </form>
+                
                 <div class="list-section video-games-section">
                     <h1> Video Games </h1>
                     {% if profile.watchlist_past.video_games %}
@@ -174,10 +175,10 @@
                                     <div class="col">
                                         <div class="card h-100" style="width: 18rem;">
                                             <img class="card-img-top" 
-                                                src="{{ vg.poster }}" 
-                                                alt="{{ vg.title }} Poster">
+                                                src="{{ vg.image }}" 
+                                                alt="{{ vg.name }} Poster">
                                             <div class="card-body">
-                                                <a href="{% url 'review_app:item_details' 'games' vg.gameID %}"><p class="card-text"><strong>{{ vg.title }}</strong> ({{ vg.year }})</p></a>
+                                                <a href="{% url 'review_app:item_details' 'games' vg.gameID %}"><p class="card-text"><strong>{{ vg.name }}</strong> ({{ vg.yearpublished }})</p></a>
                                             </div>
                                         </div>
                                     </div>
