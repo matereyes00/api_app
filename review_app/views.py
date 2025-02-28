@@ -12,10 +12,10 @@ from django.core.cache import cache
 from .forms import RegisterForm, LoginForm
 
 from accounts.models import Profile, Favorite
-from .get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info 
-from .get import search_api_book, search_api_movies_tv
-from .get import search_api_games, is_movietv_in_consumed_media
-from .get import is_book_in_consumed_media,is_game_in_consumed_media
+from .templates.API.get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info 
+from .templates.API.get import search_api_book, search_api_movies_tv
+from .templates.API.get import search_api_games, is_movietv_in_consumed_media
+from .templates.API.get import is_book_in_consumed_media,is_game_in_consumed_media
 
 from django.urls import reverse
 
