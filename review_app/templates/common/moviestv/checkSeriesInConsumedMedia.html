@@ -1,0 +1,11 @@
+{% if movietv_in_consumed_media == False %}
+    <form action="{% url 'accounts:add_to_watchlist' 'movies-tv' movie.Title|slugify %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm" class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i> Watched TV Series</button>
+    </form>
+{% else %}
+    <form action="{% url 'accounts:remove_from_watchlist' 'movies-tv' movie.Title|slugify %}" method="POST">
+        {% csrf_token %}
+        <button type='submit' data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm" class="btn btn-outline-danger"><i class="fa-solid fa-minus"></i> Watched TV Series</button>
+    </form>
+{% endif %}

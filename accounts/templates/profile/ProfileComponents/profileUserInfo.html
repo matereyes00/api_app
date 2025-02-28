@@ -1,0 +1,12 @@
+<div class="section">
+    <h1>{{ profile.user.username }}'s Profile</h1>
+
+<div class="section profile-img">
+    {% if profile.profile_picture %}
+        <img src="{{ profile.profile_picture.url }}" alt="Profile Picture">
+    {% endif %}
+</div>
+
+<div class="section profile-bio">
+    <p>Bio: {{ profile.bio }}</p>
+</div>

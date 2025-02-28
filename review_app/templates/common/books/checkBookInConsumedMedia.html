@@ -1,0 +1,15 @@
+{% if not book_in_consumed_media %}
+        <form action="{% url 'accounts:add_to_watchlist' 'book' book_olid %}"  method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-primary" 
+            for="btncheck1" name="readlist_done" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm">
+            <i class="fa-solid fa-plus"></i>readlist</button>
+        </form>
+    {% else %}
+    <form action="{% url 'accounts:remove_from_watchlist' 'book' book_olid %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger" 
+        for="btncheck1" name="readlist_not_done" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm">
+        <i class="fa-solid fa-minus"></i>readlist</button>
+    </form>
+{% endif %}
