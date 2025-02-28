@@ -1,0 +1,21 @@
+{% if watchlist_books %}
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            {% for book in watchlist_books|slice:"-4:" %}
+                <div class="col">
+                    <div class="card h-100" style="width: 18rem;">
+                        <img class="card-img-top" 
+                            src="{{ book.cover_url }}" 
+                            alt="{{ book.title }} Cover">
+                        <div class="card-body">
+                            <a href="{% url 'review_app:item_details' 'books' book.olid %}"><p class="card-text"><strong>{{ book.title }}</strong></p></a>
+                            <p class="card-text">Authored by: {{ book.author }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% else %}
+    <p>No books in your watchlist yet.</p>
+{% endif %}

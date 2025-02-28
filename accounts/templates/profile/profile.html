@@ -10,18 +10,28 @@
     <a href="{% url 'accounts:edit_profile' %}"><button type="button" class="btn btn-primary">Edit Profile</button></a>
 </div>
 
-<div class="section btn-group2">
-    <form method="get">
-        <a href="#"><button type="submit" name="lists" value="view_lists" class="btn btn-secondary">View Lists</button></a>
-        <a href="#"><button type="submit" name="lists" value="view_favorites" class="btn btn-secondary">View Favorites</button></a>
-    </form>
-</div>
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link {% if selected_content == 'view_lists' %}active{% endif %}" 
+            href="?lists=view_lists">
+            View Lists
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if selected_content == 'view_favorites' %}active{% endif %}" 
+            href="?lists=view_favorites">
+            View Favorites
+        </a>
+    </li>
+</ul>
+
 
 <div class="section watchlist-items">
     {% include 'Profile/ProfileComponents/categoryDropDown.html' %}
     {% if selected_content == "view_lists" %}
-        {% include 'Profile/ProfileComponents/watchlist_futurepast.html' %}
-
+        <div class='flex-right'>
+            {% include 'Profile/ProfileComponents/watchlists.html' %}
+        </div>
     {% elif selected_content == "view_favorites" %}
         <p>Add faves here</p>
     {% endif %}

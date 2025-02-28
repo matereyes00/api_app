@@ -1,0 +1,21 @@
+{% if watchlist %}
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            {% for movie in watchlist|slice:"-4:" %}
+                <div class="col">
+                    <div class="card h-100" style="width: 18rem;">
+                        <img class="card-img-top" 
+                        src="{{ movie.poster }}" alt="{{ movie.title }} Poster">
+                        <div class="card-body">
+                            <a href="{% url 'review_app:item_details' 'movies-tv' movie.title %}">
+                                <p class="card-text"><strong>{{ movie.title }}</strong> ({{ movie.year }})</p></a>
+                            <p class="card-text">Directed by: {{ movie.director }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% else %}
+    <p>No items in your watchlist yet.</p>
+{% endif %}

@@ -1,0 +1,20 @@
+{% if watchlist_games %}
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            {% for game in watchlist_games|slice:"-4:" %}
+                <div class="col">
+                    <div class="card h-100" style="width: 18rem;">
+                        <img class="card-img-top" 
+                            src="{{ game.image }}" 
+                            alt="{{ game.name }} Poster">
+                        <div class="card-body">
+                            <a href="{% url 'review_app:item_details' 'games' game.gameID %}"><p class="card-text"><strong>{{ game.name }}</strong> ({{ game.yearpublished }})</p></a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% else %}
+    <p>No items in your watchlist yet.</p>
+{% endif %}

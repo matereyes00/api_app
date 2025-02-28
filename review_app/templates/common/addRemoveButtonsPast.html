@@ -9,16 +9,13 @@
     
 {% comment %} === MOVIES/TV === {% endcomment %}
 {% if movie %}
-    {% comment %} MOVIES {% endcomment %}
     {% if movie.Type == 'movie' %}
         {% include 'common/moviestv/checkMovieInConsumedMedia.html' %}
-        <form action="{% url 'accounts:add_to_favorites' 'movies-tv' movie.Title|slugify %}" method="POST">
+        {% comment %} <form action="{% url 'accounts:add_to_favorites' 'movies-tv' movie.Title|slugify %}" method="POST">
             {% csrf_token %}
             <button class="btn btn-outline-primary">Favorite</button>
         </form>
-        <a href="{% url 'review_app:search' 'movies-tv' %}?q={{ query }}">Back to Movie Search Results</a>
-    
-    {% comment %} === TV SERIES === {% endcomment %}
+        <a href="{% url 'review_app:search' 'movies-tv' %}?q={{ query }}">Back to Movie Search Results</a> {% endcomment %}
     {% elif movie.Type == 'series' %}
         {% include 'common/moviestv/checkSeriesInConsumedMedia.html' %}
     {% endif %}

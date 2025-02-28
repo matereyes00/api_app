@@ -207,10 +207,12 @@ def add_to_consumed_media(request, category, item_id):
 def add_to_future_watchlist(request, category, item_id):
     profile = request.user.profile
     future_watchlist = FutureWatchlist.objects.filter(user=request.user)
-
-    future_watchlist.item_id = item_id
-    future_watchlist.category = category
-    future_watchlist.save()
+    if request.method == "POST":
+        future_watchlist.item_id = item_id
+        future_watchlist.category = category
+        future_watchlist.save()
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required
 def add_movietvto_favorites(request, category, item_id):
