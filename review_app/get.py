@@ -135,9 +135,6 @@ def is_book_in_consumed_media(users_consumed_media, attr_id, id_):
     return book_in_consumed_media
 
 def is_game_in_consumed_media(users_consumed_media, attr_id, id_):
-    # print(f"item id: {id_}")
-    # print(f"attr_id: {attr_id}")
-    # print("users consumed media", users_consumed_media)
     if isinstance(users_consumed_media, list):
         if all(isinstance(item, dict) for item in users_consumed_media):  
             game_in_consumed_media = any(str(item.get(attr_id)) == str(id_) for item in users_consumed_media)
@@ -145,5 +142,14 @@ def is_game_in_consumed_media(users_consumed_media, attr_id, id_):
             game_in_consumed_media = id_ in users_consumed_media
     else:
         game_in_consumed_media = False  # Default to False if data format is unexpected
-    print(f"in consumed media: {game_in_consumed_media}")
     return game_in_consumed_media
+
+def is_movietv_in_consumed_media(users_consumed_media, attr_id, id_):
+    if isinstance(users_consumed_media, list):
+            if all(isinstance(item, dict) for item in users_consumed_media):  
+                movietv_in_consumed_media = any(str(item.get(attr_id)) == id_ for item in users_consumed_media)
+            else:  
+                movietv_in_consumed_media = id_ in users_consumed_media
+    else:
+        movietv_in_consumed_media = False 
+    return movietv_in_consumed_media

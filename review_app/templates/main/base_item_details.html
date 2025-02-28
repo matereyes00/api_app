@@ -85,7 +85,7 @@
         <p>Details not found.</p>
     {% endif %}
 
-    {% comment %} <div class="btn btn-group"> {% endcomment %}
+    <div class="btn btn-group">
         {% comment %} === BOOK === {% endcomment %}
         {% if book %}
             <div class="watchlist-past-buttons">
@@ -93,14 +93,14 @@
                     <form action="{% url 'accounts:add_to_watchlist' 'book' book_olid %}"  method="POST">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-outline-primary" 
-                        for="btncheck1" name="readlist_done">
+                        for="btncheck1" name="readlist_done" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm">
                         <i class="fa-solid fa-plus"></i>readlist</button>
                     </form>
                 {% else %}
                 <form action="{% url 'accounts:remove_from_watchlist' 'book' book_olid %}" method="POST">
                     {% csrf_token %}
-                    <button class="btn btn-outline-danger" 
-                    for="btncheck1" name="readlist_not_done">
+                    <button type="submit" class="btn btn-outline-danger" 
+                    for="btncheck1" name="readlist_not_done" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm">
                     <i class="fa-solid fa-minus"></i>readlist</button>
                 </form>
                 {% endif %}
@@ -118,24 +118,24 @@
                 {% if not videogame_in_consumed_media  %}
                     <form action="{% url 'accounts:add_to_watchlist' 'game' game_id %}" method="post">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa-solid fa-plus"></i>Played Video Games  List</button>
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm"><i class="fa-solid fa-plus"></i>Played Video Games  List</button>
                     </form>
                 {% else %}
                     <form action="{% url 'accounts:remove_from_watchlist' 'game' game_id %}" method="POST">
                         {% csrf_token %}
-                        <button class="btn btn-outline-danger"><i class="fa-solid fa-minus"></i>Played Video Games List</button>
+                        <button data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm" class="btn btn-outline-danger"><i class="fa-solid fa-minus"></i>Played Video Games List</button>
                     </form>
                 {% endif %}
             {% else %}
                 {% if not boardgame_in_consumed_media %} 
                     <form action="{% url 'accounts:add_to_watchlist' 'game' game_id %}" method="post">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i>APlayed Board Games List</button>
+                        <button type="submit" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm" class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i>Played Board Games List</button>
                     </form>
                 {% else %}
                     <form action="{% url 'accounts:remove_from_watchlist' 'game' game_id %}" method="POST">
                         {% csrf_token %}
-                        <button class="btn btn-outline-danger"><i class="fa-solid fa-minus"></i>Played Board Games List</button>
+                        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm"><i class="fa-solid fa-minus"></i>Played Board Games List</button>
                     </form> 
                 {% endif %}
             {% endif %}
@@ -148,12 +148,12 @@
                     {% if movietv_in_consumed_media == False %}
                         <form action="{% url 'accounts:add_to_watchlist' 'movies-tv' movie.Title|slugify %}" method="POST">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i>Watched movies list</button>
+                            <button type="submit" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm"><i class="fa-solid fa-plus"></i>Watched movies list</button>
                         </form>
                     {% else %}
                         <form action="{% url 'accounts:remove_from_watchlist' 'movies-tv' movie.Title|slugify %}" method="POST">
                             {% csrf_token %}
-                            <button type='submit' class="btn btn-outline-danger"><i class="fa-solid fa-minus"></i>Watched movies list</button>
+                            <button type='submit' class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm"><i class="fa-solid fa-minus"></i>Watched movies list</button>
                         </form>
                     {% endif %}
                     <form action="{% url 'accounts:add_to_favorites' 'movies-tv' movie.Title|slugify %}" method="POST">
@@ -167,12 +167,12 @@
                     {% if movietv_in_consumed_media == False %}
                         <form action="{% url 'accounts:add_to_watchlist' 'movies-tv' movie.Title|slugify %}" method="POST">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i> Watched TV Series</button>
+                            <button type="submit" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm" class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i> Watched TV Series</button>
                         </form>
                     {% else %}
                         <form action="{% url 'accounts:remove_from_watchlist' 'movies-tv' movie.Title|slugify %}" method="POST">
                             {% csrf_token %}
-                            <button type='submit' class="btn btn-outline-danger"><i class="fa-solid fa-minus"></i> Watched TV Series</button>
+                            <button type='submit' data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm" class="btn btn-outline-danger"><i class="fa-solid fa-minus"></i> Watched TV Series</button>
                         </form>
                     {% endif %}
                     </div>
@@ -199,21 +199,40 @@
         {% endif %}
 
     <a href="/">Back to Home</a>
-    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Modal Message</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Successfully added {{ game.name }} to your played video games list
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Understood</button>
-                </div>
-            </div>
-            </div>
+    
+
+    <div class="modal bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            {% if videogame_in_consumed_media == False %}
+                <p> added {{game.name}} to video game list</p>
+            {% elif videogame_in_consumed_media == True%}
+                <p> removed {{game.name}} from video game list</p>
+            
+            {% elif boardgame_in_consumed_media == False %}
+                <p> added {{game.name}} to board game list</p>
+            {% elif boardgame_in_consumed_media == True %}
+                <p> removed {{game.name}} from board game list</p>
+           
+            {% elif movietv_in_consumed_media == False %}
+                <p> added {{movie.name}} to watchlist</p>
+            {% elif movietv_in_consumed_media == True %}
+                <p> removed {{movie.name}} from watch list</p>
+           
+            {% elif book_in_consumed_media == False %}
+                <p> added {{book.name}} to readlist</p>
+            {% elif book_in_consumed_media == True %}
+                <p> removed {{book.name}} from readlist</p>
+            {% else  %}
+                <p> nothing happened </p>
+            {% endif %}
+          </div>
         </div>
+      </div>
+
+    <script>
+        document.getElementById("openModalBtn").addEventListener("click", function(event) {
+            event.preventDefault(); // Prevent form submission
+        });
+    </script>
 {% endblock %}

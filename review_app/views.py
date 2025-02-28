@@ -14,7 +14,7 @@ from .forms import RegisterForm, LoginForm
 from accounts.models import Profile, Favorite
 from .get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info 
 from .get import search_api_book, search_api_movies_tv
-from .get import search_api_games
+from .get import search_api_games, is_movietv_in_consumed_media
 from .get import is_book_in_consumed_media,is_game_in_consumed_media
 
 from django.urls import reverse
@@ -81,7 +81,6 @@ def item_details(request, category, item_id):
     if isinstance(watchlist_past, str):
         watchlist_past = json.loads(watchlist_past) if watchlist_past else {}
     context['category'] = category
-    
     item_id = str(item_id)
     if category == "books":
         url = f"https://openlibrary.org/works/{item_id}.json"
@@ -119,10 +118,13 @@ def item_details(request, category, item_id):
             consumed_media = user_profile.watchlist_past.get("video_games", [])
             context['consumed_media'] = consumed_media
             context['videogame_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
+            print(f"{game_data['name']} is in video game watchlist: {context['videogame_in_consumed_media']}")
+            
         else:
             consumed_media = user_profile.watchlist_past.get("games", [])
             context['consumed_media'] = consumed_media
             context['boardgame_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
+            
 
     elif category == "movies-tv":
         response = get_movietv_info(item_id)
@@ -133,14 +135,15 @@ def item_details(request, category, item_id):
         consumed_media += user_profile.watchlist_past.get('tv', [])  
         context['consumed_media'] = consumed_media
         context['category'] = 'movies-tv'
-        if isinstance(consumed_media, list):
-            if all(isinstance(item, dict) for item in consumed_media):  
-                movietv_in_consumed_media = any(str(item.get("imdbID")) == movietv_id for item in consumed_media)
-            else:  
-                movietv_in_consumed_media = item_id in consumed_media
-        else:
-            movietv_in_consumed_media = False  # Default to False if data format is unexpected
-        context['movietv_in_consumed_media'] = movietv_in_consumed_media
-        print(f"{movie_data['Title']} is in movietv watchlist: {movietv_in_consumed_media}")
-
+        # if isinstance(consumed_media, list):
+        #     if all(isinstance(item, dict) for item in consumed_media):  
+        #         movietv_in_consumed_media = any(str(item.get("imdbID")) == movietv_id for item in consumed_media)
+        #     else:  
+        #         movietv_in_consumed_media = item_id in consumed_media
+        # else:
+        #     movietv_in_consumed_media = False  # Default to False if data format is unexpected
+        # context['movietv_in_consumed_media'] = movietv_in_consumed_media
+        context['movietv_in_consumed_media'] = is_movietv_in_consumed_media(consumed_media, "imdbID", movietv_id)
+        
+        
     return render(request, "main/base_item_details.html", context)
