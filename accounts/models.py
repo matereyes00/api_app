@@ -20,7 +20,14 @@ class Profile(models.Model):
 
 class FutureWatchlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="future_watchlist")
-    category = models.CharField(max_length=20, choices=[('books', 'Books'), ('movies', 'Movies'), ('games', 'Games')])
+    # category = models.CharField(max_length=20, choices=[('books', 'Books'), ('movies', 'Movies'), ('games', 'Games')])
+    category = models.CharField(max_length=20, choices=[
+        ('movie', 'Movie'),
+        ('tv', 'TV Show'),
+        ('book', 'Book'),
+        ('boardgame', 'Board Game'),
+        ('videogame', 'Video Game')
+    ])
     item_id = models.CharField(max_length=255)  # Store OLID, IMDbID, Game ID
     date_added = models.DateTimeField(auto_now_add=True)  # Timestamp for sorting/filtering
     

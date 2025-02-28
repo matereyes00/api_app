@@ -67,9 +67,16 @@ def get_bgg_game_type(game_name):
 
 def get_movietv_info(movietv_title):
     api_key = os.getenv('OMDB_API_KEY')
+    
     url = f'http://www.omdbapi.com/?t={movietv_title}&apikey={api_key}'
     response = requests.get(url)
     return response
+
+def get_movietv_data(item_id):
+    title = item_id.replace("-", " ")  # Convert slug back to title
+    api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
+    movie_data = response.json()
+    return movie_data
 
 def get_book_info(book_olid):
     url = f"https://openlibrary.org/works/{book_olid}.json"

@@ -11,7 +11,7 @@ from django.shortcuts import render
 from django.core.cache import cache
 from .forms import RegisterForm, LoginForm
 
-from accounts.models import Profile, Favorite
+from accounts.models import Profile, Favorite, FutureWatchlist
 from .templates.API.get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info 
 from .templates.API.get import search_api_book, search_api_movies_tv
 from .templates.API.get import search_api_games, is_movietv_in_consumed_media
@@ -78,6 +78,10 @@ def item_details(request, category, item_id):
     context = {}
     user_profile = request.user.profile
     watchlist_past = user_profile.watchlist_past
+    item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=category, item_id=item_id).exists()
+    context["is_item_in_future_watchlist"] = item_in_future_watchlist
+    print(item_in_future_watchlist)
+    
     if isinstance(watchlist_past, str):
         watchlist_past = json.loads(watchlist_past) if watchlist_past else {}
     context['category'] = category

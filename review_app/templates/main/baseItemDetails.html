@@ -3,11 +3,11 @@
 {% block content %}
     {% comment %} Media to display details for {% endcomment %}
     {% include 'main/baseItemDetails/itemDetails.html' %}
-   
 
     <div class="btn btn-group">
         {% include 'common/addRemoveButtonsPast.html' %}
-        {% include 'common/addRemoveButtonsFuture.html' %}
+        {% include 'common/addRemoveButtonsFuture.html' with game_id=game.gameID book_olid=book.olid category=category %}
+
         <a href="/">Back to Home</a>
     </div>
 

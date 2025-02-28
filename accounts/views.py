@@ -205,27 +205,52 @@ def add_to_consumed_media(request, category, item_id):
 
 @login_required
 def add_to_future_watchlist(request, category, item_id):
-    profile = request.user.profile
-    future_watchlist = FutureWatchlist.objects.filter(user=request.user)
     if request.method == "POST":
-        future_watchlist.item_id = item_id
-        future_watchlist.category = category
-        future_watchlist.save()
-        return redirect(request.META.get('HTTP_REFERER', '/'))
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+        # Add to watchlist
+        if category == 'games':
+            games_data = get_bgg_game_info(item_id)
+            if games_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
+                FutureWatchlist.objects.get_or_create(
+                    user=request.user, category='videogame', item_id=item_id)
+            else:
+                FutureWatchlist.objects.get_or_create(
+                    user=request.user, category='boardgame', item_id=item_id)
+        else:
+            FutureWatchlist.objects.get_or_create(
+                user=request.user, category=category, item_id=item_id)
+
+        # ✅ Now check if it's in the list (after adding)
+        item_in_future_watchlist = FutureWatchlist.objects.filter(
+            user=request.user, category=category, item_id=item_id
+        ).exists()
+
+        print(f"✅ Added! Now in watchlist: {item_in_future_watchlist}")
+
+    return redirect(request.META.get("HTTP_REFERER", "/"))
+
+
+
+
+@login_required
+def remove_from_future_watchlist(request, category, item_id):
+    if request.method == "POST":
+        item_in_future_watchlist = FutureWatchlist.objects.filter(
+            user=request.user, category=category, item_id=item_id).exists()
+        item_to_check = get_object_or_404(FutureWatchlist, user=request.user, category=category, item_id=item_id)
+        if item_to_check == True:
+            item_to_check.delete()
+    return redirect(request.META.get("HTTP_REFERER", "/"))
+
 
 @login_required
 def add_movietvto_favorites(request, category, item_id):
     profile = request.user.profile
-    # Fetch movie/TV show details from OMDb API
     api_url = f"https://www.omdbapi.com/?i={item_id}&apikey={api_key}"
     response = requests.get(api_url)
     data = response.json()
 
-    # Ensure API call was successful and title exists
     if response.status_code == 200 and data.get("Title"):
         title = data["Title"]
-        # Check if it already exists in the favorites list
         if not Favorite.objects.filter(user=request.user, category=category, item_id=item_id).exists():
             Favorite.objects.create(user=request.user, category=category, item_id=item_id, title=title)
 

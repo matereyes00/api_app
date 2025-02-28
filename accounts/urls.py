@@ -15,5 +15,7 @@ urlpatterns = [
     v.remove_from_consumed_media, name="remove_from_watchlist"),
     path("add_to_favorites/<str:category>/<str:item_id>/", 
         v.add_movietvto_favorites, name="add_to_favorites"),
-    path("add/<str:category>/<str:item_id", v.add_to_future_watchlist, name="add_to_future_watch_list"),
+    path('add_to_future_watchlist/<str:category>/<str:item_id>/', v.add_to_future_watchlist, name='add_to_future_watchlist'),
+    path('remove_from_future_watchlist/<str:category>/<str:item_id>/', v.remove_from_future_watchlist, name='remove_from_future_watchlist')
+
 ]
