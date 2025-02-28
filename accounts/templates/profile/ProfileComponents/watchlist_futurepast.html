@@ -1,0 +1,185 @@
+
+<div class='flex-right'>
+    {% if selected_display_watchlist_item == 'movie' %}
+        <form method="get" class="row1">
+            <input type="hidden" name="display_watchlist_item" value="movie">
+            <ul class="nav justify-content-center">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Watched</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Want to Watch</a>
+                </li>
+            </ul>
+        </form>
+        
+        <div class="list-section movie-section row2">
+            <h1> Movies </h1>
+            {% if profile.watchlist_past.movies %}
+                <div class="container">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                        {% for movie in profile.watchlist_past.movies|slice:"-4:" %}
+                            <div class="col">
+                                <div class="card h-100" style="width: 18rem;">
+                                    <img class="card-img-top" 
+                                    src="{{ movie.poster }}" alt="{{ movie.title }} Poster">
+                                    <div class="card-body">
+                                        <a href="{% url 'review_app:item_details' 'movies-tv' movie.title %}">
+                                            <p class="card-text"><strong>{{ movie.title }}</strong> ({{ movie.year }})</p></a>
+                                        <p class="card-text">Directed by: {{ movie.director }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <p>No movies in your watchlist yet.</p>
+            {% endif %}
+        </div>
+    {% elif  selected_display_watchlist_item == 'tvseries'%}
+        <form method="get" class="row1">
+            <input type="hidden" name="display_watchlist_item" value="tvseries">
+            <ul class="nav justify-content-center">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Watched</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Want to Watch</a>
+                </li>
+            </ul>
+        </form>
+        <div class="list-section tv-section">
+            <h1> TV </h1>
+            {% if profile.watchlist_past.tv %}
+                <div class="container">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                        {% for show in profile.watchlist_past.tv %}
+                            <div class="col">
+                                <div class="card h-100" style="width: 18rem;">
+                                    <img class="card-img-top" src="{{ show.poster }}" alt="{{ show.title }} Poster">
+                                    <div class="card-body">
+                                        <a href="{% url 'review_app:item_details' 'movies-tv' show.title %}">
+                                            <p class="card-text"><strong>{{ show.title }}</strong> ({{ show.year }})</p></a>
+                                        <p class="card-text">Directed by: {{ show.director }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <p>No shows in your watchlist yet.</p>
+            {% endif %}
+        </div>
+    {% elif  selected_display_watchlist_item == 'boardgame'%}
+        <form method="get" class="row1">
+            <input type="hidden" name="display_watchlist_item" value="boardgame">
+            <ul class="nav justify-content-center">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Played</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Want to Play</a>
+                </li>
+            </ul>
+        </form>
+        <div class="list-section boardgames-section">
+            <h1> Board Games </h1>
+            {% if profile.watchlist_past.games %}
+                {% comment %} <h1> {{ profile.watchlist_past.games}}</h1> {% endcomment %}
+                <div class="container">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                        {% for game in profile.watchlist_past.games|slice:"-4:" %}
+                            <div class="col">
+                                <div class="card h-100" style="width: 18rem;">
+                                    <img class="card-img-top" 
+                                        src="{{ game.image }}" 
+                                        alt="{{ game.name }} Poster">
+                                    <div class="card-body">
+                                        <a href="{% url 'review_app:item_details' 'games' game.gameID %}"><p class="card-text"><strong>{{ game.name }}</strong> ({{ game.yearpublished }})</p></a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <p>No games in your watchlist yet.</p>
+            {% endif %}
+        </div>
+    {% elif selected_display_watchlist_item == 'videogame' %}
+        {% comment %} <form method="get"></form> {% endcomment %}
+        <form method="get" class="row1">
+            <input type="hidden" name="display_watchlist_item" value="videogame">
+            <ul class="nav justify-content-center">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Played</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Want to Play</a>
+                </li>
+            </ul>
+        </form>
+        
+        <div class="list-section video-games-section">
+            <h1> Video Games </h1>
+            {% if profile.watchlist_past.video_games %}
+                <div class="container">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                        {% for vg in profile.watchlist_past.video_games|slice:"-4:" %}
+                            <div class="col">
+                                <div class="card h-100" style="width: 18rem;">
+                                    <img class="card-img-top" 
+                                        src="{{ vg.image }}" 
+                                        alt="{{ vg.name }} Poster">
+                                    <div class="card-body">
+                                        <a href="{% url 'review_app:item_details' 'games' vg.gameID %}"><p class="card-text"><strong>{{ vg.name }}</strong> ({{ vg.yearpublished }})</p></a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <p>No video games in your watchlist yet.</p>
+            {% endif %}
+        </div>
+    {% elif selected_display_watchlist_item == 'book' %}
+        <form method="get" class="row1">
+            <input type="hidden" name="display_watchlist_item" value="book">
+            <ul class="nav justify-content-center">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Read</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Want to Read</a>
+                </li>
+            </ul>
+        </form>
+        <div class="list-section book-section">
+            <h1> Books </h1>
+            {% if profile.watchlist_past.books %}
+                <div class="container">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                        {% for book in profile.watchlist_past.books|slice:"-4:" %}
+                            <div class="col">
+                                <div class="card h-100" style="width: 18rem;">
+                                    <img class="card-img-top" 
+                                        src="{{ book.cover_url }}" 
+                                        alt="{{ book.title }} Cover">
+                                    <div class="card-body">
+                                        <a href="{% url 'review_app:item_details' 'books' book.olid %}"><p class="card-text"><strong>{{ book.title }}</strong></p></a>
+                                        <p class="card-text">Authored by: {{ book.author }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <p>No books in your watchlist yet.</p>
+            {% endif %}
+        </div> 
+    {% endif %}
+</div>

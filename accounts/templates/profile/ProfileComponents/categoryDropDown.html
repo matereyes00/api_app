@@ -1,0 +1,13 @@
+<div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Movies</button>
+    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+        <form method='get'>
+            <input type="hidden" name="lists" value="view_lists">
+            <li><button class="dropdown-item list-group-item list-group-item-action" type="submit" name="display_watchlist_item" value="videogame" onclick="updateDropdown('Video Games')")>Video Games</button></li>
+            <li><button class="dropdown-item list-group-item list-group-item-action" type="submit" name="display_watchlist_item" value="boardgame" onclick="updateDropdown('Board Games')")>Board Games</button></li>
+            <li><button class="dropdown-item list-group-item list-group-item-action" type="submit" name="display_watchlist_item" value="movie" onclick="updateDropdown('Movies')">Movies</button></li>
+            <li><button class="dropdown-item list-group-item list-group-item-action" type="submit" name="display_watchlist_item" value="tvseries" onclick="updateDropdown('TV series')">TV series</button></li>
+            <li><button class="dropdown-item list-group-item list-group-item-action" type="submit" name="display_watchlist_item" value="book" onclick="updateDropdown('Books')">Books</button></li>
+        </form>
+    </ul>
+</div>

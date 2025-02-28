@@ -1,0 +1,24 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+    {% comment %} Media to display details for {% endcomment %}
+    {% include 'main/baseItemDetails/itemDetails.html' %}
+   
+
+    <div class="btn btn-group">
+        {% include 'common/addRemoveButtonsPast.html' %}
+        {% include 'common/addRemoveButtonsFuture.html' %}
+       
+    
+        <a href="/">Back to Home</a>
+    </div>
+
+    {% include 'common/addRemoveModal.html' %}
+    
+
+    <script>
+        document.getElementById("openModalBtn").addEventListener("click", function(event) {
+            event.preventDefault(); // Prevent form submission
+        });
+    </script>
+{% endblock %}

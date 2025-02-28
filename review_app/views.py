@@ -66,12 +66,12 @@ def search(request, category):
             ]
 
         else:
-            return render(request, 'main/base_search.html', {'error_message': 'Invalid category'})
+            return render(request, 'main/baseSearch.html', {'error_message': 'Invalid category'})
 
-        template = 'main/base_search.html'
+        template = 'main/baseSearch.html'
         return render(request, template, {'category':category,'results': results, 'query': query, 'error_message': error_message if 'error_message' in locals() else None})
     
-    return render(request, 'main/base_search.html', {'category': category})
+    return render(request, 'main/baseSearch.html', {'category': category})
 
 @login_required(login_url='accounts/login/')
 def item_details(request, category, item_id):
@@ -104,10 +104,10 @@ def item_details(request, category, item_id):
 
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
-            return render(request, 'main/base_search.html', {'error_message': 'Error fetching book details.'})
+            return render(request, 'main/baseSearch.html', {'error_message': 'Error fetching book details.'})
         except json.JSONDecodeError as e:
             print(f"Error processing JSON: {e}")
-            return render(request, 'main/base_search.html', {'error_message': 'Error processing book data.'})
+            return render(request, 'main/baseSearch.html', {'error_message': 'Error processing book data.'})
     
     elif category == "games":
         game_data = get_bgg_game_info(item_id)
@@ -118,14 +118,12 @@ def item_details(request, category, item_id):
             consumed_media = user_profile.watchlist_past.get("video_games", [])
             context['consumed_media'] = consumed_media
             context['videogame_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
-            print(f"{game_data['name']} is in video game watchlist: {context['videogame_in_consumed_media']}")
             
         else:
             consumed_media = user_profile.watchlist_past.get("games", [])
             context['consumed_media'] = consumed_media
             context['boardgame_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
             
-
     elif category == "movies-tv":
         response = get_movietv_info(item_id)
         movie_data = response.json()
@@ -135,15 +133,6 @@ def item_details(request, category, item_id):
         consumed_media += user_profile.watchlist_past.get('tv', [])  
         context['consumed_media'] = consumed_media
         context['category'] = 'movies-tv'
-        # if isinstance(consumed_media, list):
-        #     if all(isinstance(item, dict) for item in consumed_media):  
-        #         movietv_in_consumed_media = any(str(item.get("imdbID")) == movietv_id for item in consumed_media)
-        #     else:  
-        #         movietv_in_consumed_media = item_id in consumed_media
-        # else:
-        #     movietv_in_consumed_media = False  # Default to False if data format is unexpected
-        # context['movietv_in_consumed_media'] = movietv_in_consumed_media
         context['movietv_in_consumed_media'] = is_movietv_in_consumed_media(consumed_media, "imdbID", movietv_id)
         
-        
-    return render(request, "main/base_item_details.html", context)
+    return render(request, "main/baseItemDetails.html", context)

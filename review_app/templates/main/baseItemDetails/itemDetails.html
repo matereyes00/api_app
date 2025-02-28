@@ -1,0 +1,82 @@
+        {% if book %}
+        <h1>{{ book.title }}</h1>
+
+        {% if book.authors %}
+            <p>Author(s): 
+                {% for author in book.authors %}
+                    {{ author.author.key|slice:"10:" }}
+                    {% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+        {% endif %}
+
+        {% if book.publish_date %}
+            <p>Published: {{ book.publish_date }}</p>
+        {% endif %}
+
+        {% if book.number_of_pages %}
+            <p>Pages: {{ book.number_of_pages }}</p>
+        {% endif %}
+
+        {% if book.isbn_13 %}
+            <p>ISBN: {{ book.isbn_13.0 }}</p>
+        {% endif %}
+
+        {% if book.cover_url %}
+            <img src="{{ book.cover_url }}" alt="{{ book.title }} cover">
+        {% endif %}
+
+        {% if book.description.value %}
+            <p>{{book.description.value}}</p>
+        {% endif %}
+
+        {% comment %} <form action="{% url 'accounts:add_to_watchlist' 'book' book.olid %}" method="POST">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">Add to Booklist</button>
+        </form> {% endcomment %}
+
+
+        <a href="{% url 'review_app:search' 'books' %}?q={{ query }}">Back to Book Search Results</a>
+
+    {% elif game %}
+        <h1>{{ game.name }} </h1>
+        <h4>{{ game.type }} </h4>
+        {% if game.yearpublished %}
+            <p>Year Published: {{ game.yearpublished }}</p>
+        {% endif %}
+        {% if game.description %}
+            <p>Description: {{ game.description|safe }}</p>
+        {% endif %}
+        {% if game.minplayers %}
+            <p>Min Players: {{ game.minplayers }}</p>
+        {% endif %}
+        {% if game.maxplayers %}
+            <p>Max Players: {{ game.maxplayers }}</p>
+        {% endif %}
+        {% if game.playingtime %}
+            <p>Playing Time: {{ game.playingtime }} minutes</p>
+        {% endif %}
+        {% if game.ratingaverage %}
+            <p>Average Rating: {{ game.ratingaverage }}</p>
+        {% endif %}
+        {% if game.image %}
+            <img src="{{ game.image }}" alt="{{ game.name }} Image" width="300">
+        {% endif %}
+        
+
+        <a href="{% url 'review_app:search' 'games' %}?q={{ query }}">Back to Game Search Results</a>
+
+    {% elif movie %}
+        <h2>{{ movie.Title }}</h2>
+        <p>Year: {{ movie.Year }}</p>
+        <p>Director: {{ movie.Director }}</p>
+        <p>Actors: {{ movie.Actors }}</p>
+        <p>Plot: {{ movie.Plot }}</p>
+
+        {% if movie.Poster %}
+            <img src="{{ movie.Poster }}" alt="{{ movie.Title }} Poster">
+        {% endif %}
+
+    {% else %}
+        <p>Details not found.</p>
+    {% endif %}
