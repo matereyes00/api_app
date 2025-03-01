@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 import json
 from .models import Profile, Favorite, FutureWatchlist
-from .get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info
+from .templates.API_.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "formatted_watchlist")

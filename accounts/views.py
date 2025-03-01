@@ -14,7 +14,8 @@ from.models import Profile, Favorite, FutureWatchlist
 from django.shortcuts import redirect
 from django.contrib import messages
 
-from .get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info
+from .templates.API_.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data
+from .templates.API_.delete import delete_future_watchlist_item
 
 import json
 import requests
@@ -156,9 +157,7 @@ def add_to_consumed_media(request, category, item_id):
             watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games": []}
         else:
             watchlist = watchlist_past
-
         api_key = os.getenv('OMDB_API_KEY')
-        
         if category == 'movies-tv':
             itemid = item_id
             title = item_id.replace("-", " ")  # Convert slug back to title
@@ -206,39 +205,58 @@ def add_to_consumed_media(request, category, item_id):
 @login_required
 def add_to_future_watchlist(request, category, item_id):
     if request.method == "POST":
-        # Add to watchlist
+        if category == 'movies-tv':
+            itemid = item_id
+            title = item_id.replace("-", " ")  # Convert slug back to title
+            api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
+            response = requests.get(api_url)
+            movie_data = response.json()
+            movietv_id = str(movie_data.get('imdbID', ''))
+            if movie_data['Type'] == 'movie':
+                FutureWatchlist.objects.get_or_create(
+                user=request.user, category='movie', item_id=movietv_id
+            )
+            if movie_data['Type'] == 'series':
+                FutureWatchlist.objects.get_or_create(
+                user=request.user, category='tv', item_id=movietv_id
+            )
+        if category == 'book':
+            book_data = get_book_info(item_id)
+            FutureWatchlist.objects.get_or_create(
+                user=request.user, category='book', item_id=item_id
+            )
         if category == 'games':
             games_data = get_bgg_game_info(item_id)
             if games_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
-                FutureWatchlist.objects.get_or_create(
-                    user=request.user, category='videogame', item_id=item_id)
+                FutureWatchlist.objects.get_or_create(user=request.user, category='videogame', item_id=item_id)
             else:
-                FutureWatchlist.objects.get_or_create(
-                    user=request.user, category='boardgame', item_id=item_id)
+                FutureWatchlist.objects.get_or_create(user=request.user, category='boardgame', item_id=item_id)
         else:
-            FutureWatchlist.objects.get_or_create(
-                user=request.user, category=category, item_id=item_id)
-
-        # ✅ Now check if it's in the list (after adding)
-        item_in_future_watchlist = FutureWatchlist.objects.filter(
-            user=request.user, category=category, item_id=item_id
-        ).exists()
-
-        print(f"✅ Added! Now in watchlist: {item_in_future_watchlist}")
+            print("Not a valid item")
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
-
-
 
 
 @login_required
 def remove_from_future_watchlist(request, category, item_id):
     if request.method == "POST":
-        item_in_future_watchlist = FutureWatchlist.objects.filter(
-            user=request.user, category=category, item_id=item_id).exists()
-        item_to_check = get_object_or_404(FutureWatchlist, user=request.user, category=category, item_id=item_id)
-        if item_to_check == True:
-            item_to_check.delete()
+        print(f"CATEGORY: {category}")
+        if category == 'movies-tv':
+            movie_data = get_movietv_data(item_id)
+            if movie_data['Type'] == 'movie':
+                delete_future_watchlist_item(request, movie_data['imdbID'],'movie')
+            if movie_data['Type'] == 'series':
+                delete_future_watchlist_item(request, movie_data['imdbID'],'tv')
+        if category == "book":
+            book_data = get_book_info(item_id)
+            delete_future_watchlist_item(request, item_id,'book')
+        if category == 'games':
+            games_data = get_bgg_game_info(item_id)
+            if games_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
+                delete_future_watchlist_item(request, item_id,'videogame')
+            else:
+                delete_future_watchlist_item(request, item_id,'boardgame')
+
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
 

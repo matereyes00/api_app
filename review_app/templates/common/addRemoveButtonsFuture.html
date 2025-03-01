@@ -1,32 +1,18 @@
 {% if book %}
-    {% if is_item_in_future_watchlist %}
-        <form action="{% url 'accounts:add_to_future_watchlist' category book_olid %}" method="POST">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm"><i class="fa-solid fa-plus"></i>Will Read list</button>
-        </form>
-    {% else %}
-        <form action="{% url 'accounts:remove_from_future_watchlist' category book_olid %}" method="POST">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger" 
-            for="btncheck1" name="readlist_not_done" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm">
-            <i class="fa-solid fa-minus"></i>Future readlist</button>
-        </form>
-    {% endif %}
+    {% include 'common/books/futureWatchlistBook.html' %}
+{% endif %}
 
-{% elif game %}
-    {% if game.type == 'videogame' or game.type == 'rpg' or game.type == 'videogamecompany' or game.type == 'rpgcompany' or game.type == 'rpgperson' %}
-        {% if not item_in_future_watchlist %}
-        <form action="{% url 'accounts:add_to_future_watchlist' category game_id %}" method="POST">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm"><i class="fa-solid fa-plus"></i>Will Play list</button>
-        </form>
-        {% else %}
-        <form action="{% url 'accounts:remove_from_future_watchlist' category game_id %}" method="POST">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger" 
-            for="btncheck1" name="readlist_not_done" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm">
-            <i class="fa-solid fa-minus"></i>Future play list</button>
-        </form>
-        {% endif %}
+
+{% if game %}
+    {% include 'common/games/futureWatchlistGame.html' %}
+{% endif %}
+
+
+{% if movie %}
+    {% if movie.Type == 'movie'%}
+        {% include 'common/moviestv/futureWatchlistMovie.html' %}
+    {% endif %}
+    {% if movie.Type == 'series'%}
+        {% include 'common/moviestv/futureWatchlistTV.html' %}
     {% endif %}
 {% endif %}

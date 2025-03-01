@@ -1,0 +1,13 @@
+{% if not is_item_in_future_watchlist %}
+    <form action="{% url 'accounts:add_to_future_watchlist' 'book' book_olid %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm"><i class="fa-solid fa-plus"></i>Will Read list</button>
+    </form>
+{% else %}
+    <form action="{% url 'accounts:remove_from_future_watchlist' 'book' book_olid %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger" 
+        for="btncheck1" name="readlist_not_done" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm">
+        <i class="fa-solid fa-minus"></i>Future readlist</button>
+    </form>
+{% endif %}

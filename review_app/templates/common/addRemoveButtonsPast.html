@@ -1,22 +1,20 @@
 {% if book %}
-    {% include 'common/books/checkBookInConsumedMedia.html' %}
+    {% include 'common/books/pastWatchlistBook.html' %}
 {% endif %}
 
-{% comment %} === VIDEO GAMES and BOARD GAMES=== {% endcomment %}
 {% if game %}
-    {% include 'common/games/checkGameInConsumedMedia.html' %}
+    {% include 'common/games/pastWatchlistGame.html' %}
 {% endif %}
     
-{% comment %} === MOVIES/TV === {% endcomment %}
 {% if movie %}
     {% if movie.Type == 'movie' %}
-        {% include 'common/moviestv/checkMovieInConsumedMedia.html' %}
+        {% include 'common/moviestv/pastWatchlistMovie.html' %}
         {% comment %} <form action="{% url 'accounts:add_to_favorites' 'movies-tv' movie.Title|slugify %}" method="POST">
             {% csrf_token %}
             <button class="btn btn-outline-primary">Favorite</button>
         </form>
         <a href="{% url 'review_app:search' 'movies-tv' %}?q={{ query }}">Back to Movie Search Results</a> {% endcomment %}
     {% elif movie.Type == 'series' %}
-        {% include 'common/moviestv/checkSeriesInConsumedMedia.html' %}
+        {% include 'common/moviestv/pastWatchlistTV.html' %}
     {% endif %}
 {% endif %}
