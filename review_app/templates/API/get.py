@@ -153,3 +153,10 @@ def is_movietv_in_consumed_media(users_consumed_media, attr_id, id_):
     else:
         movietv_in_consumed_media = False 
     return movietv_in_consumed_media
+
+def get_movietv_data_using_imdbID(item_id):
+    api_key = os.getenv('OMDB_API_KEY')
+    api_url = f"https://www.omdbapi.com/?i={item_id}&apikey={api_key}"
+    response = requests.get(api_url)
+    movie_data = response
+    return movie_data

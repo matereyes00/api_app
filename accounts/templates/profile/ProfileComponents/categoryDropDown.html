@@ -1,13 +1,28 @@
 <div class="dropdown">
-    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Movies</button>
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+        {% if request.GET.display_watchlist_item == 'videogame' %}
+            Video Games
+        {% elif request.GET.display_watchlist_item == 'boardgame' %}
+            Board Games
+        {% elif request.GET.display_watchlist_item == 'movie' %}
+            Movies
+        {% elif request.GET.display_watchlist_item == 'tvseries' %}
+            TV Series
+        {% elif request.GET.display_watchlist_item == 'book' %}
+            Books
+        {% else %}
+            Select Category
+        {% endif %}
+    </button>
+
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
         <form method='get'>
-            <input type="hidden" name="lists" value="view_lists">
-            <li><button class="dropdown-item list-group-item list-group-item-action" type="submit" name="display_watchlist_item" value="videogame" onclick="updateDropdown('Video Games')")>Video Games</button></li>
-            <li><button class="dropdown-item list-group-item list-group-item-action" type="submit" name="display_watchlist_item" value="boardgame" onclick="updateDropdown('Board Games')")>Board Games</button></li>
-            <li><button class="dropdown-item list-group-item list-group-item-action" type="submit" name="display_watchlist_item" value="movie" onclick="updateDropdown('Movies')">Movies</button></li>
-            <li><button class="dropdown-item list-group-item list-group-item-action" type="submit" name="display_watchlist_item" value="tvseries" onclick="updateDropdown('TV series')">TV series</button></li>
-            <li><button class="dropdown-item list-group-item list-group-item-action" type="submit" name="display_watchlist_item" value="book" onclick="updateDropdown('Books')">Books</button></li>
+            <input type="hidden" name="tab" value="{{request.GET.tab}}">  <!-- Ensures we stay on watchlist -->
+            <li><button class="dropdown-item" type="submit" name="display_watchlist_item" value="videogame">Video Games</button></li>
+            <li><button class="dropdown-item" type="submit" name="display_watchlist_item" value="boardgame">Board Games</button></li>
+            <li><button class="dropdown-item" type="submit" name="display_watchlist_item" value="movie">Movies</button></li>
+            <li><button class="dropdown-item" type="submit" name="display_watchlist_item" value="tvseries">TV Series</button></li>
+            <li><button class="dropdown-item" type="submit" name="display_watchlist_item" value="book">Books</button></li>
         </form>
     </ul>
 </div>

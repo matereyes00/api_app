@@ -5,11 +5,11 @@
                 <div class="col">
                     <div class="card h-100" style="width: 18rem;">
                         <img class="card-img-top" 
-                        src="{{ movie.poster }}" alt="{{ movie.title }} Poster">
+                        src="{{ movie.Poster }}" alt="{{ movie.Title }} Poster">
                         <div class="card-body">
-                            <a href="{% url 'review_app:item_details' 'movies-tv' movie.title %}">
-                                <p class="card-text"><strong>{{ movie.title }}</strong> ({{ movie.year }})</p></a>
-                            <p class="card-text">Directed by: {{ movie.director }}</p>
+                            <a href="{% url 'review_app:item_details' 'movies-tv' movie.imdbID %}">
+                                <p class="card-text"><strong>{{ movie.Title }}</strong> ({{ movie.Year }})</p></a>
+                            <p class="card-text">Directed by: {{ movie.Director }}</p>
                         </div>
                     </div>
                 </div>

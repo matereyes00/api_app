@@ -79,6 +79,13 @@ def get_movietv_data(item_id):
     movie_data = response.json()
     return movie_data
 
+def get_movietv_data_using_imdbID(item_id):
+    api_key = os.getenv('OMDB_API_KEY')
+    api_url = f"https://www.omdbapi.com/?i={item_id}&apikey={api_key}"
+    response = requests.get(api_url)
+    movie_data = response.json()
+    return movie_data
+
 def get_book_info(book_olid):
     url = f"https://openlibrary.org/works/{book_olid}.json"
     response = requests.get(url)

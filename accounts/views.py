@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -10,11 +10,11 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
 from.forms import CustomUserCreationForm, ProfileUpdateForm
-from.models import Profile, Favorite, FutureWatchlist
+from .models import Profile, Favorite, FutureWatchlist
 from django.shortcuts import redirect
 from django.contrib import messages
 
-from .templates.API_.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data
+from .templates.API_.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data, get_movietv_data_using_imdbID
 from .templates.API_.delete import delete_future_watchlist_item
 
 import json
@@ -34,56 +34,54 @@ class RegisterView(CreateView):
 
 @login_required
 def profile_view(request):
-    profile = request.user.profile  
-    # Ensure watchlist is always a dictionary
-    if not profile.watchlist_past or not isinstance(profile.watchlist_past, dict):
-        profile.watchlist_past = {"movies": [], "games": [], "books": [], "tv": [], "video_games": []}
-    # Convert string JSON to dict if necessary
-    if isinstance(profile.watchlist_past, str):
-        profile.watchlist_past = json.loads(profile.watchlist_past)
-    watchlist = profile.watchlist_past
-    # Get selected item to display details
     category = request.GET.get("category")  # Example: 'books', 'games', etc.
     item_id = request.GET.get("item_id")  # ID for API request
-    item_data = None  # Default no data
-
+    item_data = None  
+    profile = request.user.profile 
+    
+    if not profile.watchlist_past or not isinstance(profile.watchlist_past, dict):
+        profile.watchlist_past = {"movies": [], "games": [], "books": [], "tv": [], "video_games": []}
+    if isinstance(profile.watchlist_past, str):
+        profile.watchlist_past = json.loads(profile.watchlist_past)
+    
+    watchlist = profile.watchlist_past
+    future_watchlist = FutureWatchlist.objects.filter(user=request.user)
+    user_future_watchlist = {"movies": [], "games": [], "books": [], "tv": [], "video_games": []}
+    for item in future_watchlist:
+        if item.category == "movie":
+            entry = get_movietv_data_using_imdbID(item.item_id)
+            user_future_watchlist["movies"].append(entry)
+        elif item.category == "tv":
+            entry = get_movietv_data_using_imdbID(item.item_id)
+            user_future_watchlist["tv"].append(entry)
+        elif item.category == "book":
+            entry = get_book_info(item.item_id)
+            user_future_watchlist["books"].append(entry)
+        elif item.category == "boardgame":
+            entry = get_bgg_game_info(item.item_id)
+            user_future_watchlist["games"].append(entry)
+        elif item.category == "videogame":
+            entry = get_bgg_game_info(item.item_id)
+            user_future_watchlist["video_games"].append(entry)
+    
     # Fetch API data if a category and item_id are selected
     if category and item_id:
         if category == "books":
-            url = f"https://openlibrary.org/works/{item_id}.json"
             try:
-                response = requests.get(url)
-                response.raise_for_status()
-                item_data = response.json()
-                cover_url = None
-                if item_data.get("covers"):
-                    cover_id = item_data["covers"][0]
-                    cover_url = f"http://covers.openlibrary.org/b/id/{cover_id}-M.jpg"
-                item_data["cover_url"] = cover_url
+                item_data = get_book_info(item_id)
             except requests.exceptions.RequestException as e:
                 print(f"Error fetching book: {e}")
-
         elif category == "games":
             item_data = get_bgg_game_info(item_id) 
-        
         elif category == "movies":
             api_key = os.getenv("OMDB_API_KEY")
-            url = f"http://www.omdbapi.com/?t={item_id}&apikey={api_key}"
-            try:
-                response = requests.get(url)
-                item_data = response.json()
-            except requests.exceptions.RequestException as e:
-                print(f"Error fetching movie/TV: {e}")
+            item_data = get_movietv_data_using_imdbID(item_id)
 
-    # Handles logic for switching between views in the profile 
-    selected_content = request.GET.get("lists", "view_favorites")
-    selected_display_watchlist_item = request.GET.get("display_watchlist_item", "movie")
 
     return render(request, "profile/profile.html", {
         "profile": profile,
         "watchlist": watchlist,
-        "selected_content": selected_content,
-        "selected_display_watchlist_item": selected_display_watchlist_item,
+        "future_watchlist": user_future_watchlist,
         "category": category,
         "item_data": item_data,
     })
@@ -164,22 +162,12 @@ def add_to_consumed_media(request, category, item_id):
             api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
             response = requests.get(api_url)
             movie_data = response.json()
-            
-            movie_info = {
-                "title": movie_data["Title"],
-                "format": movie_data['Type'],
-                "year": movie_data["Year"],
-                "poster": movie_data["Poster"],
-                "director": movie_data["Director"],
-                "imdbID": movie_data['imdbID'],
-                "format" : movie_data['Type']
-            }
-            if movie_info['format'] == 'movie':
-                if movie_info not in watchlist["movies"]:
-                    watchlist["movies"].append(movie_info)
-            if movie_info['format'] == 'series':
-                if movie_info not in watchlist["tv"]:
-                    watchlist["tv"].append(movie_info)
+            if movie_data['Type'] == 'movie':
+                if movie_data not in watchlist["movies"]:
+                    watchlist["movies"].append(movie_data)
+            if movie_data['Type'] == 'series':
+                if movie_data not in watchlist["tv"]:
+                    watchlist["tv"].append(movie_data)
         elif category == "book":
             response = get_book_info(item_id)
             book_data = response
@@ -206,33 +194,40 @@ def add_to_consumed_media(request, category, item_id):
 def add_to_future_watchlist(request, category, item_id):
     if request.method == "POST":
         if category == 'movies-tv':
-            itemid = item_id
             title = item_id.replace("-", " ")  # Convert slug back to title
             api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
             response = requests.get(api_url)
             movie_data = response.json()
+
             movietv_id = str(movie_data.get('imdbID', ''))
-            if movie_data['Type'] == 'movie':
-                FutureWatchlist.objects.get_or_create(
-                user=request.user, category='movie', item_id=movietv_id
+            category_type = 'movie' if movie_data.get('Type') == 'movie' else 'tv'
+
+            FutureWatchlist.objects.get_or_create(
+                user=request.user,
+                category=category_type,
+                item_id=movietv_id,
+                defaults={"item_details": movie_data}  # Save full API response
             )
-            if movie_data['Type'] == 'series':
-                FutureWatchlist.objects.get_or_create(
-                user=request.user, category='tv', item_id=movietv_id
-            )
-        if category == 'book':
+
+        elif category == 'book':
             book_data = get_book_info(item_id)
             FutureWatchlist.objects.get_or_create(
-                user=request.user, category='book', item_id=item_id
+                user=request.user,
+                category='book',
+                item_id=item_id,
+                defaults={"item_details": book_data}
             )
-        if category == 'games':
+
+        elif category == 'games':
             games_data = get_bgg_game_info(item_id)
-            if games_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
-                FutureWatchlist.objects.get_or_create(user=request.user, category='videogame', item_id=item_id)
-            else:
-                FutureWatchlist.objects.get_or_create(user=request.user, category='boardgame', item_id=item_id)
-        else:
-            print("Not a valid item")
+            game_category = 'videogame' if games_data['type'] in ['videogame', 'rpg'] else 'boardgame'
+
+            FutureWatchlist.objects.get_or_create(
+                user=request.user,
+                category=game_category,
+                item_id=item_id,
+                defaults={"item_details": games_data}
+            )
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
@@ -259,6 +254,8 @@ def remove_from_future_watchlist(request, category, item_id):
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
+def favorites_view(request):
+    pass
 
 @login_required
 def add_movietvto_favorites(request, category, item_id):

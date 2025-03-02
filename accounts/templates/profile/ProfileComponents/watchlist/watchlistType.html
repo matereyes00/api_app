@@ -1,0 +1,20 @@
+<div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+        {% if request.GET.display_watchlist_type == 'pastWL' %}
+            Past
+        {% elif request.GET.display_watchlist_type == 'futureWL' %}
+            Future
+        {% else %}
+            Select watchlist type
+        {% endif %}
+    </button>
+
+    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+        <form method="get">
+            <input type="hidden" name="tab" value="{{ request.GET.tab }}">  
+            <input type="hidden" name="display_watchlist_item" value="{{ request.GET.display_watchlist_item }}">  
+            <li><button class="dropdown-item" type="submit" name="display_watchlist_type" value="pastWL">Past</button></li>
+            <li><button class="dropdown-item" type="submit" name="display_watchlist_type" value="futureWL">Future</button></li>
+        </form>
+    </ul>
+</div>

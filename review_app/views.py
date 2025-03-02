@@ -13,7 +13,7 @@ from .forms import RegisterForm, LoginForm
 
 from accounts.models import Profile, Favorite, FutureWatchlist
 from .templates.API.get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info 
-from .templates.API.get import search_api_book, search_api_movies_tv
+from .templates.API.get import search_api_book, search_api_movies_tv, get_movietv_data_using_imdbID
 from .templates.API.get import search_api_games, is_movietv_in_consumed_media
 from .templates.API.get import is_book_in_consumed_media,is_game_in_consumed_media
 
@@ -133,7 +133,7 @@ def item_details(request, category, item_id):
             context["is_item_in_future_watchlist"] = item_in_future_watchlist
     
     elif category == "movies-tv":
-        response = get_movietv_info(item_id)
+        response = get_movietv_data_using_imdbID(item_id)
         movie_data = response.json()
         context['movie'] = movie_data
         movietv_id = str(movie_data.get('imdbID', ''))

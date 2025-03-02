@@ -1,7 +1,7 @@
-{% if watchlist_games %}
+{% if watchlist %}
     <div class="container">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-            {% for game in watchlist_games|slice:"-4:" %}
+            {% for game in watchlist|slice:"-4:" %}
                 <div class="col">
                     <div class="card h-100" style="width: 18rem;">
                         <img class="card-img-top" 

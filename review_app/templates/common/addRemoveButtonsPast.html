@@ -15,6 +15,6 @@
         </form>
         <a href="{% url 'review_app:search' 'movies-tv' %}?q={{ query }}">Back to Movie Search Results</a> {% endcomment %}
     {% elif movie.Type == 'series' %}
-        {% include 'common/moviestv/pastWatchlistTV.html' %}
+        {% include 'common/moviestv/pastWatchlistSeries.html' %}
     {% endif %}
 {% endif %}

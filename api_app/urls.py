@@ -22,9 +22,8 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),  # This line is CRITICAL
-    path('', include("accounts.urls")),  # new
-    path('accounts/', include('accounts.urls')), 
-    path('accounts/', include('django.contrib.auth.urls')), # accounts urls
-    path('', include('review_app.urls')), # app urls
+    path('admin/', admin.site.urls),  # ✅ Keep the admin path
+    path('accounts/', include('accounts.urls')),  # ✅ Include accounts URLs correctly
+    path('accounts/', include('django.contrib.auth.urls')),  # ✅ Include Django auth URLs
+    path('', include('review_app.urls')),  # ✅ Include review app URLs
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

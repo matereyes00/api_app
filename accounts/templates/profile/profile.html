@@ -5,42 +5,36 @@
 {% block content %}
 {% include 'Profile/ProfileComponents/profileUserInfo.html' %}
 
-
 <div class="section profile-settings btn-group">
     <a href="{% url 'accounts:edit_profile' %}"><button type="button" class="btn btn-primary">Edit Profile</button></a>
 </div>
 
-<ul class="nav nav-tabs">
-    <li class="nav-item">
-        <a class="nav-link {% if selected_content == 'view_lists' %}active{% endif %}" 
-            href="?lists=view_lists">
-            View Lists
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {% if selected_content == 'view_favorites' %}active{% endif %}" 
-            href="?lists=view_favorites">
-            View Favorites
-        </a>
-    </li>
-</ul>
+
+<nav class="nav nav-tabs justify-content-center">
+    <a href="{% url 'accounts:profile' %}?tab=watchlist" 
+        class="nav-link {% if request.GET.tab == 'watchlist' or not request.GET.tab %}active{% endif %}" 
+        aria-current="page">
+        Watchlist
+    </a>
+    <a href="{% url 'accounts:profile' %}?tab=favorites" 
+        class="nav-link {% if request.GET.tab == 'favorites' %}active{% endif %}" 
+        aria-current="page">
+        Favorites
+    </a>
+</nav>
 
 
-<div class="section watchlist-items">
-    {% include 'Profile/ProfileComponents/categoryDropDown.html' %}
-    {% if selected_content == "view_lists" %}
-        <div class='flex-right'>
-            {% include 'Profile/ProfileComponents/watchlists.html' %}
-        </div>
-    {% elif selected_content == "view_favorites" %}
-        <p>Add faves here</p>
-    {% endif %}
-</div>
+{% if request.GET.tab == 'watchlist' or not request.GET.tab %}
+    {% include 'profile/ProfileComponents/watchlist/watchlist.html' %}
+{% elif request.GET.tab == 'favorites' %}
+    <h2> Favorites Section </h2>
+{% endif %}
+
 
 <script>
-    function updateDropdown(selectedText) {
+    {% comment %} function updateDropdown(selectedText) {
         document.getElementById('dropdownMenuButton1').innerText = selectedText;
-    }
+    } {% endcomment %}
 </script>
 
 {% endblock %}

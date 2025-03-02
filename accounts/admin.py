@@ -28,24 +28,21 @@ def get_item_name(category, item_id):
 
 
 class FutureWatchlistAdmin(admin.ModelAdmin):
-    list_display = ("user", "category", "item_id", "item_name", "date_added", "short_details")
-    list_filter = ("category", "date_added")  
-    search_fields = ("user__username", "item_id")  
-    ordering = ("-date_added",)  
+    list_display = ('user', 'category', 'item_id', 'date_added')  # Columns to show in the list view
+    list_filter = ('category', 'date_added')  # Filters on the right sidebar
+    search_fields = ('user__username', 'item_id')  # Search by username or item ID
+    ordering = ('-date_added',)  # Sort by most recently added first
+    date_hierarchy = 'date_added'  # Adds a date filter at the top
+    list_per_page = 20  # Pagination
 
-    def item_name(self, obj):
-        """Extracts title from item_details JSONField"""
-        if obj.item_details:
-            return obj.item_details.get('Title') or obj.item_details.get('name') or "Unknown"
-        return "Unknown"
-    item_name.short_description = "Item Name"  
+    fieldsets = (
+        ("User Info", {"fields": ("user",)}),
+        ("Item Details", {"fields": ("category", "item_id")}),
+        ("Timestamps", {"fields": ("date_added",)}),
+    )
 
-    def short_details(self, obj):
-        """Shows a brief version of item_details"""
-        if obj.item_details:
-            return json.dumps(obj.item_details, indent=2)[:100] + "..."  # Short preview
-        return "No details"
-    short_details.short_description = "Item Details"
+    readonly_fields = ("date_added",)  # Prevents modification of auto-generated timestamps
+
 
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Favorite)
