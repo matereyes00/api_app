@@ -28,13 +28,24 @@ def get_item_name(category, item_id):
 
 
 class FutureWatchlistAdmin(admin.ModelAdmin):
-    list_display = ("user", "category", "item_id", "item_name", "date_added")
+    list_display = ("user", "category", "item_id", "item_name", "date_added", "short_details")
     list_filter = ("category", "date_added")  
     search_fields = ("user__username", "item_id")  
     ordering = ("-date_added",)  
+
     def item_name(self, obj):
-        return get_item_name(obj.category, obj.item_id)  
+        """Extracts title from item_details JSONField"""
+        if obj.item_details:
+            return obj.item_details.get('Title') or obj.item_details.get('name') or "Unknown"
+        return "Unknown"
     item_name.short_description = "Item Name"  
+
+    def short_details(self, obj):
+        """Shows a brief version of item_details"""
+        if obj.item_details:
+            return json.dumps(obj.item_details, indent=2)[:100] + "..."  # Short preview
+        return "No details"
+    short_details.short_description = "Item Details"
 
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Favorite)

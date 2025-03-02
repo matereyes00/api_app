@@ -29,6 +29,7 @@ class FutureWatchlist(models.Model):
         ('videogame', 'Video Game')
     ])
     item_id = models.CharField(max_length=255)  # Store OLID, IMDbID, Game ID
+    item_details = models.JSONField(blank=True, null=True)  # Store full API response
     date_added = models.DateTimeField(auto_now_add=True)  # Timestamp for sorting/filtering
     
     class Meta:
