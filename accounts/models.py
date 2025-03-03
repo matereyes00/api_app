@@ -19,7 +19,7 @@ class Profile(models.Model):
         return self.user.username
     
 class PastWatchlist(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="future_watchlist")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="past_watchlist")
     category = models.CharField(max_length=20, choices=[
         ('movie', 'Movie'),
         ('tv', 'TV Show'),

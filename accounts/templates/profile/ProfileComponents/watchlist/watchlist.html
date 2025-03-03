@@ -5,10 +5,10 @@
 
 {% if request.GET.display_watchlist_type == 'pastWL' %}
     {% with watchlist=profile.watchlist_past %}
-        {% include 'profile/ProfileComponents/watchlist/watchlist_display.html' %}
+        {% include 'profile/ProfileComponents/watchlist/watchlistDisplay.html' %}
     {% endwith %}
 {% elif request.GET.display_watchlist_type == 'futureWL' %}
     {% with watchlist=future_watchlist %}
-        {% include 'profile/ProfileComponents/watchlist/watchlist_display.html' %}
+        {% include 'profile/ProfileComponents/watchlist/watchlistDisplay.html' %}
     {% endwith %}
 {% endif %}
