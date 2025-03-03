@@ -21,3 +21,5 @@ review_app/__pycache__/views.cpython-311.pyc
 
 /staticfiles/
 /static/
+
+.DS_Store
