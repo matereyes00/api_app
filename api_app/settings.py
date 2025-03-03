@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'review_app',
     'accounts',
     'bootstrap5',
-    # 'django_bootstrap5',  # This is the correct module name
 ]
 
 MIDDLEWARE = [
