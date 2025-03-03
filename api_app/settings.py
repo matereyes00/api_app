@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'review_app',
     'accounts',
-    'bootstrap5',
+    # 'bootstrap5',
+    'django_bootstrap5',  # This is the correct module name
 ]
 
 MIDDLEWARE = [
