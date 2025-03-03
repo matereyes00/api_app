@@ -14,7 +14,7 @@ from .models import Profile, Favorite, FutureWatchlist
 from django.shortcuts import redirect
 from django.contrib import messages
 
-from .templates.API_.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data, get_movietv_data_using_imdbID, get_media
+from .templates.API_.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media_category
 from .templates.API_.delete import delete_future_watchlist_item, delete_favorite_item
 
 import json
@@ -193,32 +193,11 @@ def add_to_consumed_media(request, category, item_id):
 @login_required
 def add_to_future_watchlist(request, category, item_id):
     if request.method == "POST":
-        if category == 'movies-tv':
-            movie_data = get_movietv_data_using_imdbID(item_id)
-            movietv_id = str(movie_data.get('imdbID', ''))
-            category_type = 'movie' if movie_data.get('Type') == 'movie' else 'tv'
-            FutureWatchlist.objects.get_or_create(
+        category_ = get_media_category(category, item_id)
+        FutureWatchlist.objects.get_or_create(
                 user=request.user,
-                category=category_type,
-                item_id=item_id
-            )
-
-        elif category == 'book':
-            book_data = get_book_info(item_id)
-            FutureWatchlist.objects.get_or_create(
-                user=request.user,
-                category='book',
-                item_id=item_id
-            )
-
-        elif category == 'games':
-            games_data = get_bgg_game_info(item_id)
-            game_category = 'videogame' if games_data['type'] in ['videogame', 'rpg'] else 'boardgame'
-            FutureWatchlist.objects.get_or_create(
-                user=request.user,
-                category=game_category,
-                item_id=item_id
-            )
+                category=category_,
+                item_id=item_id)
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
@@ -231,7 +210,6 @@ def remove_from_future_watchlist(request, category, item_id):
             if movie_data['Type'] == 'movie':
                 delete_future_watchlist_item(request, movie_data['imdbID'],'movie')
             if movie_data['Type'] == 'series':
-                print("This is a series")
                 delete_future_watchlist_item(request, movie_data['imdbID'],'tv')
         if category == "book":
             book_data = get_book_info(item_id)
@@ -248,7 +226,7 @@ def remove_from_future_watchlist(request, category, item_id):
 @login_required
 def add_to_favorites(request, category, item_id):
     if request.method == 'POST':
-        category_ = get_media(category, item_id)
+        category_ = get_media_category(category, item_id)
         if not Favorite.objects.filter(user=request.user, category=category_, item_id=item_id).exists():
             Favorite.objects.get_or_create(user=request.user, category=category_, item_id=item_id)
     return redirect(request.META.get("HTTP_REFERER", "/"))
@@ -257,13 +235,10 @@ def add_to_favorites(request, category, item_id):
 def remove_from_favorites(request, category, item_id):
     if request.method == 'POST':
         if category == 'movies-tv':
-            print(f">> THIS IS CATEGORY : {category}")
             movie_data = get_movietv_data_using_imdbID(item_id)
-            print(movie_data)
             if movie_data['Type'] == 'movie':
                 delete_favorite_item(request, movie_data['imdbID'],'movie')
             if movie_data['Type'] == 'series':
-                print("This is a series")
                 delete_favorite_item(request, movie_data['imdbID'],'tv')
         if category == "books":
             book_data = get_book_info(item_id)

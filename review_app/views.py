@@ -61,7 +61,7 @@ def item_details(request, category, item_id):
             consumed_media = user_profile.watchlist_past.get("books", [])
             item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
             item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-            context['book_in_consumed_media'] = is_book_in_consumed_media(consumed_media, book_attr_id, item_id)
+            context['is_item_in_consumed_media'] = is_book_in_consumed_media(consumed_media, book_attr_id, item_id)
             context['list_category'] = cat
             context["is_item_in_future_watchlist"] = item_in_future_watchlist
             context["is_item_in_favorites"] = item_in_favorites
@@ -85,7 +85,7 @@ def item_details(request, category, item_id):
             item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
             item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
             context['list_category'] = cat
-            context['videogame_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
+            context['is_item_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
             context["is_item_in_future_watchlist"] = item_in_future_watchlist
             context["is_item_in_favorites"] = item_in_favorites
 
@@ -96,7 +96,7 @@ def item_details(request, category, item_id):
             item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
             item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
             context['list_category'] = cat
-            context['boardgame_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
+            context['is_item_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
             context["is_item_in_future_watchlist"] = item_in_future_watchlist
             context["is_item_in_favorites"] = item_in_favorites
 
@@ -116,8 +116,7 @@ def item_details(request, category, item_id):
             item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=movietv_id).exists()
             item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
             context["is_item_in_future_watchlist"] = item_in_future_watchlist
-            context["is_item_in_favorites"] = item_in_favorites
-            
+            context['is_item_in_consumed_media'] = is_movietv_in_consumed_media(consumed_media, "imdbID", movietv_id)
         else:
             cat = 'tv'
             context['list_category'] = cat
@@ -125,5 +124,5 @@ def item_details(request, category, item_id):
             item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
             context["is_item_in_future_watchlist"] = item_in_future_watchlist
             context["is_item_in_favorites"] = item_in_favorites
-        context['movietv_in_consumed_media'] = is_movietv_in_consumed_media(consumed_media, "imdbID", movietv_id)
+            context['is_item_in_consumed_media'] = is_movietv_in_consumed_media(consumed_media, "imdbID", movietv_id)
     return render(request, "main/baseItemDetails.html", context)

@@ -19,7 +19,6 @@
     <form action="{% url 'accounts:remove_from_future_watchlist' category item_id %}" method="POST">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-danger" for="btncheck1" name="readlist_not_done" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm">
-        
             <i class="fa-solid fa-minus"></i>
             {% if list_category == 'movie' %}
                 Won't watch
@@ -32,7 +31,6 @@
             {% elif list_category == 'book' %}
                 Won't read
             {% endif %}
-
         </button>
     </form>
 {% endif %}

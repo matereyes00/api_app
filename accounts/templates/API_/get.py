@@ -73,13 +73,13 @@ def get_movietv_info(movietv_title):
     response = requests.get(url)
     return response
 
-def get_movietv_data(item_id):
-    api_key = os.getenv('OMDB_API_KEY')
-    title = item_id.replace("-", " ")  # Convert slug back to title
-    api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
-    response = requests.get(api_url)
-    movie_data = response.json()
-    return movie_data
+# def get_movietv_data(item_id):
+    # api_key = os.getenv('OMDB_API_KEY')
+    # title = item_id.replace("-", " ")  # Convert slug back to title
+    # api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
+    # response = requests.get(api_url)
+    # movie_data = response.json()
+    # return movie_data
 
 def get_movietv_data_using_imdbID(item_id):
     api_key = os.getenv('OMDB_API_KEY')
@@ -120,7 +120,9 @@ def get_book_info(book_olid):
         "olid": book_olid,
     }
     
-def get_media(category, item_id):
+    
+'''get the category sa model'''
+def get_media_category(category, item_id):
     if category == 'movies-tv':
         data = get_movietv_data_using_imdbID(item_id)
         if data['Type'] == 'movie':
@@ -135,7 +137,7 @@ def get_media(category, item_id):
         return category_
     if category == 'games':
         data = get_bgg_game_info(item_id)
-        if games_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
+        if data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
             category_ = 'videogame'
             return category_
         else:
