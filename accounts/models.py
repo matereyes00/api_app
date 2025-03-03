@@ -17,10 +17,9 @@ class Profile(models.Model):
     
     def __str__(self):
         return self.user.username
-
-class FutureWatchlist(models.Model):
+    
+class PastWatchlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="future_watchlist")
-    # category = models.CharField(max_length=20, choices=[('books', 'Books'), ('movies', 'Movies'), ('games', 'Games')])
     category = models.CharField(max_length=20, choices=[
         ('movie', 'Movie'),
         ('tv', 'TV Show'),
@@ -35,7 +34,25 @@ class FutureWatchlist(models.Model):
         unique_together = ('user', 'category', 'item_id')  # Prevent duplicate entries
 
     def __str__(self):
-        return f"{self.user.username} - {self.category}: {self.item_id}"
+        return f"Past Watchlist for {self.user.username} - {self.category}: {self.item_id}"
+
+class FutureWatchlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="future_watchlist")
+    category = models.CharField(max_length=20, choices=[
+        ('movie', 'Movie'),
+        ('tv', 'TV Show'),
+        ('book', 'Book'),
+        ('boardgame', 'Board Game'),
+        ('videogame', 'Video Game')
+    ])
+    item_id = models.CharField(max_length=255)  # Store OLID, IMDbID, Game ID
+    date_added = models.DateTimeField(auto_now_add=True)  # Timestamp for sorting/filtering
+    
+    class Meta:
+        unique_together = ('user', 'category', 'item_id')  # Prevent duplicate entries
+
+    def __str__(self):
+        return f"Future watchlist for: {self.user.username} - {self.category}: {self.item_id}"
 
 class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="favorites")
@@ -47,9 +64,15 @@ class Favorite(models.Model):
         ('videogame', 'Video Game')
     ])
     item_id = models.CharField(max_length=255)  # Unique ID for the favorite item (IMDB ID, OLID, etc.)
-    title = models.CharField(max_length=255)  # The name of the item
+    date_added = models.DateTimeField(auto_now_add=True)  # Timestamp for sorting/filtering
+    
 
     def __str__(self):
         return f"{self.user.username} - {self.category}: {self.title}"
 
+class CustomList(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customList")
+    list_name = models.CharField(max_length=255) 
+    list_description = models.TextField(default="", blank=True)
+    # item_id = models.CharField(max_length=255)  # Unique ID for the favorite item (IMDB ID, OLID, etc.)
 

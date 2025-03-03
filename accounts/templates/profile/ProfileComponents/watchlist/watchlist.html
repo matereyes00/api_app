@@ -1,49 +1,14 @@
 <nav class="nav nav-tabs d-flex justify-content-evenly">
-    {% include 'profile/ProfileComponents/categoryDropDown.html'%}
-    {% include 'profile/ProfileComponents/watchlist/watchlistType.html'%}
+    {% include 'profile/ProfileComponents/categoryDropDown.html' %}
+    {% include 'profile/ProfileComponents/watchlist/watchlistType.html' %}
 </nav>
 
 {% if request.GET.display_watchlist_type == 'pastWL' %}
     {% with watchlist=profile.watchlist_past %}
-        {% if request.GET.display_watchlist_item == 'movie' %}
-            <h1> Movies </h1>
-            {% include 'Profile/ProfileComponents/watchlist/watchlistRowMovie.html' with watchlist=watchlist.movies %}
-        {% elif request.GET.display_watchlist_item == 'tvseries' %}
-            <h1> TV </h1>
-            {% include 'Profile/ProfileComponents/watchlist/watchlistRowMovie.html' with watchlist=watchlist.tv %}
-        {% elif request.GET.display_watchlist_item == 'videogame' %}
-            <h1> Video Games </h1>
-            {% include 'Profile/ProfileComponents/watchlist/watchlistRowGame.html' with watchlist=watchlist.video_games %}
-        {% elif request.GET.display_watchlist_item == 'boardgame' %}
-            <h1> Board Games </h1>
-            {% include 'Profile/ProfileComponents/watchlist/watchlistRowGame.html' with watchlist=watchlist.games %}
-        {% elif request.GET.display_watchlist_item == 'book' %}
-        <h1> Books </h1>
-            {% include 'Profile/ProfileComponents/watchlist/watchlistRowBooks.html' with watchlist=watchlist.books %}
-        {% else %}
-            <h1>Select a category to display items</h1>
-        {% endif %}
+        {% include 'profile/ProfileComponents/watchlist/watchlist_display.html' %}
     {% endwith %}
 {% elif request.GET.display_watchlist_type == 'futureWL' %}
     {% with watchlist=future_watchlist %}
-        {% if request.GET.display_watchlist_item == 'movie' %}
-            <h1> Movies </h1>
-            {% include 'Profile/ProfileComponents/watchlist/watchlistRowMovie.html' with watchlist=watchlist.movies %}
-        {% elif request.GET.display_watchlist_item == 'tvseries' %}
-            <h1> TV </h1>
-            {% include 'Profile/ProfileComponents/watchlist/watchlistRowMovie.html' with watchlist=watchlist.tv %}
-        {% elif request.GET.display_watchlist_item == 'videogame' %}
-            <h1> Video Games </h1>
-            {% include 'Profile/ProfileComponents/watchlist/watchlistRowGame.html' with watchlist=watchlist.video_games %}
-        {% elif request.GET.display_watchlist_item == 'boardgame' %}
-            <h1> Board Games </h1>
-            {% include 'Profile/ProfileComponents/watchlist/watchlistRowGame.html' with watchlist=watchlist.games %}
-        {% elif request.GET.display_watchlist_item == 'book' %}
-            <h1> Books </h1>
-            {% include 'Profile/ProfileComponents/watchlist/watchlistRowBooks.html' with watchlist=watchlist.books %}
-        {% else %}
-            <h1>Select a category to display items</h1>
-        {% endif %}
+        {% include 'profile/ProfileComponents/watchlist/watchlist_display.html' %}
     {% endwith %}
 {% endif %}
-
