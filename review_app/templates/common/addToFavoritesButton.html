@@ -1,0 +1,13 @@
+{% if not is_item_in_favorites %}
+    <form action="{% url 'accounts:add_to_favorites' category item_id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-primary" name="favorites_button" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm">
+        <i class="fa-solid fa-heart"></i>Favorites</button>
+    </form>
+{% else %}
+    <form action="{% url 'accounts:remove_from_favorites' category item_id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger" name="favorites_button" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm">
+        <i class="fa-solid fa-heart-broken"></i>Unfavorite</button>
+    </form>
+{% endif %}

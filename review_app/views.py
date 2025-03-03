@@ -11,7 +11,7 @@ from django.shortcuts import render
 from django.core.cache import cache
 from .forms import RegisterForm, LoginForm
 
-from accounts.models import Profile, Favorite, FutureWatchlist
+from accounts.models import Profile, FutureWatchlist, Favorite
 from .templates.API.get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info 
 from .templates.API.get import search_api_book, search_api_movies_tv, get_movietv_data_using_imdbID
 from .templates.API.get import search_api_games, is_movietv_in_consumed_media
@@ -83,29 +83,25 @@ def item_details(request, category, item_id):
         watchlist_past = json.loads(watchlist_past) if watchlist_past else {}
     context['category'] = category
     item_id = str(item_id)
+    context['item_id'] = item_id
+    
     if category == "books":
-        url = f"https://openlibrary.org/works/{item_id}.json"
         try:
-            response = requests.get(url)
-            response.raise_for_status()
-            book_data = response.json()
-            # Handle cover image
-            cover_url = None
-            if book_data.get('covers'):
-                cover_id = book_data['covers'][0]
-                cover_url = f"http://covers.openlibrary.org/b/id/{cover_id}-M.jpg"
-            book_data['cover_url'] = cover_url
-            book_data['olid'] = item_id  # Explicitly store the OLID
+            book_data = get_book_info(item_id)
+            book_data['olid'] = item_id  
             context['book'] = book_data
             context['book_olid'] = item_id  # Set OLID in context
             book_attr_id = "olid"
+            cat ="book"
             
             #Check if item is in a user's saved items
             consumed_media = user_profile.watchlist_past.get("books", [])
+            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
+            item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
             context['book_in_consumed_media'] = is_book_in_consumed_media(consumed_media, book_attr_id, item_id)
-            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category='book', item_id=item_id).exists()
+            context['list_category'] = cat
             context["is_item_in_future_watchlist"] = item_in_future_watchlist
-            print(f"{book_data['title']} is in futurewatchlist? : {item_in_future_watchlist}")
+            context["is_item_in_favorites"] = item_in_favorites
 
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
@@ -121,16 +117,26 @@ def item_details(request, category, item_id):
         games_attr_id = "gameID"
         if game_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
             consumed_media = user_profile.watchlist_past.get("video_games", [])
+            cat = 'videogame'
             context['consumed_media'] = consumed_media
+            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
+            item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
+            context['list_category'] = cat
             context['videogame_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
-            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category='videogame', item_id=item_id).exists()
             context["is_item_in_future_watchlist"] = item_in_future_watchlist
+            context["is_item_in_favorites"] = item_in_favorites
+
         else:
             consumed_media = user_profile.watchlist_past.get("games", [])
             context['consumed_media'] = consumed_media
+            cat = 'boardgame'
+            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
+            item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
+            context['list_category'] = cat
             context['boardgame_in_consumed_media'] = is_game_in_consumed_media(consumed_media, games_attr_id, item_id)
-            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category='boardgame', item_id=item_id).exists()
             context["is_item_in_future_watchlist"] = item_in_future_watchlist
+            context["is_item_in_favorites"] = item_in_favorites
+
     
     elif category == "movies-tv":
         response = get_movietv_data_using_imdbID(item_id)
@@ -142,12 +148,19 @@ def item_details(request, category, item_id):
         context['consumed_media'] = consumed_media
         context['category'] = category
         if movie_data['Type'] == 'movie':
-            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category='movie', item_id=movietv_id).exists()
+            cat = movie_data['Type']
+            context['list_category'] = cat
+            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=movietv_id).exists()
+            item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
             context["is_item_in_future_watchlist"] = item_in_future_watchlist
+            context["is_item_in_favorites"] = item_in_favorites
+            
         else:
-            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category='tv', item_id=movietv_id).exists()
+            cat = 'tv'
+            context['list_category'] = cat
+            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=movietv_id).exists()
+            item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
             context["is_item_in_future_watchlist"] = item_in_future_watchlist
-        
+            context["is_item_in_favorites"] = item_in_favorites
         context['movietv_in_consumed_media'] = is_movietv_in_consumed_media(consumed_media, "imdbID", movietv_id)
-        
     return render(request, "main/baseItemDetails.html", context)

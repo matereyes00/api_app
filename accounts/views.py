@@ -14,8 +14,8 @@ from .models import Profile, Favorite, FutureWatchlist
 from django.shortcuts import redirect
 from django.contrib import messages
 
-from .templates.API_.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data, get_movietv_data_using_imdbID
-from .templates.API_.delete import delete_future_watchlist_item
+from .templates.API_.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data, get_movietv_data_using_imdbID, get_media
+from .templates.API_.delete import delete_future_watchlist_item, delete_favorite_item
 
 import json
 import requests
@@ -194,19 +194,13 @@ def add_to_consumed_media(request, category, item_id):
 def add_to_future_watchlist(request, category, item_id):
     if request.method == "POST":
         if category == 'movies-tv':
-            title = item_id.replace("-", " ")  # Convert slug back to title
-            api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
-            response = requests.get(api_url)
-            movie_data = response.json()
-
+            movie_data = get_movietv_data_using_imdbID(item_id)
             movietv_id = str(movie_data.get('imdbID', ''))
             category_type = 'movie' if movie_data.get('Type') == 'movie' else 'tv'
-
             FutureWatchlist.objects.get_or_create(
                 user=request.user,
                 category=category_type,
-                item_id=movietv_id,
-                defaults={"item_details": movie_data}  # Save full API response
+                item_id=item_id
             )
 
         elif category == 'book':
@@ -214,19 +208,16 @@ def add_to_future_watchlist(request, category, item_id):
             FutureWatchlist.objects.get_or_create(
                 user=request.user,
                 category='book',
-                item_id=item_id,
-                defaults={"item_details": book_data}
+                item_id=item_id
             )
 
         elif category == 'games':
             games_data = get_bgg_game_info(item_id)
             game_category = 'videogame' if games_data['type'] in ['videogame', 'rpg'] else 'boardgame'
-
             FutureWatchlist.objects.get_or_create(
                 user=request.user,
                 category=game_category,
-                item_id=item_id,
-                defaults={"item_details": games_data}
+                item_id=item_id
             )
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
@@ -235,12 +226,12 @@ def add_to_future_watchlist(request, category, item_id):
 @login_required
 def remove_from_future_watchlist(request, category, item_id):
     if request.method == "POST":
-        print(f"CATEGORY: {category}")
         if category == 'movies-tv':
-            movie_data = get_movietv_data(item_id)
+            movie_data = get_movietv_data_using_imdbID(item_id)
             if movie_data['Type'] == 'movie':
                 delete_future_watchlist_item(request, movie_data['imdbID'],'movie')
             if movie_data['Type'] == 'series':
+                print("This is a series")
                 delete_future_watchlist_item(request, movie_data['imdbID'],'tv')
         if category == "book":
             book_data = get_book_info(item_id)
@@ -254,19 +245,33 @@ def remove_from_future_watchlist(request, category, item_id):
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
-def favorites_view(request):
-    pass
+@login_required
+def add_to_favorites(request, category, item_id):
+    if request.method == 'POST':
+        category_ = get_media(category, item_id)
+        if not Favorite.objects.filter(user=request.user, category=category_, item_id=item_id).exists():
+            Favorite.objects.get_or_create(user=request.user, category=category_, item_id=item_id)
+    return redirect(request.META.get("HTTP_REFERER", "/"))
 
 @login_required
-def add_movietvto_favorites(request, category, item_id):
-    profile = request.user.profile
-    api_url = f"https://www.omdbapi.com/?i={item_id}&apikey={api_key}"
-    response = requests.get(api_url)
-    data = response.json()
-
-    if response.status_code == 200 and data.get("Title"):
-        title = data["Title"]
-        if not Favorite.objects.filter(user=request.user, category=category, item_id=item_id).exists():
-            Favorite.objects.create(user=request.user, category=category, item_id=item_id, title=title)
-
-    return redirect("accounts:profile")
+def remove_from_favorites(request, category, item_id):
+    if request.method == 'POST':
+        if category == 'movies-tv':
+            print(f">> THIS IS CATEGORY : {category}")
+            movie_data = get_movietv_data_using_imdbID(item_id)
+            print(movie_data)
+            if movie_data['Type'] == 'movie':
+                delete_favorite_item(request, movie_data['imdbID'],'movie')
+            if movie_data['Type'] == 'series':
+                print("This is a series")
+                delete_favorite_item(request, movie_data['imdbID'],'tv')
+        if category == "books":
+            book_data = get_book_info(item_id)
+            delete_favorite_item(request, item_id,'book')
+        if category == 'games':
+            games_data = get_bgg_game_info(item_id)
+            if games_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
+                delete_favorite_item(request, item_id,'videogame')
+            else:
+                delete_favorite_item(request, item_id,'boardgame')
+    return redirect(request.META.get("HTTP_REFERER", "/"))

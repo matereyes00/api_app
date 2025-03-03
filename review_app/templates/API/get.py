@@ -160,3 +160,28 @@ def get_movietv_data_using_imdbID(item_id):
     response = requests.get(api_url)
     movie_data = response
     return movie_data
+
+# handling getting all type of media's metadata
+def get_media(category, item_id):
+    if category == 'movies-tv':
+        data = get_movietv_data_using_imdbID(item_id)
+        if data['Type'] == 'movie':
+            category_ = 'movie'
+            return category_
+        if data['Type'] == 'series':
+            category_ = 'tv'
+            return category_
+    if category == "book":
+        data = get_book_info(item_id)
+        category_ = 'book'
+        return category_
+    if category == 'games':
+        data = get_bgg_game_info(item_id)
+        if games_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
+            category_ = 'videogame'
+            return category_
+        else:
+            category_ = 'boardgame'
+            return category_
+            
+    return category_

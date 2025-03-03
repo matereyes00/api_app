@@ -3,6 +3,7 @@ from django import forms
 
 from django.contrib.auth.models import User  # Import the User model
 from django.contrib.postgres.fields import ArrayField  # Use for lists
+from django.utils.timezone import now
 
 
 # User's profile
@@ -64,11 +65,11 @@ class Favorite(models.Model):
         ('videogame', 'Video Game')
     ])
     item_id = models.CharField(max_length=255)  # Unique ID for the favorite item (IMDB ID, OLID, etc.)
-    date_added = models.DateTimeField(auto_now_add=True)  # Timestamp for sorting/filtering
+    date_added = models.DateTimeField(default=now)  # ✅ Correct way
     
 
     def __str__(self):
-        return f"{self.user.username} - {self.category}: {self.title}"
+        return f"{self.user.username} - {self.category}: {self.item_id}"
 
 class CustomList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customList")

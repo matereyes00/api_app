@@ -1,8 +1,11 @@
 {% if request.GET.display_watchlist_item %}
     {% with category_map=request.GET.display_watchlist_item %}
-        {% if category_map == 'movie' or category_map == 'tvseries' %}
+        {% if category_map == 'movie'%}
             <h1> {{ category_map|title }} </h1>
             {% include 'Profile/ProfileComponents/watchlist/watchlistRowMovie.html' with watchlist=watchlist.movies %}
+        {% elif category_map == 'tvseries' %}
+            <h1> {{ category_map|title }} </h1>
+            {% include 'Profile/ProfileComponents/watchlist/watchlistRowMovie.html' with watchlist=watchlist.tv %}
         {% elif category_map == 'videogame' %}
             <h1> Video Games </h1>
             {% include 'Profile/ProfileComponents/watchlist/watchlistRowGame.html' with watchlist=watchlist.video_games %}

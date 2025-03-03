@@ -5,8 +5,8 @@
 
     <div class="btn btn-group">
         {% include 'common/addRemoveButtonsPast.html' %}
-        {% include 'common/addRemoveButtonsFuture.html' with game_id=game.gameID movietv_id=movie.Title book_olid=book.olid category=category %}
-
+        {% include 'common/addRemoveButtonsFuture.html' with category=category %}
+        {% include 'common/addToFavoritesButton.html' with category=category %}
         <a href="/">Back to Home</a>
     </div>
 
