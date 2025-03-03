@@ -6,21 +6,6 @@ from dotenv import load_dotenv
 load_dotenv()  # Load environment variables from.env
 
 api_key = os.getenv('OMDB_API_KEY')
-# create a search def for books, movies-tv, and games
-def search_api_book(query):
-    url = f"https://openlibrary.org/search.json?q={query}"
-    response = requests.get(url)
-    return response
-
-def search_api_movies_tv(query):
-    url = f'http://www.omdbapi.com/?s={query}&apikey={api_key}'
-    response = requests.get(url)
-    return response
-
-def search_api_games(query):
-    url = f"https://boardgamegeek.com/xmlapi2/search?query={query}&type=boardgame,boardgameexpansion,videogame"
-    response = requests.get(url)
-    return response
 
 # RETRIEVING API INFO
 # boardgame | rpg | videogame | boardgameperson | rpgperson | boardgamecompany | rpgcompany | videogamecompany
@@ -124,35 +109,6 @@ def get_book_info(book_olid):
         "olid": book_olid,
     }
     
-def is_book_in_consumed_media(users_consumed_media, attr_id, id_):
-    if isinstance(users_consumed_media, list):
-        if all(isinstance(item, dict) for item in users_consumed_media):  
-            book_in_consumed_media = any(str(item.get(attr_id)) == str(id_) for item in users_consumed_media)
-        else:  
-            book_in_consumed_media = id_ in users_consumed_media
-    else:
-        book_in_consumed_media = False  
-    return book_in_consumed_media
-
-def is_game_in_consumed_media(users_consumed_media, attr_id, id_):
-    if isinstance(users_consumed_media, list):
-        if all(isinstance(item, dict) for item in users_consumed_media):  
-            game_in_consumed_media = any(str(item.get(attr_id)) == str(id_) for item in users_consumed_media)
-        else:  
-            game_in_consumed_media = id_ in users_consumed_media
-    else:
-        game_in_consumed_media = False  # Default to False if data format is unexpected
-    return game_in_consumed_media
-
-def is_movietv_in_consumed_media(users_consumed_media, attr_id, id_):
-    if isinstance(users_consumed_media, list):
-            if all(isinstance(item, dict) for item in users_consumed_media):  
-                movietv_in_consumed_media = any(str(item.get(attr_id)) == id_ for item in users_consumed_media)
-            else:  
-                movietv_in_consumed_media = id_ in users_consumed_media
-    else:
-        movietv_in_consumed_media = False 
-    return movietv_in_consumed_media
 
 def get_movietv_data_using_imdbID(item_id):
     api_key = os.getenv('OMDB_API_KEY')

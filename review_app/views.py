@@ -12,10 +12,9 @@ from django.core.cache import cache
 from .forms import RegisterForm, LoginForm
 
 from accounts.models import Profile, FutureWatchlist, Favorite
-from .templates.API.get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info 
-from .templates.API.get import search_api_book, search_api_movies_tv, get_movietv_data_using_imdbID
-from .templates.API.get import search_api_games, is_movietv_in_consumed_media
-from .templates.API.get import is_book_in_consumed_media,is_game_in_consumed_media
+from .templates.API.get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info, get_movietv_data_using_imdbID
+from .templates.API.getExists import is_movietv_in_consumed_media, is_book_in_consumed_media,is_game_in_consumed_media
+from .templates.API.getSearch import search_api_book, search_api_movies_tv, search_api_games, search_all_media
 
 from django.urls import reverse
 
@@ -31,43 +30,7 @@ def profile_view_extend(request):
 def search(request, category):
     if request.method == 'POST':
         query = request.POST.get('query')
-        if category == 'movies-tv':
-            response = search_api_movies_tv(query) 
-            data = response.json()
-            results = data.get('Search', [])
-            error_message = data.get('Error', None)
-        elif category == 'games':
-            response = search_api_games(query)
-            root = ET.fromstring(response.content)
-            results = []
-            for item in root.findall('item'):
-                game_id = item.get('id')
-                name_element = item.find('name')
-                name = name_element.get('value') if name_element is not None else "No Name"
-                year_element = item.find('yearpublished')
-                yearpublished = year_element.get('value') if year_element is not None else "No Year"
-                results.append({
-                    'id': game_id,
-                    'name': name,
-                    'yearpublished': yearpublished
-                })
-        elif category == 'books':
-            response = search_api_book(query)
-            data = response.json()
-            books = data.get('docs', [])
-            results = [
-                {
-                    'title': book.get('title'),
-                    'author_name': book.get('author_name'),
-                    'olid': book.get('key').split('/')[-1] if book.get('key') else None,
-                    'isbn': book.get('isbn')
-                }
-                for book in books
-            ]
-
-        else:
-            return render(request, 'main/baseSearch.html', {'error_message': 'Invalid category'})
-
+        results = search_all_media(query, category)
         template = 'main/baseSearch.html'
         return render(request, template, {'category':category,'results': results, 'query': query, 'error_message': error_message if 'error_message' in locals() else None})
     
