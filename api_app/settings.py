@@ -64,8 +64,8 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR,"api_app/accounts/templates/"),
-            os.path.join(BASE_DIR,"api_app/review_app/templates/"),
+            os.path.join(BASE_DIR,"api_app/api_app/accounts/templates/"),
+            os.path.join(BASE_DIR,"api_app/api_app/review_app/templates/"),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -134,7 +134,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'review_app/static'),  # Path to your static files
+    os.path.join(BASE_DIR, 'api_app/review_app/static'),  # Path to your static files
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # Absolute path!
 

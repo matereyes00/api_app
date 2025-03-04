@@ -1,63 +1,65 @@
-<div class="modal bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            {% if is_item_in_consumed_media == False %}
-                {% if list_category == 'book' %}
-                    <p> added {{book.name}} to past readlist</p>
-                {% elif list_category == 'movie' %}
-                    <p> added {{movie.Title}} to past watchlist</p>
-                {% elif list_category == 'tv' %}
-                    <p> added {{movie.Title}} to past watchlist</p>
-                {% elif list_category == 'boardgame' %}
-                    <p> added {{game.name}} to past game list</p>
-                {% elif list_category == 'videogame' %}
-                    <p> added {{game.name}} to past game list</p>
-                {% endif %}
-            {% elif is_item_in_consumed_media == True%}
-                {% if list_category == 'book' %}
-                    <p> removed {{book.name}} from past readlist</p>
-                {% elif list_category == 'movie' %}
-                    <p> removed {{movie.Title}} from past watchlist</p>
-                {% elif list_category == 'tv' %}
-                    <p> removed {{movie.Title}} from past watchlist</p>
-                {% elif list_category == 'boardgame' %}
-                    <p> removed {{game.name}} from past game list</p>
-                {% elif list_category == 'videogame' %}
-                    <p> removed {{game.name}} from past game list</p>
-                {% else  %}
-                    <p> nothing happened </p>
-                {% endif %}
-            {% endif %}
-            
+{% if list_category == 'book' %}
+    {% with title=book.title listType="PastWL" %}
+        {% include 'common/pastWLModal.html' %}
+    {% endwith %}
+    
+    {% with title=book.title listType="Faves"%}
+        {% include 'common/favesModal.html' %}
+    {% endwith %}
 
-            {% if is_item_in_future_watchlist == False %}
-                {% if list_category == 'book' %}
-                    <p> added {{book.name}} to future readlist</p>
-                {% elif list_category == 'movie' %}
-                    <p> added {{movie.Title}} to future watchlist</p>
-                {% elif list_category == 'tv' %}
-                    <p> added {{movie.Title}} to future watchlist</p>
-                {% elif list_category == 'boardgame' %}
-                    <p> added {{game.name}} to future game list</p>
-                {% elif list_category == 'videogame' %}
-                    <p> added {{game.name}} to future game list</p>
-                {% endif %}
-            
-            {% elif is_item_in_future_watchlist == True %}
-                {% if list_category == 'book' %}
-                    <p> removed {{book.name}} from future readlist</p>
-                {% elif list_category == 'movie' %}
-                    <p> removed {{movie.Title}} from future watchlist</p>
-                {% elif list_category == 'tv' %}
-                    <p> removed {{movie.Title}} from future watchlist</p>
-                {% elif list_category == 'boardgame' %}
-                    <p> removed {{game.name}} from future game list</p>
-                {% elif list_category == 'videogame' %}
-                    <p> removed {{game.name}} from future game list</p>
-                {% else  %}
-                    <p> nothing happened </p>
-                {% endif %}
-            {% endif %}
-        </div>
-    </div>
-</div>
+    {% with title=book.title listType="FWL" %}
+        {% include 'common/futureWLModal.html' %}
+    {% endwith %}
+
+{% elif list_category == 'movie' %}
+    {% with title=movie.Title listType="PastWL" %}
+        {% include 'common/pastWLModal.html' %}
+    {% endwith %}
+
+    {% with title=movie.Title listType="Faves"%}
+        {% include 'common/favesModal.html' %}
+    {% endwith %}
+
+    {% with title=movie.Title listType="FWL" %}
+        {% include 'common/futureWLModal.html' %}
+    {% endwith %}
+
+{% elif list_category == 'tv' %}
+    {% with title=movie.Title listType="PastWL" %}
+        {% include 'common/pastWLModal.html' %}
+    {% endwith %}
+
+    {% with title=movie.Title listType="Faves"%}
+        {% include 'common/favesModal.html' %}
+    {% endwith %}
+
+    {% with title=movie.Title listType="FWL" %}
+        {% include 'common/futureWLModal.html' %}
+    {% endwith %}
+
+{% elif list_category == 'boardgame' %}
+    {% with title=game.name listType="PastWL" %}
+        {% include 'common/pastWLModal.html' %}
+    {% endwith %}
+
+    {% with title=game.name listType="Faves"%}
+        {% include 'common/favesModal.html' %}
+    {% endwith %}
+
+    {% with title=bogameonamele listType="FWL" %}
+        {% include 'common/futureWLModal.html' %}
+    {% endwith %}
+
+{% elif list_category == 'videogame' %}
+    {% with title=game.name listType="PastWL" %}
+        {% include 'common/pastWLModal.html' %}
+    {% endwith %}
+
+    {% with title=game.name listType="Faves"%}
+        {% include 'common/favesModal.html' %}
+    {% endwith %}
+
+    {% with title=game.name listType="FWL" %}
+        {% include 'common/futureWLModal.html' %}
+    {% endwith %}
+{% endif %}

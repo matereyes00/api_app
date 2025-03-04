@@ -123,7 +123,7 @@ def remove_from_consumed_media(request, category, item_id):
         if not watchlist or not isinstance(watchlist, dict):
             watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games": []}
         
-        if category == 'book':
+        if category == 'books':
             book_data = get_book_info(item_id)
             watchlist['books'] = [book for book in watchlist.get('books', []) if str(book.get('olid')) != str(book_data['olid'])]
         elif category == 'movies-tv':
@@ -134,7 +134,7 @@ def remove_from_consumed_media(request, category, item_id):
                     watchlist['movies'] = [m for m in watchlist.get('movies', []) if str(m.get('imdbID')) != str(movie_data['imdbID'])]
                 elif movie_data['Type'] == 'series':
                     watchlist['tv'] = [t for t in watchlist.get('tv', []) if str(t.get('imdbID')) != str(movie_data['imdbID'])]
-        elif category == 'game':
+        elif category == 'games':
             item_data = get_bgg_game_info(item_id)
             if item_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
                 watchlist['video_games'] = [game for game in watchlist.get('video_games', []) if str(game.get('gameID')) != str(item_id)]

@@ -4,7 +4,7 @@
     {% include 'main/baseItemDetails/itemDetails.html' %}
 
     <div class="btn btn-group">
-        {% include 'common/addRemoveButtonsPast.html' %}
+        {% include 'common/addRemoveButtonsPast.html' with category=category %}
         {% include 'common/addRemoveButtonsFuture.html' with category=category %}
         {% include 'common/addToFavoritesButton.html' with category=category %}
         <a href="/">Back to Home</a>

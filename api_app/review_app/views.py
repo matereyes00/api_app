@@ -11,7 +11,7 @@ from django.shortcuts import render
 from django.core.cache import cache
 from .forms import RegisterForm, LoginForm
 
-from accounts.models import Profile, FutureWatchlist, Favorite
+from api_app.accounts.models import Profile, FutureWatchlist, Favorite
 from get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info, get_movietv_data_using_imdbID
 from getExists import is_movietv_in_consumed_media, is_book_in_consumed_media,is_game_in_consumed_media
 from getSearch import search_api_book, search_api_movies_tv, search_api_games, search_all_media
