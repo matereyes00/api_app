@@ -14,8 +14,8 @@ from api_app.accounts.models import Profile, Favorite, FutureWatchlist
 from django.shortcuts import redirect
 from django.contrib import messages
 
-from .templates.API_.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media_category
-from .templates.API_.delete import delete_future_watchlist_item, delete_favorite_item
+from get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media
+from deleteFromList import delete_future_watchlist_item, delete_favorite_item
 
 import json
 import requests
@@ -170,14 +170,14 @@ def add_to_consumed_media(request, category, item_id):
             if movie_data['Type'] == 'series':
                 if movie_data not in watchlist["tv"]:
                     watchlist["tv"].append(movie_data)
-        elif category == "book":
+        elif category == "books":
             response = get_book_info(item_id)
             book_data = response
             if "books" not in watchlist:
                 watchlist["books"] = []
             if book_data not in watchlist["books"]:
                 watchlist["books"].append(book_data)
-        elif category == 'game': 
+        elif category == 'games': 
             game_data = get_bgg_game_info(item_id)
             if game_data['type'] in ['boardgame', 'boardgameperson', 'boardgamecompany']:
                 watchlist["games"].append(game_data)

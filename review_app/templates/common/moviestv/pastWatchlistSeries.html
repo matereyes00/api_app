@@ -1,4 +1,4 @@
-{% if movietv_in_consumed_media == False %}
+{% if not is_item_in_past_watchlist  %}
     <form action="{% url 'api_app.accounts:add_to_watchlist' 'movies-tv' movie.Title|slugify %}" method="POST">
         {% csrf_token %}
         <button type="submit" data-bs-toggle="modal" data-bs-target=".PastWL-modal" class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i> Watched TV Series</button>

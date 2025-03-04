@@ -1,12 +1,12 @@
 {% if not is_item_in_past_watchlist %}
-    <form action="{% url 'api_app.accounts:add_to_watchlist' 'book' book_olid %}"  method="POST">
+    <form action="{% url 'api_app.accounts:add_to_watchlist' category book_olid %}"  method="POST">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-primary" 
         for="btncheck1" name="readlist_done" data-bs-toggle="modal" data-bs-target=".PastWL-modal">
         <i class="fa-solid fa-plus"></i>readlist</button>
     </form>
     {% else %}
-    <form action="{% url 'api_app.accounts:remove_from_watchlist' 'book' book_olid %}" method="POST">
+    <form action="{% url 'api_app.accounts:remove_from_watchlist'  category book_olid %}" method="POST">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-danger" 
         for="btncheck1" name="readlist_not_done" data-bs-toggle="modal" data-bs-target=".PastWL-modal">

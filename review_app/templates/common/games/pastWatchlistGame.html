@@ -1,4 +1,4 @@
-{% if is_item_in_past_watchlist  %}
+{% if not is_item_in_past_watchlist  %}
     <form action="{% url 'api_app.accounts:add_to_watchlist' category game_id %}" method="post">
         {% csrf_token %}
         <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target=".PastWL-modal"><i class="fa-solid fa-plus"></i>Played Games  List</button>

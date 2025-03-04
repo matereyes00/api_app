@@ -11,10 +11,10 @@ from django.shortcuts import render
 from django.core.cache import cache
 from .forms import RegisterForm, LoginForm
 
-from api_app.accounts.models import Profile, FutureWatchlist, Favorite
-from .templates.API.get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info, get_movietv_data_using_imdbID
-from .templates.API.getExists import is_movietv_in_consumed_media, is_book_in_consumed_media,is_game_in_consumed_media
-from .templates.API.getSearch import search_api_book, search_api_movies_tv, search_api_games, search_all_media
+from accounts.models import Profile, FutureWatchlist, Favorite
+from get import get_bgg_game_info, get_bgg_game_type, get_movietv_info, get_book_info, get_movietv_data_using_imdbID
+from getExists import is_movietv_in_consumed_media, is_book_in_consumed_media,is_game_in_consumed_media
+from getSearch import search_api_book, search_api_movies_tv, search_api_games, search_all_media
 
 from django.urls import reverse
 
@@ -102,8 +102,8 @@ def item_details(request, category, item_id):
 
     
     elif category == "movies-tv":
-        response = get_movietv_data_using_imdbID(item_id)
-        movie_data = response.json()
+        movie_data = get_movietv_data_using_imdbID(item_id)
+        # movie_data = response.json()
         context['movie'] = movie_data
         movietv_id = str(movie_data.get('imdbID', ''))
         consumed_media = user_profile.watchlist_past.get('movies', [])
