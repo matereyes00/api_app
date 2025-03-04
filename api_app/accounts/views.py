@@ -195,11 +195,32 @@ def add_to_consumed_media(request, category, item_id):
 @login_required
 def add_to_future_watchlist(request, category, item_id):
     if request.method == "POST":
-        category_ = get_media_category(category, item_id)
-        FutureWatchlist.objects.get_or_create(
+        if category == 'movies-tv':
+            movie_data = get_movietv_data_using_imdbID(item_id)
+            movietv_category = 'movie' if movie_data['Type'] in ['movie'] else 'tv'
+            category_ = get_media_category(category, item_id)
+            FutureWatchlist.objects.get_or_create(
+                    user=request.user,
+                    category=category_type,
+                    item_id=item_id
+            )
+
+        elif category == 'books':
+            book_data = get_book_info(item_id)
+            FutureWatchlist.objects.get_or_create(
                 user=request.user,
-                category=category_,
-                item_id=item_id)
+                category='book',
+                item_id=item_id
+            )
+
+        elif category == 'games':
+            games_data = get_bgg_game_info(item_id)
+            game_category = 'videogame' if games_data['type'] in ['videogame', 'rpg'] else 'boardgame'
+            FutureWatchlist.objects.get_or_create(
+                user=request.user,
+                category=game_category,
+                item_id=item_id
+            )
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
@@ -213,7 +234,7 @@ def remove_from_future_watchlist(request, category, item_id):
                 delete_future_watchlist_item(request, movie_data['imdbID'],'movie')
             if movie_data['Type'] == 'series':
                 delete_future_watchlist_item(request, movie_data['imdbID'],'tv')
-        if category == "book":
+        if category == "books":
             book_data = get_book_info(item_id)
             delete_future_watchlist_item(request, item_id,'book')
         if category == 'games':
@@ -228,9 +249,32 @@ def remove_from_future_watchlist(request, category, item_id):
 @login_required
 def add_to_favorites(request, category, item_id):
     if request.method == 'POST':
-        category_ = get_media_category(category, item_id)
-        if not Favorite.objects.filter(user=request.user, category=category_, item_id=item_id).exists():
-            Favorite.objects.get_or_create(user=request.user, category=category_, item_id=item_id)
+        if category == 'movies-tv':
+            movie_data = get_movietv_data_using_imdbID(item_id)
+            movietv_id = str(movie_data.get('imdbID', ''))
+            category_type = 'movie' if movie_data.get('Type') == 'movie' else 'tv'
+            Favorite.objects.get_or_create(
+                user=request.user,
+                category=category_type,
+                item_id=item_id
+            )
+
+        elif category == 'books':
+            book_data = get_book_info(item_id)
+            Favorite.objects.get_or_create(
+                user=request.user,
+                category='book',
+                item_id=item_id
+            )
+
+        elif category == 'games':
+            games_data = get_bgg_game_info(item_id)
+            game_category = 'videogame' if games_data['type'] in ['videogame', 'rpg'] else 'boardgame'
+            Favorite.objects.get_or_create(
+                user=request.user,
+                category=game_category,
+                item_id=item_id
+            )
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
 @login_required

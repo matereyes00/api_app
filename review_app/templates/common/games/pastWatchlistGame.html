@@ -1,0 +1,11 @@
+{% if is_item_in_past_watchlist  %}
+    <form action="{% url 'api_app.accounts:add_to_watchlist' category game_id %}" method="post">
+        {% csrf_token %}
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target=".PastWL-modal"><i class="fa-solid fa-plus"></i>Played Games  List</button>
+    </form>
+{% else %}
+    <form action="{% url 'api_app.accounts:remove_from_watchlist' category game_id %}" method="POST">
+        {% csrf_token %}
+        <button data-bs-toggle="modal" data-bs-target=".PastWL-modal" class="btn btn-outline-danger"><i class="fa-solid fa-minus"></i>Played Games List</button>
+    </form>
+{% endif %}
