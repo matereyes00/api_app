@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'review_app',
-    'accounts',
+    'api_app.review_app',
+    'api_app.accounts',
     'bootstrap5',
 ]
 
@@ -61,8 +61,8 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR,"accounts/templates/"),
-            os.path.join(BASE_DIR,"review_app/templates/"),
+            os.path.join(BASE_DIR,"apps/accounts/templates/"),
+            os.path.join(BASE_DIR,"apps/review_app/templates/"),
         ],
         'APP_DIRS': True,
         'OPTIONS': {

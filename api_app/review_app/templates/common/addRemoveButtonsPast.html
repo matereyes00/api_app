@@ -1,0 +1,51 @@
+{% if not is_item_in_consumed_media %}
+    <form action="{% url 'api_app.accounts:add_to_watchlist' list_category item_id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm" class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i> 
+            {% if list_category == 'movie' %}
+                Have watched
+            {% elif  list_category == 'tv' %}
+                Have watched
+            {% elif list_category == 'boardgame' %}
+                Have played
+            {% elif list_category == 'videogame' %}
+                Have played
+            {% elif list_category == 'book' %}
+                Have read
+            {% endif %}
+        </button>
+    </form>
+{% else %}
+    <form action="{% url 'api_app.accounts:remove_from_watchlist' list_category item_id %}" method="POST">
+        {% csrf_token %}
+        <button type='submit' data-bs-toggle="modal" data-bs-target=".bd-example-modal-sm" class="btn btn-outline-danger"><i class="fa-solid fa-minus"></i> 
+            {% if list_category == 'movie' %}
+                Have watched
+            {% elif  list_category == 'tv' %}
+                Have watched
+            {% elif list_category == 'boardgame' %}
+                Have played
+            {% elif list_category == 'videogame' %}
+                Have played
+            {% elif list_category == 'book' %}
+                Have read
+            {% endif %}
+        </button>
+    </form>
+{% endif %}
+
+{% comment %} {% if book %}
+    {% include 'common/books/pastWatchlistBook.html' %}
+{% endif %}
+
+{% if game %}
+    {% include 'common/games/pastWatchlistGame.html' %}
+{% endif %}
+    
+{% if movie %}
+    {% if movie.Type == 'movie' %}
+        {% include 'common/moviestv/pastWatchlistMovie.html' %}
+    {% elif movie.Type == 'series' %}
+        {% include 'common/moviestv/pastWatchlistSeries.html' %}
+    {% endif %}
+{% endif %} {% endcomment %}
