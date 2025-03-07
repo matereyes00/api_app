@@ -6,6 +6,15 @@ from django.contrib.postgres.fields import ArrayField  # Use for lists
 from django.utils.timezone import now
 
 
+class CustomList(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customList")
+    custom_list_id = models.BigAutoField(primary_key=True)
+    list_name = models.CharField(max_length=255) 
+    list_description = models.TextField(default="", blank=True)
+    item_id = models.CharField(max_length=255)  # Unique ID for the favorite item (IMDB ID, OLID, etc.)
+    date_added = models.DateTimeField(default=now)  # ✅ Correct way
+
+
 # User's profile
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -15,6 +24,7 @@ class Profile(models.Model):
         null=True
     )
     watchlist_past = models.JSONField(default=dict)  # Stores movies, books, and games
+    custom_lists = models.ManyToManyField(CustomList)
     
     def __str__(self):
         return self.user.username
@@ -70,10 +80,3 @@ class Favorite(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.category}: {self.item_id}"
-
-class CustomList(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customList")
-    list_name = models.CharField(max_length=255) 
-    list_description = models.TextField(default="", blank=True)
-    # item_id = models.CharField(max_length=255)  # Unique ID for the favorite item (IMDB ID, OLID, etc.)
-

@@ -9,13 +9,14 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, get_object_or_404
 from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
-from.forms import CustomUserCreationForm, ProfileUpdateForm
-from api_app.accounts.models import Profile, Favorite, FutureWatchlist
 from django.shortcuts import redirect
 from django.contrib import messages
 
-from get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media
+from get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media_category
 from deleteFromList import delete_future_watchlist_item, delete_favorite_item
+
+from api_app.accounts.models import Profile, Favorite, FutureWatchlist, CustomList
+from.forms import CustomUserCreationForm, ProfileUpdateForm, CustomListForm
 
 import json
 import requests
@@ -157,13 +158,8 @@ def add_to_consumed_media(request, category, item_id):
             watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games": []}
         else:
             watchlist = watchlist_past
-        api_key = os.getenv('OMDB_API_KEY')
         if category == 'movies-tv':
-            itemid = item_id
-            title = item_id.replace("-", " ")  # Convert slug back to title
-            api_url = f"https://www.omdbapi.com/?t={title}&apikey={api_key}"
-            response = requests.get(api_url)
-            movie_data = response.json()
+            movie_data = get_movietv_data_using_imdbID(item_id)
             if movie_data['Type'] == 'movie':
                 if movie_data not in watchlist["movies"]:
                     watchlist["movies"].append(movie_data)
@@ -201,7 +197,7 @@ def add_to_future_watchlist(request, category, item_id):
             category_ = get_media_category(category, item_id)
             FutureWatchlist.objects.get_or_create(
                     user=request.user,
-                    category=category_type,
+                    category=category_,
                     item_id=item_id
             )
 
@@ -296,3 +292,24 @@ def remove_from_favorites(request, category, item_id):
             else:
                 delete_favorite_item(request, item_id,'boardgame')
     return redirect(request.META.get("HTTP_REFERER", "/"))
+
+@login_required
+def create_custom_watchlist(request):
+    profile = request.user.profile
+    if request.method == 'POST':
+        custom_list_form = CustomListForm(request.POST)
+        if custom_list_form.is_valid():
+            custom_watchlist = custom_list_form.save(commit=False) # create but dont save
+            custom_watchlist.user = request.user # assign user before saving
+            custom_watchlist.save()
+            return redirect('api_app.accounts:profile')  # Redirect after form submission
+    else:
+        custom_list_form = CustomListForm()
+        
+    template = 'profile/ProfileConn/addCustomWatchlistForm.html'
+    context = {
+        'custom_watchlist_form': custom_list_form,
+    }
+
+    return render(request, template, context)
+    

@@ -1,0 +1,11 @@
+{% extends 'profile/profile.html' %}
+{% block content %}
+<h2>Add a new customized list</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ custom_watchlist_form.as_p }}
+    <button type="submit">Save Changes</button>
+</form>
+
+{% endblock %}

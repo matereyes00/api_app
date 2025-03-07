@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 import json
-from .models import Profile, Favorite, FutureWatchlist
+from .models import Profile, Favorite, FutureWatchlist, CustomList
 from .templates.API_.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -43,7 +43,10 @@ class FutureWatchlistAdmin(admin.ModelAdmin):
 
     readonly_fields = ("date_added",)  # Prevents modification of auto-generated timestamps
 
+class CustomWatchlistAdmin(admin.ModelAdmin):
+    list_display = ('list_name', 'list_description', 'user', 'custom_list_id', 'date_added')
 
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Favorite)
 admin.site.register(FutureWatchlist, FutureWatchlistAdmin)
+admin.site.register(CustomList, CustomWatchlistAdmin)
