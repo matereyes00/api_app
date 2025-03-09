@@ -1,0 +1,16 @@
+{% extends 'main/base.html' %}
+{% block content %}
+<h2>Add a new customized list</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ custom_watchlist_form.as_p }}
+    <a href="{% url 'api_app.accounts:profile' %}">
+        <button type="button" class="btn btn-outline-danger">
+            Cancel
+        </button>
+    </a>
+    <button type="submit" class="btn btn-outline-primary">Save Changes</button>
+</form>
+
+{% endblock %}

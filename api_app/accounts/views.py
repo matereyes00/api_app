@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.contrib import messages
 
-from get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media_category
+from get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media_category, fetch_media_info
 from deleteFromList import delete_future_watchlist_item, delete_favorite_item
 
 from api_app.accounts.models import Profile, Favorite, FutureWatchlist, CustomList
@@ -39,45 +39,28 @@ def profile_view(request):
     item_id = request.GET.get("item_id")  # ID for API request
     item_data = None  
     profile = request.user.profile 
-    
+
+    # Ensure watchlist_past is correctly formatted
     if not profile.watchlist_past or not isinstance(profile.watchlist_past, dict):
         profile.watchlist_past = {"movies": [], "games": [], "books": [], "tv": [], "video_games": []}
     if isinstance(profile.watchlist_past, str):
         profile.watchlist_past = json.loads(profile.watchlist_past)
-    
+
     watchlist = profile.watchlist_past
+
+    # Fetch future watchlist efficiently
     future_watchlist = FutureWatchlist.objects.filter(user=request.user)
     user_future_watchlist = {"movies": [], "games": [], "books": [], "tv": [], "video_games": []}
     for item in future_watchlist:
-        if item.category == "movie":
-            entry = get_movietv_data_using_imdbID(item.item_id)
-            user_future_watchlist["movies"].append(entry)
-        elif item.category == "tv":
-            entry = get_movietv_data_using_imdbID(item.item_id)
-            user_future_watchlist["tv"].append(entry)
-        elif item.category == "book":
-            entry = get_book_info(item.item_id)
-            user_future_watchlist["books"].append(entry)
-        elif item.category == "boardgame":
-            entry = get_bgg_game_info(item.item_id)
-            user_future_watchlist["games"].append(entry)
-        elif item.category == "videogame":
-            entry = get_bgg_game_info(item.item_id)
-            user_future_watchlist["video_games"].append(entry)
-    
+        entry = fetch_media_info(item.category, item.item_id)
+        if entry:
+            category_key = "video_games" if item.category == "videogame" else (
+                "games" if item.category == "boardgame" else item.category)
+            user_future_watchlist[category_key].append(entry)
+
     # Fetch API data if a category and item_id are selected
     if category and item_id:
-        if category == "books":
-            try:
-                item_data = get_book_info(item_id)
-            except requests.exceptions.RequestException as e:
-                print(f"Error fetching book: {e}")
-        elif category == "games":
-            item_data = get_bgg_game_info(item_id) 
-        elif category == "movies":
-            api_key = os.getenv("OMDB_API_KEY")
-            item_data = get_movietv_data_using_imdbID(item_id)
-
+        item_data = fetch_media_info(category, item_id)
 
     return render(request, "profile/profile.html", {
         "profile": profile,
@@ -113,6 +96,27 @@ def edit_profile(request):
         'profile_form': profile_form,
         'password_form': password_form
     })
+
+
+def profile_activity(request, activity):
+    profile = request.user.profile 
+    favorites = Favorite.objects.filter(user=request.user)
+    future_watchlist = FutureWatchlist.objects.filter(user=request.user)
+    custom_watchlist = CustomList.objects.filter(user=request.user)
+    past_watchlist = profile.watchlist_past
+    
+    for item in Favorite.objects.all():
+        item.save() 
+    
+    template = 'Profile/baseActivityView.html'
+    
+    context = {
+            'future_watchlist': future_watchlist,
+            # 'custom_watchlists': custom_watchlist,
+            # 'past_watchlist': user_past_watchlist,
+            'favorites':favorites,
+        }
+    return render(request, template, context)
 
 
 ''' TO DO: SEPARATE PASTWATCHLIST field from PROFILE model '''
@@ -306,10 +310,9 @@ def create_custom_watchlist(request):
     else:
         custom_list_form = CustomListForm()
         
-    template = 'profile/ProfileConn/addCustomWatchlistForm.html'
+    template = 'profile/customWatchlist/addCustomWatchlistForm.html'
     context = {
         'custom_watchlist_form': custom_list_form,
     }
 
     return render(request, template, context)
-    

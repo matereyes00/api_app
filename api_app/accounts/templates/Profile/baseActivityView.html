@@ -1,0 +1,63 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<nav class="nav nav-tabs d-flex justify-content-evenly">
+    {% include 'profile/ProfileComponents/categoryDropDown.html' %}
+    {% comment %} {% include 'profile/ProfileComponents/watchlist/watchlistType.html' %} {% endcomment %}
+</nav>
+
+
+{% if future_watchlist %}
+    <h2>Future watchlist</h2>
+    <div class="container">
+        <div class="row">
+            {% for item in future_watchlist %}
+                <div class="col-md-4 mb-3">
+                    <div class="card" style="width: 18rem;">
+                        {% if item.image and item.image != "No Image" %}
+                            <img src="{{ item.image }}" class="card-img-top" alt="{{ item.title }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <a href="#" class="card-link">
+                                <h5 class="card-title">{{ item.title }}</h5>
+                            </a>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ item.year }}</h6>
+                            <p class="card-text">{{ item.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% else %}
+    <p>No items in future watchlist found.</p>
+{% endif %}
+
+
+{% if favorites %}
+    <h2>Favorites</h2>
+    <div class="container">
+        <div class="row">
+            {% for favorite in favorites %}
+                <div class="col-md-4 mb-3">
+                    <div class="card" style="width: 18rem;">
+                        {% if favorite.image_url and favorite.image_url != "No Image" %}
+                            <img src="{{ favorite.image_url }}" class="card-img-top" alt="{{ favorite.title }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <a href="#" class="card-link">
+                                <h5 class="card-title">{{ favorite.title }}</h5>
+                            </a>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ favorite.year }}</h6>
+                            <p class="card-text">{{ favorite.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% else %}
+    <p>No favorites found.</p>
+{% endif %}
+
+{% endblock %}

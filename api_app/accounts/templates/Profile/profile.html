@@ -7,11 +7,49 @@
 
 <div class="section profile-settings btn-group">
     <a href="{% url 'api_app.accounts:edit_profile' %}"><button type="button" class="btn btn-primary">Edit Profile</button></a>
-    <a href="{% url 'api_app.accounts:create_watchlist' %}"><button type="button" class="btn btn-dark">Create Custom Watchlist</button></a>
+</div>
+
+<div class="four-favorites"> 
+    <div class="container">
+        <div class="row">
+            <div class="col">col</div>
+            <div class="col">col</div>
+            <div class="col">col</div>
+            <div class="col">col</div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <div class="row">
+        <div class="card col" style="width: 18rem;">
+            {% comment %} <img src="..." class="card-img-top" alt="..."> {% endcomment %}
+            <div class="card-body">
+                <h5 class="card-title">Watchlists</h5>
+                <a href="{% url 'api_app.accounts:profile_activity' 'past_watchlist' %}" class="btn btn-primary">Past</a>
+                <a href="{% url 'api_app.accounts:profile_activity' 'future_watchlist' %}" class="btn btn-primary">Future</a>
+            </div>
+        </div>
+        <div class="card col" style="width: 18rem;">
+            {% comment %} <img src="..." class="card-img-top" alt="..."> {% endcomment %}
+            <div class="card-body">
+                <h5 class="card-title">Favorites</h5>
+                <a href="{% url 'api_app.accounts:profile_activity' 'favorites' %}" class="btn btn-primary">View Favorites</a>
+            </div>
+        </div>
+        <div class="card col" style="width: 18rem;">
+            {% comment %} <img src="..." class="card-img-top" alt="..."> {% endcomment %}
+            <div class="card-body">
+                <h5 class="card-title">Custom Lists</h5>
+                <a href="{% url 'api_app.accounts:profile_activity' 'custom_watchlists' %}" class="btn btn-primary">Go to Custom Lists</a>
+                <a href="{% url 'api_app.accounts:create_watchlist' %}"><button type="button" class="btn btn-dark">Create Custom Watchlist</button></a>
+            </div>
+        </div>
+    </div>
 </div>
 
 
-<nav class="nav nav-tabs justify-content-center">
+{% comment %} <nav class="nav nav-tabs justify-content-center">
     <a href="{% url 'api_app.accounts:profile' %}?tab=watchlist" 
         class="nav-link {% if request.GET.tab == 'watchlist' or not request.GET.tab %}active{% endif %}" 
         aria-current="page">
@@ -22,20 +60,14 @@
         aria-current="page">
         Favorites
     </a>
-</nav>
+</nav> {% endcomment %}
 
 
-{% if request.GET.tab == 'watchlist' or not request.GET.tab %}
+{% comment %} {% if request.GET.tab == 'watchlist' or not request.GET.tab %}
     {% include 'profile/ProfileComponents/watchlist/watchlist.html' %}
 {% elif request.GET.tab == 'favorites' %}
     <h2> Favorites Section </h2>
-{% endif %}
+{% endif %} {% endcomment %}
 
-
-<script>
-    {% comment %} function updateDropdown(selectedText) {
-        document.getElementById('dropdownMenuButton1').innerText = selectedText;
-    } {% endcomment %}
-</script>
 
 {% endblock %}

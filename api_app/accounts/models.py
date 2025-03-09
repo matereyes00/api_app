@@ -5,6 +5,14 @@ from django.contrib.auth.models import User  # Import the User model
 from django.contrib.postgres.fields import ArrayField  # Use for lists
 from django.utils.timezone import now
 
+from get import fetch_media_info
+
+
+class fourFavorite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="fourFavorites")
+    fourFavorites = models.JSONField(default=dict)  # Stores movies, books, and games
+    date_added = models.DateTimeField(default=now)  # ✅ Correct way
+
 
 class CustomList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customList")
@@ -57,26 +65,65 @@ class FutureWatchlist(models.Model):
         ('videogame', 'Video Game')
     ])
     item_id = models.CharField(max_length=255)  # Store OLID, IMDbID, Game ID
+    title = models.CharField(max_length=255, blank=True, null=True)
+    year = models.CharField(max_length=10, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    image = models.URLField(blank=True, null=True)
     date_added = models.DateTimeField(auto_now_add=True)  # Timestamp for sorting/filtering
-    
+
     class Meta:
         unique_together = ('user', 'category', 'item_id')  # Prevent duplicate entries
 
     def __str__(self):
-        return f"Future watchlist for: {self.user.username} - {self.category}: {self.item_id}"
+        return f"Future watchlist for: {self.user.username} - {self.category}: {self.title or self.item_id}"
+
+    def save(self, *args, **kwargs):
+        if not self.title or not self.year or not self.image:  # Only fetch if missing
+            self.update_media_info()
+        super().save(*args, **kwargs)
+
+    def update_media_info(self):
+        """Fetch and update media info from API."""
+        data = fetch_media_info(self.category, self.item_id)
+        if data:
+            self.title = data.get("title") or data.get("Title") or data.get("name")
+            self.year = data.get("Year") or data.get("yearpublished") or data.get("first_publish_date")
+            self.description = data.get("Plot") or data.get("description")
+            self.image = data.get("image") or data.get("Poster") or data.get("cover_url")
+            self.save()
+
 
 class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="favorites")
-    category = models.CharField(max_length=20, choices=[
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE, related_name="favorites")
+    category = models.CharField(max_length=50, choices=[
         ('movie', 'Movie'),
         ('tv', 'TV Show'),
         ('book', 'Book'),
         ('boardgame', 'Board Game'),
         ('videogame', 'Video Game')
     ])
-    item_id = models.CharField(max_length=255)  # Unique ID for the favorite item (IMDB ID, OLID, etc.)
-    date_added = models.DateTimeField(default=now)  # ✅ Correct way
-    
+    item_id = models.CharField(max_length=255)  # External API ID
+    title = models.CharField(max_length=500, blank=True, null=True)
+    year = models.CharField(max_length=30, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    image_url = models.URLField(blank=True, null=True)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'category', 'item_id')  # Prevent duplicate favorites
+        ordering = ['-date_added']  # Show newest first
+
+    def save(self, *args, **kwargs):
+        """Fetch and store title, year, description, and image when saving."""
+        if not self.title or not self.year or not self.image_url:  # Fetch only if missing
+            data = fetch_media_info(self.category, self.item_id)
+            if data:
+                self.title = data.get("title") or data.get("Title") or data.get("name", "Unknown")
+                self.year = data.get("Year") or data.get("yearpublished") or data.get("first_publish_date", "N/A")
+                self.description = data.get("Plot") or data.get("description", "No description available.")
+                self.image = data.get("image") or data.get("Poster") or data.get("cover_url", "")
+
+        super().save(*args, **kwargs)  # Save to the database
 
     def __str__(self):
-        return f"{self.user.username} - {self.category}: {self.item_id}"
+        return self.title or "Unknown Favorite"

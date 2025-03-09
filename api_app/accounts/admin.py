@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 import json
-from .models import Profile, Favorite, FutureWatchlist, CustomList
-from .templates.API_.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info
+from django.utils.html import format_html
+from .models import Profile, Favorite, FutureWatchlist, CustomList, fourFavorite
+from get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, fetch_media_info
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "formatted_watchlist")
@@ -28,25 +29,63 @@ def get_item_name(category, item_id):
 
 
 class FutureWatchlistAdmin(admin.ModelAdmin):
-    list_display = ('user', 'category', 'item_id', 'date_added')  # Columns to show in the list view
-    list_filter = ('category', 'date_added')  # Filters on the right sidebar
-    search_fields = ('user__username', 'item_id')  # Search by username or item ID
-    ordering = ('-date_added',)  # Sort by most recently added first
-    date_hierarchy = 'date_added'  # Adds a date filter at the top
-    list_per_page = 20  # Pagination
+    list_display = ('user', 'category', 'title', 'year', 'date_added')  # Show title and year
+    list_filter = ('category', 'date_added')  
+    search_fields = ('user__username', 'item_id', 'title')  
+    ordering = ('-date_added',)  
+    date_hierarchy = 'date_added'  
+    list_per_page = 20  
 
     fieldsets = (
         ("User Info", {"fields": ("user",)}),
-        ("Item Details", {"fields": ("category", "item_id")}),
+        ("Item Details", {"fields": ("category", "item_id", "title", "year", "description", "image")}),
         ("Timestamps", {"fields": ("date_added",)}),
     )
 
-    readonly_fields = ("date_added",)  # Prevents modification of auto-generated timestamps
+    readonly_fields = ("date_added",)  # Prevents modification of timestamps
+
 
 class CustomWatchlistAdmin(admin.ModelAdmin):
     list_display = ('list_name', 'list_description', 'user', 'custom_list_id', 'date_added')
+    
+
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('user', 'category', 'title', 'year', 'date_added')  # Show title & year
+    list_filter = ('category', 'date_added')  
+    search_fields = ('user__username', 'title', 'item_id')  
+    ordering = ('-date_added',)  
+    date_hierarchy = 'date_added'  
+    list_per_page = 20  
+
+    fieldsets = (
+        ("User Info", {"fields": ("user",)}),
+        ("Item Details", {"fields": ("category", "item_id", "title", "year", "description", "image_url")}),
+        ("Timestamps", {"fields": ("date_added",)}),
+    )
+    
+    def get_image(self):
+        """Fetch and display image dynamically."""
+        data = fetch_media_info(self.category, self.item_id)
+        image_url = data.get("image") or data.get("Poster") or data.get("cover_url")
+        return image_url if image_url else "No Image"
+    readonly_fields = ("date_added",)  # Prevents modification of timestamps
+
+
+
+
+class FourFavoritesAdmin(admin.ModelAdmin):
+    list_display = ('user', 'display_favorites', 'date_added')  # Show key details in the list view
+    search_fields = ('user__username',)  # Allow searching by username
+    list_filter = ('date_added',)  # Filter by date
+    ordering = ('-date_added',)  # Order by latest added
+    
+    def display_favorites(self, obj):
+        """Display JSON data in a readable format in the admin panel."""
+        return mark_safe(f"<pre>{obj.fourFavorites}</pre>")  # Show formatted JSON
+    display_favorites.short_description = "Favorites"
 
 admin.site.register(Profile, ProfileAdmin)
-admin.site.register(Favorite)
 admin.site.register(FutureWatchlist, FutureWatchlistAdmin)
+admin.site.register(Favorite, FavoriteAdmin)
 admin.site.register(CustomList, CustomWatchlistAdmin)
+admin.site.register(fourFavorite, FourFavoritesAdmin)

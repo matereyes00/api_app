@@ -32,8 +32,11 @@ def search(request, category):
         query = request.POST.get('query')
         results = search_all_media(query, category)
         template = 'main/baseSearch.html'
-        return render(request, template, {'category':category,'results': results, 'query': query, 'error_message': error_message if 'error_message' in locals() else None})
-    
+        context = {'category':category,
+                'results': results,
+                'query': query, 
+                'error_message': error_message if 'error_message' in locals() else None}
+        return render(request, template, context)
     return render(request, 'main/baseSearch.html', {'category': category})
 
 @login_required(login_url='accounts/login/')
