@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.auth.models import User  # Import the User model
 from django.contrib.postgres.fields import ArrayField  # Use for lists
 from django.utils.timezone import now
+from django.core.exceptions import ValidationError
 
 from get import fetch_media_info
 
@@ -141,6 +142,8 @@ class FourFavorite(models.Model):
         ordering = ['-date_added']  # Show newest first
 
     def save(self, *args, **kwargs):
+        if FourFavorite.objects.filter(user=self.user).count() >= 4:  # 🔴 This enforces the limit
+            raise ValidationError("Too many records mate")  # 👈 This is where your error is coming from
         """Fetch and store title, year, description, and image when saving."""
         if not self.title or not self.year or not self.image_url:  # Fetch only if missing
             data = fetch_media_info(self.category, self.item_id)

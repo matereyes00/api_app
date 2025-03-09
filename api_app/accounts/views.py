@@ -1,6 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -317,17 +318,26 @@ def create_custom_watchlist(request):
 
     return render(request, template, context)
 
-@login_required
 def add_to_four_favorites(request, category, item_id):
     if request.method == 'POST':
         category_ = get_media_category(category, item_id)
-        media_data = fetch_media_info(category_, item_id)
-        FourFavorite.objects.get_or_create(
-            user=request.user,
-            category=category_,
-            item_id=item_id,
-            defaults={"title": "", "year": "", "description": "", "image_url": ""}
-        )
-        # if created:
-        #     favorite.update_media_info()
-    return redirect(request.META.get("HTTP_REFERER", "/"))
+
+        try:
+            if FourFavorite.objects.filter(user=request.user).count() >= 4:
+                raise ValidationError("Too many records mate")  # Raise the same validation error
+
+            media_data = fetch_media_info(category_, item_id)
+            FourFavorite.objects.get_or_create(
+                user=request.user,
+                category=category_,
+                item_id=item_id,
+                defaults={"title": media_data.get("title", ""), "year": media_data.get("year", ""),
+                        "description": media_data.get("description", ""), "image_url": media_data.get("image", "")}
+            )
+
+        except ValidationError as e:
+            messages.error(request, str(e))  # Store error message in session
+
+        return redirect(request.META.get("HTTP_REFERER", "/"))  # Redirect to the same page
+
+    return redirect("/")  # Fallback in case of non-POST request
