@@ -7,6 +7,12 @@
         {% include 'common/addRemoveButtonsPast.html' with category=category %}
         {% include 'common/addRemoveButtonsFuture.html' with category=category %}
         {% include 'common/addToFavoritesButton.html' with category=category %}
+
+        <form action="{% url 'api_app.accounts:add_to_four_favorites' category item_id %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target=".modal"><i class="fa-solid fa-plus">
+            </i>add to four faves</button>
+        </form>
         <a href="/">Back to Home</a>
     </div>
 

@@ -138,9 +138,6 @@ def get_media(category, item_id):
     return category_
 
 def fetch_media_info(category, item_id):
-    """
-    Fetch media info based on category and item_id.
-    """
     try:
         if category in ["movie", "tv"]:
             return get_movietv_data_using_imdbID(item_id)

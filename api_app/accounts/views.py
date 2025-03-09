@@ -15,7 +15,7 @@ from django.contrib import messages
 from get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media_category, fetch_media_info
 from deleteFromList import delete_future_watchlist_item, delete_favorite_item
 
-from api_app.accounts.models import Profile, Favorite, FutureWatchlist, CustomList
+from api_app.accounts.models import Profile, Favorite, FutureWatchlist, CustomList, FourFavorite
 from.forms import CustomUserCreationForm, ProfileUpdateForm, CustomListForm
 
 import json
@@ -316,3 +316,18 @@ def create_custom_watchlist(request):
     }
 
     return render(request, template, context)
+
+@login_required
+def add_to_four_favorites(request, category, item_id):
+    if request.method == 'POST':
+        category_ = get_media_category(category, item_id)
+        media_data = fetch_media_info(category_, item_id)
+        FourFavorite.objects.get_or_create(
+            user=request.user,
+            category=category_,
+            item_id=item_id,
+            defaults={"title": "", "year": "", "description": "", "image_url": ""}
+        )
+        # if created:
+        #     favorite.update_media_info()
+    return redirect(request.META.get("HTTP_REFERER", "/"))

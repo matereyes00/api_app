@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 import json
 from django.utils.html import format_html
-from .models import Profile, Favorite, FutureWatchlist, CustomList, fourFavorite
+from .models import Profile, Favorite, FutureWatchlist, CustomList, FourFavorite
 from get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, fetch_media_info
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -71,21 +71,20 @@ class FavoriteAdmin(admin.ModelAdmin):
     readonly_fields = ("date_added",)  # Prevents modification of timestamps
 
 
-
-
 class FourFavoritesAdmin(admin.ModelAdmin):
-    list_display = ('user', 'display_favorites', 'date_added')  # Show key details in the list view
-    search_fields = ('user__username',)  # Allow searching by username
-    list_filter = ('date_added',)  # Filter by date
-    ordering = ('-date_added',)  # Order by latest added
-    
-    def display_favorites(self, obj):
-        """Display JSON data in a readable format in the admin panel."""
-        return mark_safe(f"<pre>{obj.fourFavorites}</pre>")  # Show formatted JSON
-    display_favorites.short_description = "Favorites"
+    list_display = ("user", "title", "category", "year", "item_id", "image_preview")  # 👈 Display columns
+    search_fields = ("title", "category", "year", "item_id")  # 🔎 Allow searching
+
+    def image_preview(self, obj):
+        """Display image preview in the admin panel."""
+        if obj.image_url:
+            return mark_safe(f'<img src="{obj.image_url}" width="50" height="50" style="border-radius: 5px;" />')
+        return "No Image"
+
+    image_preview.short_description = "Image"
 
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(FutureWatchlist, FutureWatchlistAdmin)
 admin.site.register(Favorite, FavoriteAdmin)
 admin.site.register(CustomList, CustomWatchlistAdmin)
-admin.site.register(fourFavorite, FourFavoritesAdmin)
+admin.site.register(FourFavorite, FourFavoritesAdmin)
