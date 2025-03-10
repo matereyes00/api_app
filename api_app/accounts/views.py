@@ -48,28 +48,21 @@ def profile_view(request):
     if isinstance(profile.watchlist_past, str):
         profile.watchlist_past = json.loads(profile.watchlist_past)
 
-    watchlist = profile.watchlist_past
-
-    # Fetch future watchlist efficiently
+    past_watchlist = profile.watchlist_past
+    four_favorites = FourFavorite.objects.filter(user=request.user)
     future_watchlist = FutureWatchlist.objects.filter(user=request.user)
-    user_future_watchlist = {"movies": [], "games": [], "books": [], "tv": [], "video_games": []}
-    for item in future_watchlist:
-        entry = fetch_media_info(item.category, item.item_id)
-        if entry:
-            category_key = "video_games" if item.category == "videogame" else (
-                "games" if item.category == "boardgame" else item.category)
-            user_future_watchlist[category_key].append(entry)
-
-    # Fetch API data if a category and item_id are selected
-    if category and item_id:
-        item_data = fetch_media_info(category, item_id)
+    
+    # get_media_info so that when u click on the link (from the profile), youll see the info
+    
 
     return render(request, "Profile/profile.html", {
         "profile": profile,
-        "watchlist": watchlist,
-        "future_watchlist": user_future_watchlist,
+        "watchlist": past_watchlist,
+        "future_watchlist": future_watchlist,
         "category": category,
+        "item_id":item_id,
         "item_data": item_data,
+        "four_favorites":four_favorites,
     })
 
 
@@ -302,6 +295,7 @@ def remove_from_favorites(request, category, item_id):
                 delete_favorite_item(request, item_id,'boardgame')
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
+@login_required
 @login_required
 def add_to_four_favorites(request, category, item_id):
     if request.method == 'POST':

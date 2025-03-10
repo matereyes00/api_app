@@ -7,9 +7,12 @@ db.sqlite3
 # Ignore SQLite database
 db.sqlite3
 *.pyc
-__pycache__/
-accounts/__pycache__/
-review_app/__pycache__/
+*/__pycache__/*
+*__pycache__*
+api_app/api_app/__pycache__
+api_app/__pycache__/*
+accounts/__pycache__/*
+review_app/__pycache__/*
 *.pyc
 __pycache__/
 

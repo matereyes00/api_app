@@ -110,7 +110,7 @@ class Favorite(models.Model):
     title = models.CharField(max_length=500, blank=True, null=True)
     year = models.CharField(max_length=30, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    image_url = models.URLField(blank=True, null=True)
+    image = models.URLField(blank=True, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -119,7 +119,7 @@ class Favorite(models.Model):
 
     def save(self, *args, **kwargs):
         """Fetch and store title, year, description, and image when saving."""
-        if not self.title or not self.year or not self.image_url:  # Fetch only if missing
+        if not self.title or not self.year or not self.image:  # Fetch only if missing
             data = fetch_media_info(self.category, self.item_id)
             if data:
                 self.title = data.get("title") or data.get("Title") or data.get("name", "Unknown")
@@ -145,7 +145,7 @@ class FourFavorite(models.Model):
     title = models.CharField(max_length=500, blank=True, null=True)
     year = models.CharField(max_length=30, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    image_url = models.URLField(blank=True, null=True)
+    image = models.URLField(blank=True, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -156,13 +156,13 @@ class FourFavorite(models.Model):
         if FourFavorite.objects.filter(user=self.user).count() >= 4:  # 🔴 This enforces the limit
             raise ValidationError("Too many records mate")  # 👈 This is where your error is coming from
         """Fetch and store title, year, description, and image when saving."""
-        if not self.title or not self.year or not self.image_url:  # Fetch only if missing
+        if not self.title or not self.year or not self.image:  # Fetch only if missing
             data = fetch_media_info(self.category, self.item_id)
             if data:
                 self.title = data.get("title") or data.get("Title") or data.get("name", "Unknown")
                 self.year = data.get("Year") or data.get("yearpublished") or data.get("first_publish_date", "N/A")
                 self.description = data.get("Plot") or data.get("description", "No description available.")
-                self.image_url = data.get("image") or data.get("Poster") or data.get("cover_url", "")
+                self.image = data.get("image") or data.get("Poster") or data.get("cover_url", "")
 
         super().save(*args, **kwargs)  # Save to the database
 
