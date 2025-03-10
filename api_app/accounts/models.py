@@ -51,14 +51,13 @@ class PastWatchlist(models.Model):
         super().save(*args, **kwargs)
 
     def update_media_info(self):
-        """Fetch and update media info from API."""
+        """Fetch and update media info from API without calling save()."""
         data = fetch_media_info(self.category, self.item_id)
         if data:
             self.title = data.get("title") or data.get("Title") or data.get("name")
             self.year = data.get("Year") or data.get("yearpublished") or data.get("first_publish_date")
             self.description = data.get("Plot") or data.get("description")
             self.image = data.get("image") or data.get("Poster") or data.get("cover_url")
-            self.save()
 
 class FutureWatchlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="future_watchlist")

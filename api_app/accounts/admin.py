@@ -75,15 +75,15 @@ class FavoriteAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ("User Info", {"fields": ("user",)}),
-        ("Item Details", {"fields": ("category", "item_id", "title", "year", "description", "image_url")}),
+        ("Item Details", {"fields": ("category", "item_id", "title", "year", "description", "image")}),
         ("Timestamps", {"fields": ("date_added",)}),
     )
     
     def get_image(self):
         """Fetch and display image dynamically."""
         data = fetch_media_info(self.category, self.item_id)
-        image_url = data.get("image") or data.get("Poster") or data.get("cover_url")
-        return image_url if image_url else "No Image"
+        image = data.get("image") or data.get("Poster") or data.get("cover_url")
+        return image if image else "No Image"
     readonly_fields = ("date_added",)  # Prevents modification of timestamps
 
 
@@ -93,8 +93,8 @@ class FourFavoritesAdmin(admin.ModelAdmin):
 
     def image_preview(self, obj):
         """Display image preview in the admin panel."""
-        if obj.image_url:
-            return mark_safe(f'<img src="{obj.image_url}" width="50" height="50" style="border-radius: 5px;" />')
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image}" width="50" height="50" style="border-radius: 5px;" />')
         return "No Image"
 
     image_preview.short_description = "Image"

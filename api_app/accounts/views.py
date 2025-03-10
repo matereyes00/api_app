@@ -14,7 +14,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 
 from common.API.get import get_bgg_game_info,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media_category, fetch_media_info
-from common.API.deleteFromList import delete_future_watchlist_item, delete_favorite_item
+from common.API.deleteFromList import delete_future_watchlist_item, delete_favorite_item, delete_past_watchlist_item
 
 from api_app.accounts.models import Favorite, FutureWatchlist, FourFavorite, PastWatchlist
 from api_app.lists.models import CustomList
@@ -69,24 +69,18 @@ def profile_view(request):
 @login_required
 def edit_profile(request):
     profile = request.user.profile
-
     if request.method == 'POST':
         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
         password_form = PasswordChangeForm(request.user, request.POST)  # Password form
-
         if profile_form.is_valid():
             profile_form.save()
-
         if password_form.is_valid():
             user = password_form.save()
             update_session_auth_hash(request, user)  # Prevents logout after password change
-
         return redirect('api_app.accounts:profile')  # Redirect after form submission
-
     else:
         profile_form = ProfileUpdateForm(instance=profile)
         password_form = PasswordChangeForm(request.user)
-
     return render(request, 'profile/editProfile.html', {
         'profile_form': profile_form,
         'password_form': password_form
@@ -100,12 +94,9 @@ def profile_activity(request, activity):
     future_watchlist = FutureWatchlist.objects.filter(user=request.user)
     custom_watchlist = CustomList.objects.filter(user=request.user)
     past_watchlist = PastWatchlist.objects.filter(user=request.user)
-    
     for item in Favorite.objects.all():
         item.save() 
-    
     template = 'Profile/baseActivityView.html'
-    
     context = {
             'future_watchlist': future_watchlist,
             'custom_watchlists': custom_watchlist,
@@ -114,78 +105,34 @@ def profile_activity(request, activity):
         }
     return render(request, template, context)
 
-
-''' TO DO: SEPARATE PASTWATCHLIST field from PROFILE model '''
 @login_required
 def remove_from_consumed_media(request, category, item_id):
-    profile = request.user.profile
-    watchlist = profile.watchlist_past 
+    past_watchlist = PastWatchlist.objects.filter(user=request.user) 
     if request.method == 'POST':
-        if not watchlist or not isinstance(watchlist, dict):
-            watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games": []}
-        
-        if category == 'books':
-            book_data = get_book_info(item_id)
-            watchlist['books'] = [book for book in watchlist.get('books', []) if str(book.get('olid')) != str(book_data['olid'])]
-        elif category == 'movies-tv':
-            response = get_movietv_info(item_id)
-            movie_data = response.json()
-            if movie_data.get("Response") == "True":
-                if movie_data['Type'] == 'movie':
-                    watchlist['movies'] = [m for m in watchlist.get('movies', []) if str(m.get('imdbID')) != str(movie_data['imdbID'])]
-                elif movie_data['Type'] == 'series':
-                    watchlist['tv'] = [t for t in watchlist.get('tv', []) if str(t.get('imdbID')) != str(movie_data['imdbID'])]
-        elif category == 'games':
-            item_data = get_bgg_game_info(item_id)
-            if item_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
-                watchlist['video_games'] = [game for game in watchlist.get('video_games', []) if str(game.get('gameID')) != str(item_id)]
-            else: 
-                watchlist['games'] = [game for game in watchlist.get('games', []) if str(game.get('gameID')) != str(item_id)]
-
-        # Save the updated watchlist
-        profile.watchlist_past = watchlist
-        profile.save()
+        category_ = get_media_category(category, item_id)
+        media_data = fetch_media_info(category_, item_id)  # Fetch media info
+        delete_past_watchlist_item(request, (media_data['imdbID'] or media_data['olid'] or media_data['gameID']), category_)
 
         return redirect(request.META.get('HTTP_REFERER', '/'))
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required
 def add_to_consumed_media(request, category, item_id):
-    profile = request.user.profile
-    watchlist_past = profile.watchlist_past # this is the original one
-    # watchlist_past = PastWatchlist.objects.filter(user=request.user)
-    
     if request.method == "POST":
-        if not watchlist_past or not isinstance(watchlist_past, dict):
-            watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games": []}
-        else:
-            watchlist = watchlist_past
-        if category == 'movies-tv':
-            movie_data = get_movietv_data_using_imdbID(item_id)
-            if movie_data['Type'] == 'movie':
-                if movie_data not in watchlist["movies"]:
-                    watchlist["movies"].append(movie_data)
-            if movie_data['Type'] == 'series':
-                if movie_data not in watchlist["tv"]:
-                    watchlist["tv"].append(movie_data)
-        elif category == "books":
-            response = get_book_info(item_id)
-            book_data = response
-            if "books" not in watchlist:
-                watchlist["books"] = []
-            if book_data not in watchlist["books"]:
-                watchlist["books"].append(book_data)
-        elif category == 'games': 
-            game_data = get_bgg_game_info(item_id)
-            if game_data['type'] in ['boardgame', 'boardgameperson', 'boardgamecompany']:
-                watchlist["games"].append(game_data)
-            elif game_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany', 'rpgitem']:
-                watchlist["video_games"].append(game_data)
-                print(watchlist['video_games'])
-
-        profile.watchlist_past = watchlist
-        profile.save()
-
+        category_ = get_media_category(category, item_id)
+        media_data = fetch_media_info(category_, item_id)  # Fetch media info
+        PastWatchlist.objects.get_or_create(
+            user=request.user,
+            category=category_,
+            item_id=item_id,
+            defaults={
+                "title": media_data.get("title") or media_data.get("Title") or media_data.get("name"),
+                "year": media_data.get("Year") or media_data.get("yearpublished") or media_data.get("first_publish_date"),
+                "description": media_data.get("Plot") or media_data.get("description"),
+                "image": media_data.get("image") or media_data.get("Poster") or media_data.get("cover_url"),
+            }
+        )
+        
         return redirect(request.META.get('HTTP_REFERER', '/'))
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -193,114 +140,61 @@ def add_to_consumed_media(request, category, item_id):
 @login_required
 def add_to_future_watchlist(request, category, item_id):
     if request.method == "POST":
-        if category == 'movies-tv':
-            movie_data = get_movietv_data_using_imdbID(item_id)
-            movietv_category = 'movie' if movie_data['Type'] in ['movie'] else 'tv'
-            category_ = get_media_category(category, item_id)
-            FutureWatchlist.objects.get_or_create(
-                    user=request.user,
-                    category=category_,
-                    item_id=item_id
-            )
-
-        elif category == 'books':
-            book_data = get_book_info(item_id)
-            FutureWatchlist.objects.get_or_create(
-                user=request.user,
-                category='book',
-                item_id=item_id
-            )
-
-        elif category == 'games':
-            games_data = get_bgg_game_info(item_id)
-            game_category = 'videogame' if games_data['type'] in ['videogame', 'rpg'] else 'boardgame'
-            FutureWatchlist.objects.get_or_create(
-                user=request.user,
-                category=game_category,
-                item_id=item_id
-            )
-
+        category_ = get_media_category(category, item_id)
+        media_data = fetch_media_info(category_, item_id)  # Fetch media info
+        FutureWatchlist.objects.get_or_create(
+            user=request.user,
+            category=category_,
+            item_id=item_id,
+            defaults={
+                "title": media_data.get("title") or media_data.get("Title") or media_data.get("name"),
+                "year": media_data.get("Year") or media_data.get("yearpublished") or media_data.get("first_publish_date"),
+                "description": media_data.get("Plot") or media_data.get("description"),
+                "image": media_data.get("image") or media_data.get("Poster") or media_data.get("cover_url"),
+            }
+        )
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
 @login_required
 def remove_from_future_watchlist(request, category, item_id):
     if request.method == "POST":
-        if category == 'movies-tv':
-            movie_data = get_movietv_data_using_imdbID(item_id)
-            if movie_data['Type'] == 'movie':
-                delete_future_watchlist_item(request, movie_data['imdbID'],'movie')
-            if movie_data['Type'] == 'series':
-                delete_future_watchlist_item(request, movie_data['imdbID'],'tv')
-        if category == "books":
-            book_data = get_book_info(item_id)
-            delete_future_watchlist_item(request, item_id,'book')
-        if category == 'games':
-            games_data = get_bgg_game_info(item_id)
-            if games_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
-                delete_future_watchlist_item(request, item_id,'videogame')
-            else:
-                delete_future_watchlist_item(request, item_id,'boardgame')
-
+        future_watchlist = FutureWatchlist.objects.filter(user=request.user) 
+        category_ = get_media_category(category, item_id)
+        media_data = fetch_media_info(category_, item_id)  # Fetch media info
+        delete_future_watchlist_item(request, (media_data['imdbID'] or media_data['olid'] or media_data['gameID']), category_)
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
 @login_required
 def add_to_favorites(request, category, item_id):
     if request.method == 'POST':
-        if category == 'movies-tv':
-            movie_data = get_movietv_data_using_imdbID(item_id)
-            movietv_id = str(movie_data.get('imdbID', ''))
-            category_type = 'movie' if movie_data.get('Type') == 'movie' else 'tv'
-            Favorite.objects.get_or_create(
-                user=request.user,
-                category=category_type,
-                item_id=item_id
-            )
-
-        elif category == 'books':
-            book_data = get_book_info(item_id)
-            Favorite.objects.get_or_create(
-                user=request.user,
-                category='book',
-                item_id=item_id
-            )
-
-        elif category == 'games':
-            games_data = get_bgg_game_info(item_id)
-            game_category = 'videogame' if games_data['type'] in ['videogame', 'rpg'] else 'boardgame'
-            Favorite.objects.get_or_create(
-                user=request.user,
-                category=game_category,
-                item_id=item_id
-            )
+        category_ = get_media_category(category, item_id)
+        media_data = fetch_media_info(category_, item_id)  # Fetch media info
+        Favorite.objects.get_or_create(
+            user=request.user,
+            category=category_,
+            item_id=item_id,
+            defaults={
+                "title": media_data.get("title") or media_data.get("Title") or media_data.get("name"),
+                "year": media_data.get("Year") or media_data.get("yearpublished") or media_data.get("first_publish_date"),
+                "description": media_data.get("Plot") or media_data.get("description"),
+                "image": media_data.get("image") or media_data.get("Poster") or media_data.get("cover_url"),
+            }
+        )
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
 @login_required
 def remove_from_favorites(request, category, item_id):
     if request.method == 'POST':
-        if category == 'movies-tv':
-            movie_data = get_movietv_data_using_imdbID(item_id)
-            if movie_data['Type'] == 'movie':
-                delete_favorite_item(request, movie_data['imdbID'],'movie')
-            if movie_data['Type'] == 'series':
-                delete_favorite_item(request, movie_data['imdbID'],'tv')
-        if category == "books":
-            book_data = get_book_info(item_id)
-            delete_favorite_item(request, item_id,'book')
-        if category == 'games':
-            games_data = get_bgg_game_info(item_id)
-            if games_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
-                delete_favorite_item(request, item_id,'videogame')
-            else:
-                delete_favorite_item(request, item_id,'boardgame')
+        category_ = get_media_category(category, item_id)
+        media_data = fetch_media_info(category_, item_id)  # Fetch media info
+        delete_favorite_item(request, (media_data['imdbID'] or media_data['olid'] or media_data['gameID']), category_)
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
-@login_required
 @login_required
 def add_to_four_favorites(request, category, item_id):
     if request.method == 'POST':
         category_ = get_media_category(category, item_id)
-
         try:
             if FourFavorite.objects.filter(user=request.user).count() >= 4:
                 raise ValidationError("Too many records mate")  # Raise the same validation error
@@ -318,5 +212,4 @@ def add_to_four_favorites(request, category, item_id):
             messages.error(request, str(e))  # Store error message in session
 
         return redirect(request.META.get("HTTP_REFERER", "/"))  # Redirect to the same page
-
     return redirect("/")  # Fallback in case of non-POST request

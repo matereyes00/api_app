@@ -168,7 +168,7 @@ def get_media_category(category, item_id):
         return category_
     if category == 'games':
         data = get_bgg_game_info(item_id)
-        if data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
+        if data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany', 'rpgitem']:
             category_ = 'videogame'
             return category_
         else:
