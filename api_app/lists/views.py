@@ -17,7 +17,7 @@ def create_custom_watchlist(request):
     else:
         custom_list_form = CustomListForm()
         
-    template = 'profile/customWatchlist/addCustomWatchlistForm.html'
+    template = 'customWatchlist/addCustomWatchlistForm.html'
     context = {
         'custom_watchlist_form': custom_list_form,
     }

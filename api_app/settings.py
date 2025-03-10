@@ -65,6 +65,7 @@ TEMPLATES = [
         'DIRS': [
             os.path.join(BASE_DIR,"api_app/api_app/accounts/templates/"),
             os.path.join(BASE_DIR,"api_app/api_app/review_app/templates/"),
+            os.path.join(BASE_DIR,"common/templates/"),
         ],
         'APP_DIRS': True,
         'OPTIONS': {

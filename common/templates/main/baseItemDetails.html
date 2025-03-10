@@ -4,9 +4,9 @@
     {% include 'main/baseItemDetails/itemDetails.html' %}
 
     <div class="btn btn-group">
-        {% include 'common/addRemoveButtonsPast.html' with category=category %}
-        {% include 'common/addRemoveButtonsFuture.html' with category=category %}
-        {% include 'common/addToFavoritesButton.html' with category=category %}
+        {% include 'pastFutureWatchlistAndFavorites/addRemoveButtonsPast.html' with category=category %}
+        {% include 'pastFutureWatchlistAndFavorites/addRemoveButtonsFuture.html' with category=category %}
+        {% include 'pastFutureWatchlistAndFavorites/addToFavoritesButton.html' with category=category %}
 
         <form action="{% url 'api_app.accounts:add_to_four_favorites' category item_id %}" method="POST">
             {% csrf_token %}
@@ -16,7 +16,7 @@
         <a href="/">Back to Home</a>
     </div>
 
-    {% include 'common/addRemoveModal.html' %}
+    {% include 'pastFutureWatchlistAndFavorites/addRemoveModal.html' %}
     
 
     <script>

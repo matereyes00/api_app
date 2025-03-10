@@ -64,7 +64,7 @@ def profile_view(request):
     if category and item_id:
         item_data = fetch_media_info(category, item_id)
 
-    return render(request, "profile/profile.html", {
+    return render(request, "Profile/profile.html", {
         "profile": profile,
         "watchlist": watchlist,
         "future_watchlist": user_future_watchlist,
