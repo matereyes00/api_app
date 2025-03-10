@@ -13,8 +13,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.contrib import messages
 
-from get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media_category, fetch_media_info
-from deleteFromList import delete_future_watchlist_item, delete_favorite_item
+from common.API.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media_category, fetch_media_info
+from common.API.deleteFromList import delete_future_watchlist_item, delete_favorite_item
 
 from api_app.accounts.models import Profile, Favorite, FutureWatchlist, FourFavorite
 from api_app.lists.models import CustomList
@@ -183,7 +183,7 @@ def add_to_consumed_media(request, category, item_id):
             game_data = get_bgg_game_info(item_id)
             if game_data['type'] in ['boardgame', 'boardgameperson', 'boardgamecompany']:
                 watchlist["games"].append(game_data)
-            elif game_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
+            elif game_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany', 'rpgitem']:
                 watchlist["video_games"].append(game_data)
                 print(watchlist['video_games'])
 

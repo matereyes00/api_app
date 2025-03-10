@@ -81,7 +81,7 @@ def item_details(request, category, item_id):
         context['game'] = game_data
         context['game_id'] = str(game_data['gameID'])
         games_attr_id = "gameID"
-        if game_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany']:
+        if game_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany', 'rpgitem']:
             consumed_media = user_profile.watchlist_past.get("video_games", [])
             cat = 'videogame'
             context['consumed_media'] = consumed_media
