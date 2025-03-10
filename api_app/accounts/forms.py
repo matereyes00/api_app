@@ -1,8 +1,7 @@
 from django import forms
-from.models import Profile, CustomList
+from.models import Profile
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm
-
 
 class CustomUserCreationForm(UserCreationForm):
     bio = forms.CharField(widget=forms.Textarea, required=False)
@@ -30,8 +29,3 @@ class ProfileUpdateForm(forms.ModelForm):
             profile.user.save()
             profile.save()
         return profile
-    
-class CustomListForm(forms.ModelForm):
-    class Meta:
-        model = CustomList
-        fields= ['list_name', 'list_description']

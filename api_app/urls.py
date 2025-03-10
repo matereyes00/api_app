@@ -24,6 +24,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),  # ✅ Keep the admin path
     path('accounts/', include('api_app.accounts.urls')),  # ✅ Include accounts URLs correctly
+    path("lists/", include("api_app.lists.urls", namespace="lists")),  # ✅ Include accounts URLs correctly
     path('accounts/', include('django.contrib.auth.urls')),  # ✅ Include Django auth URLs
     path('', include('api_app.review_app.urls')),  # ✅ Include review app URLs
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

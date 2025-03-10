@@ -86,5 +86,4 @@ class FourFavoritesAdmin(admin.ModelAdmin):
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(FutureWatchlist, FutureWatchlistAdmin)
 admin.site.register(Favorite, FavoriteAdmin)
-admin.site.register(CustomList, CustomWatchlistAdmin)
 admin.site.register(FourFavorite, FourFavoritesAdmin)

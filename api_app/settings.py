@@ -17,9 +17,7 @@ from django.conf import settings  # Import settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-print(f'>>{BASE_DIR}')
 sys.path.append(os.path.join(BASE_DIR, "API"))
-
 
 
 # Quick-start development settings - unsuitable for production
@@ -45,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api_app.review_app',
     'api_app.accounts',
+    'api_app.lists',
     'bootstrap5',
 ]
 

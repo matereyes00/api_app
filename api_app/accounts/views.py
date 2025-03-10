@@ -16,8 +16,9 @@ from django.contrib import messages
 from get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media_category, fetch_media_info
 from deleteFromList import delete_future_watchlist_item, delete_favorite_item
 
-from api_app.accounts.models import Profile, Favorite, FutureWatchlist, CustomList, FourFavorite
-from.forms import CustomUserCreationForm, ProfileUpdateForm, CustomListForm
+from api_app.accounts.models import Profile, Favorite, FutureWatchlist, FourFavorite
+from api_app.lists.models import CustomList
+from.forms import CustomUserCreationForm, ProfileUpdateForm
 
 import json
 import requests
@@ -113,7 +114,7 @@ def profile_activity(request, activity):
     
     context = {
             'future_watchlist': future_watchlist,
-            # 'custom_watchlists': custom_watchlist,
+            'custom_watchlists': custom_watchlist,
             # 'past_watchlist': user_past_watchlist,
             'favorites':favorites,
         }
@@ -297,26 +298,6 @@ def remove_from_favorites(request, category, item_id):
             else:
                 delete_favorite_item(request, item_id,'boardgame')
     return redirect(request.META.get("HTTP_REFERER", "/"))
-
-@login_required
-def create_custom_watchlist(request):
-    profile = request.user.profile
-    if request.method == 'POST':
-        custom_list_form = CustomListForm(request.POST)
-        if custom_list_form.is_valid():
-            custom_watchlist = custom_list_form.save(commit=False) # create but dont save
-            custom_watchlist.user = request.user # assign user before saving
-            custom_watchlist.save()
-            return redirect('api_app.accounts:profile')  # Redirect after form submission
-    else:
-        custom_list_form = CustomListForm()
-        
-    template = 'profile/customWatchlist/addCustomWatchlistForm.html'
-    context = {
-        'custom_watchlist_form': custom_list_form,
-    }
-
-    return render(request, template, context)
 
 def add_to_four_favorites(request, category, item_id):
     if request.method == 'POST':

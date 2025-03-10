@@ -7,15 +7,7 @@ from django.utils.timezone import now
 from django.core.exceptions import ValidationError
 
 from get import fetch_media_info
-
-
-class CustomList(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customList")
-    custom_list_id = models.BigAutoField(primary_key=True)
-    list_name = models.CharField(max_length=255) 
-    list_description = models.TextField(default="", blank=True)
-    item_id = models.CharField(max_length=255)  # Unique ID for the favorite item (IMDB ID, OLID, etc.)
-    date_added = models.DateTimeField(default=now)  # ✅ Correct way
+from api_app.lists.models import CustomList
 
 # User's profile
 class Profile(models.Model):

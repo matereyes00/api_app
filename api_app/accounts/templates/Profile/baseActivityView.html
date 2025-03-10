@@ -30,12 +30,13 @@
         </div>
     </div>
 {% else %}
+    <h1>Future watchlist</h1>
     <p>No items in future watchlist found.</p>
 {% endif %}
 
 
 {% if favorites %}
-    <h2>Favorites</h2>
+    <h1>Favorites</h1>
     <div class="container">
         <div class="row">
             {% for favorite in favorites %}
@@ -58,6 +59,31 @@
     </div>
 {% else %}
     <p>No favorites found.</p>
+{% endif %}
+
+{% if custom_watchlists %}
+    <h1> Custom Lists </h1>
+    <div class="container">
+        <div class="row">
+            {% for item in custom_watchlists %}
+                <div class="col-md-4 mb-3">
+                    <div class="card" style="width: 18rem;">
+                            <img src="{{ item.image }}" class="card-img-top" alt="{{ item.list_name }}">
+                        <div class="card-body">
+                            <a href="#" class="card-link">
+                                <h5 class="card-title">{{ item.list_name }}</h5>
+                            </a>
+                            {% comment %} <h6 class="card-subtitle mb-2 text-muted">{{ item.year }}</h6> {% endcomment %}
+                            <p class="card-text">{{ item.list_description }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% else %}
+    <h1> Custom Lists </h1>
+    <p> No custom lists </p>
 {% endif %}
 
 {% endblock %}
