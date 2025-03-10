@@ -7,16 +7,16 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth import update_session_auth_hash  # Keeps user logged in
 from django.contrib.auth.forms import PasswordChangeForm
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.contrib import messages
 
-from common.API.get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media_category, fetch_media_info
+from common.API.get import get_bgg_game_info,get_movietv_info,get_book_info, get_movietv_data_using_imdbID, get_media_category, fetch_media_info
 from common.API.deleteFromList import delete_future_watchlist_item, delete_favorite_item
 
-from api_app.accounts.models import Profile, Favorite, FutureWatchlist, FourFavorite
+from api_app.accounts.models import Favorite, FutureWatchlist, FourFavorite, PastWatchlist
 from api_app.lists.models import CustomList
 from.forms import CustomUserCreationForm, ProfileUpdateForm
 
@@ -100,12 +100,13 @@ def edit_profile(request):
     })
 
 
+@login_required
 def profile_activity(request, activity):
     profile = request.user.profile 
     favorites = Favorite.objects.filter(user=request.user)
     future_watchlist = FutureWatchlist.objects.filter(user=request.user)
     custom_watchlist = CustomList.objects.filter(user=request.user)
-    past_watchlist = profile.watchlist_past
+    past_watchlist = PastWatchlist.objects.filter(user=request.user)
     
     for item in Favorite.objects.all():
         item.save() 
@@ -115,7 +116,7 @@ def profile_activity(request, activity):
     context = {
             'future_watchlist': future_watchlist,
             'custom_watchlists': custom_watchlist,
-            # 'past_watchlist': user_past_watchlist,
+            'past_watchlist': past_watchlist,
             'favorites':favorites,
         }
     return render(request, template, context)
@@ -158,7 +159,9 @@ def remove_from_consumed_media(request, category, item_id):
 @login_required
 def add_to_consumed_media(request, category, item_id):
     profile = request.user.profile
-    watchlist_past = profile.watchlist_past
+    watchlist_past = profile.watchlist_past # this is the original one
+    # watchlist_past = PastWatchlist.objects.filter(user=request.user)
+    
     if request.method == "POST":
         if not watchlist_past or not isinstance(watchlist_past, dict):
             watchlist = {"movies": [], "tv": [], "games": [], "books": [], "video_games": []}
@@ -299,6 +302,7 @@ def remove_from_favorites(request, category, item_id):
                 delete_favorite_item(request, item_id,'boardgame')
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
+@login_required
 def add_to_four_favorites(request, category, item_id):
     if request.method == 'POST':
         category_ = get_media_category(category, item_id)

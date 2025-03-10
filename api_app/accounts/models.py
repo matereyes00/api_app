@@ -33,13 +33,32 @@ class PastWatchlist(models.Model):
         ('videogame', 'Video Game')
     ])
     item_id = models.CharField(max_length=255)  # Store OLID, IMDbID, Game ID
+    title = models.CharField(max_length=255, blank=True, null=True)
+    year = models.CharField(max_length=10, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    image = models.URLField(blank=True, null=True)
     date_added = models.DateTimeField(auto_now_add=True)  # Timestamp for sorting/filtering
-    
+
     class Meta:
         unique_together = ('user', 'category', 'item_id')  # Prevent duplicate entries
 
     def __str__(self):
-        return f"Past Watchlist for {self.user.username} - {self.category}: {self.item_id}"
+        return f"Future watchlist for: {self.user.username} - {self.category}: {self.title or self.item_id}"
+
+    def save(self, *args, **kwargs):
+        if not self.title or not self.year or not self.image:  # Only fetch if missing
+            self.update_media_info()
+        super().save(*args, **kwargs)
+
+    def update_media_info(self):
+        """Fetch and update media info from API."""
+        data = fetch_media_info(self.category, self.item_id)
+        if data:
+            self.title = data.get("title") or data.get("Title") or data.get("name")
+            self.year = data.get("Year") or data.get("yearpublished") or data.get("first_publish_date")
+            self.description = data.get("Plot") or data.get("description")
+            self.image = data.get("image") or data.get("Poster") or data.get("cover_url")
+            self.save()
 
 class FutureWatchlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="future_watchlist")

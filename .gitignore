@@ -4,25 +4,16 @@ db.sqlite3
 *.pyc
 
 # Ignore Python cache files
-<<<<<<< HEAD
-=======
 # Ignore SQLite database
 db.sqlite3
 *.pyc
 __pycache__/
 accounts/__pycache__/
 review_app/__pycache__/
->>>>>>> 4d14972 (Added API as a path in settings.py (i put it at the root of the project folder.))
 *.pyc
 __pycache__/
 
 
-<<<<<<< HEAD
-# Ignore SQLite database
-db.sqlite3
-
-=======
->>>>>>> 4d14972 (Added API as a path in settings.py (i put it at the root of the project folder.))
 /staticfiles/
 /static/
 
