@@ -42,100 +42,20 @@ def search(request, category):
 @login_required(login_url='accounts/login/')
 def item_details(request, category, item_id):
     context = {}
-    user_profile = request.user.profile
-    # watchlist_past = user_profile.watchlist_past
-    past_watchlist = PastWatchlist.objects.filter(user=request.user)
-    category_ = get_media_category(category, item_id)
-    data = fetch_media_info(category_,item_id)
-    item_id = str(item_id)
-    
-    
+    category_ = get_media_category(category, item_id) # movie, tv, book, videogame, boardgame
+    data = fetch_media_info(category_, item_id)
     context['item_id'] = item_id
     context['category'] = category #movies-tv,books,games
-    
-    
-    
-    if category == "books":
-        try:
-            book_data = get_book_info(item_id)
-            book_data['olid'] = item_id  
-            context['book'] = book_data
-            context['book_olid'] = item_id  # Set OLID in context
-            book_attr_id = "olid"
-            cat ="book"
-            
-            item_in_past_Watchlist = PastWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-            item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-            context['is_item_in_past_watchlist'] = item_in_past_Watchlist
-            context['list_category'] = cat
-            context["is_item_in_future_watchlist"] = item_in_future_watchlist
-            context["is_item_in_favorites"] = item_in_favorites
+    if category == 'books': context['book'] = data
+    elif category == 'movies-tv': context['movie'] = data
+    elif category == 'games': context['game'] = data
 
-        except requests.exceptions.RequestException as e:
-            print(f"Error: {e}")
-            return render(request, 'main/baseSearch.html', {'error_message': 'Error fetching book details.'})
-        except json.JSONDecodeError as e:
-            print(f"Error processing JSON: {e}")
-            return render(request, 'main/baseSearch.html', {'error_message': 'Error processing book data.'})
+    item_in_past_Watchlist = PastWatchlist.objects.filter(user=request.user, category=category_, item_id=item_id).exists()
+    item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=category_, item_id=item_id).exists()
+    item_in_favorites = Favorite.objects.filter(user=request.user, category=category_, item_id=item_id).exists()
+    context['list_category'] = category_
+    context['is_item_in_past_watchlist'] = item_in_past_Watchlist
+    context["is_item_in_future_watchlist"] = item_in_future_watchlist
+    context["is_item_in_favorites"] = item_in_favorites
     
-    elif category == "games":
-        game_data = get_bgg_game_info(item_id)
-        context['game'] = game_data
-        context['game_id'] = str(game_data['gameID'])
-        games_attr_id = "gameID"
-        if game_data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany', 'rpgitem']:
-            consumed_media = user_profile.watchlist_past.get("video_games", [])
-            cat = 'videogame'
-            context['consumed_media'] = consumed_media
-            item_in_past_Watchlist = PastWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-            item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-            context['list_category'] = cat
-            context['is_item_in_past_watchlist'] = item_in_past_Watchlist
-            context["is_item_in_future_watchlist"] = item_in_future_watchlist
-            context["is_item_in_favorites"] = item_in_favorites
-
-        else:
-            consumed_media = user_profile.watchlist_past.get("games", [])
-            context['consumed_media'] = consumed_media
-            cat = 'boardgame'
-            item_in_past_Watchlist = PastWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-            item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-            context['list_category'] = cat
-            context['is_item_in_past_watchlist'] = item_in_past_Watchlist
-            context["is_item_in_future_watchlist"] = item_in_future_watchlist
-            context["is_item_in_favorites"] = item_in_favorites
-
-    
-    elif category == "movies-tv":
-        movie_data = get_movietv_data_using_imdbID(item_id)
-        # movie_data = response.json()
-        context['movie'] = movie_data
-        movietv_id = str(movie_data.get('imdbID', ''))
-        consumed_media = user_profile.watchlist_past.get('movies', [])
-        consumed_media += user_profile.watchlist_past.get('tv', [])  
-        context['consumed_media'] = consumed_media
-        context['category'] = category
-        
-        if movie_data['Type'] == 'movie':
-            cat = movie_data['Type']
-            context['list_category'] = cat
-            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=movietv_id).exists()
-            item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-            item_in_past_Watchlist = PastWatchlist.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-
-            context["is_item_in_future_watchlist"] = item_in_future_watchlist
-            context["is_item_in_favorites"] = item_in_favorites
-            context['is_item_in_past_watchlist'] = item_in_past_Watchlist
-            
-        else:
-            cat = 'tv'
-            context['list_category'] = cat
-            item_in_future_watchlist = FutureWatchlist.objects.filter(user=request.user, category=cat, item_id=movietv_id).exists()
-            item_in_favorites = Favorite.objects.filter(user=request.user, category=cat, item_id=item_id).exists()
-            context["is_item_in_future_watchlist"] = item_in_future_watchlist
-            context["is_item_in_favorites"] = item_in_favorites
-            context['is_item_in_past_watchlist'] = item_in_past_Watchlist
     return render(request, "main/baseItemDetails.html", context)

@@ -158,21 +158,15 @@ def get_media_category(category, item_id):
         data = get_movietv_data_using_imdbID(item_id)
         if data['Type'] == 'movie':
             category_ = 'movie'
-            return category_
         if data['Type'] == 'series':
             category_ = 'tv'
-            return category_
-    if category == "book":
+    if category == "books":
         data = get_book_info(item_id)
         category_ = 'book'
-        return category_
     if category == 'games':
         data = get_bgg_game_info(item_id)
         if data['type'] in ['videogame', 'videogamecompany', 'rpg', 'rpgperson', 'rpgcompany', 'rpgitem']:
             category_ = 'videogame'
-            return category_
         else:
             category_ = 'boardgame'
-            return category_
-            
     return category_
