@@ -17,32 +17,32 @@
 </div>
 
 {% if four_favorites %}
-<div class="four-favorites container"> 
-    <div class="row">
-        {% for fave in four_favorites %}
-            <div class="col" style="">
-                <div class="card justify-content-center" style="width: 12rem;">
-                    {% if fave.image and fave.image != "No Image" %}
-                        <img src="{{ fave.image }}" class="card-img-top" alt="{{ fave.title }}">
-                    {% endif %}
-                    <div class="card-body">
-                        <a href="{% url 'review_app:item_details' fave.category fave.item_id %}" class="card-link">
-                            <h5 class="card-title">{{ fave.title }}</h5>
-                        </a>
-                        <h6 class="card-subtitle mb-2 text-muted">{{ fave.year }}</h6>
-                        <p class="card-text" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ fave.description }}</p>
+    <div class="four-favorites container"> 
+        <div class="row">
+            {% for fave in four_favorites %}
+                <div class="col" style="">
+                    <div class="card justify-content-center" style="width: 12rem;">
+                        {% if fave.image and fave.image != "No Image" %}
+                            <img src="{{ fave.image }}" class="card-img-top" alt="{{ fave.title }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <a href="{% url 'review_app:item_details' fave.category fave.item_id %}" class="card-link">
+                                <h5 class="card-title">{{ fave.title }}</h5>
+                            </a>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ fave.year }}</h6>
+                            <p class="card-text" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ fave.description }}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
-</div>
 {% endif %}
 
 <div>
     <div class="row">
         <div class="card col" style="width: 18rem;">
-            {% comment %} <img src="..." class="card-img-top" alt="..."> {% endcomment %}
+            <img src="..." class="card-img-top" alt="...">
             <div class="card-body">
                 <h5 class="card-title">Watchlists</h5>
                 <a href="{% url 'api_app.accounts:profile_activity' 'past_watchlist' %}" class="btn btn-primary">Past</a>
@@ -50,14 +50,14 @@
             </div>
         </div>
         <div class="card col" style="width: 18rem;">
-            {% comment %} <img src="..." class="card-img-top" alt="..."> {% endcomment %}
+            <img src="..." class="card-img-top" alt="...">
             <div class="card-body">
                 <h5 class="card-title">Favorites</h5>
                 <a href="{% url 'api_app.accounts:profile_activity' 'favorites' %}" class="btn btn-primary">View Favorites</a>
             </div>
         </div>
         <div class="card col" style="width: 18rem;">
-            {% comment %} <img src="..." class="card-img-top" alt="..."> {% endcomment %}
+            <img src="..." class="card-img-top" alt="...">
             <div class="card-body">
                 <h5 class="card-title">Custom Lists</h5>
                 <a href="{% url 'api_app.accounts:profile_activity' 'custom_watchlists' %}" class="btn btn-primary">Go to Custom Lists</a>

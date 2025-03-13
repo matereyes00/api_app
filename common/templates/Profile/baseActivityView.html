@@ -1,89 +1,22 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
-<nav class="nav nav-tabs d-flex justify-content-evenly">
-    {% include 'profile/ProfileComponents/categoryDropDown.html' %}
-    {% comment %} {% include 'profile/ProfileComponents/watchlist/watchlistType.html' %} {% endcomment %}
-</nav>
-
-
-{% if future_watchlist %}
-    <h2>Future watchlist</h2>
-    <div class="container">
-        <div class="row">
-            {% for item in future_watchlist %}
-                <div class="col-md-4 mb-3">
-                    <div class="card" style="width: 18rem;">
-                        {% if item.image and item.image != "No Image" %}
-                            <img src="{{ item.image }}" class="card-img-top" alt="{{ item.title }}">
-                        {% endif %}
-                        <div class="card-body">
-                            <a href="#" class="card-link">
-                                <h5 class="card-title">{{ item.title }}</h5>
-                            </a>
-                            <h6 class="card-subtitle mb-2 text-muted">{{ item.year }}</h6>
-                            <p class="card-text">{{ item.description }}</p>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <form class="d-flex" method="GET" action="">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name'search'>
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
         </div>
-    </div>
-{% else %}
-    <h1>Future watchlist</h1>
-    <p>No items in future watchlist found.</p>
-{% endif %}
+    </nav>
 
-
-{% if favorites %}
-    <h1>Favorites</h1>
-    <div class="container">
-        <div class="row">
-            {% for item in favorites %}
-                <div class="col-md-4 mb-3">
-                    <div class="card" style="width: 18rem;">
-                        {% if item.image and item.image != "No Image" %}
-                            <img src="{{ item.image }}" class="card-img-top" alt="{{ item.title }}">
-                        {% endif %}
-                        <div class="card-body">
-                            <a href="#" class="card-link">
-                                <h5 class="card-title">{{ item.title }}</h5>
-                            </a>
-                            <h6 class="card-subtitle mb-2 text-muted">{{ item.year }}</h6>
-                            <p class="card-text">{{ item.description }}</p>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-{% else %}
-    <p>No favorites found.</p>
-{% endif %}
-
-{% if custom_watchlists %}
-    <h1> Custom Lists </h1>
-    <div class="container">
-        <div class="row">
-            {% for item in custom_watchlists %}
-                <div class="col-md-4 mb-3">
-                    <div class="card" style="width: 18rem;">
-                            <img src="{{ item.image }}" class="card-img-top" alt="{{ item.list_name }}">
-                        <div class="card-body">
-                            <a href="#" class="card-link">
-                                <h5 class="card-title">{{ item.list_name }}</h5>
-                            </a>
-                            {% comment %} <h6 class="card-subtitle mb-2 text-muted">{{ item.year }}</h6> {% endcomment %}
-                            <p class="card-text">{{ item.list_description }}</p>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-{% else %}
-    <h1> Custom Lists </h1>
-    <p> No custom lists </p>
-{% endif %}
-
+    {% if activity == 'future_watchlist' %}
+        {% include 'profile/activityView.html' with list_name="Future Watchlist" list=future_watchlist %}
+    {% elif activity == 'favorites' %}
+        {% include 'profile/activityView.html' with list_name="Favorites" list=favorites %}
+    {% elif activity == 'past_watchlist' %}
+        {% include 'profile/activityView.html' with list_name="Past Watchlist" list=past_watchlist %}
+    {% elif activity == 'custom_watchlists' %}
+        {% include 'profile/activityView.html' with list_name="Custom Lists" list=custom_watchlists %}
+    {% endif %}
 {% endblock %}

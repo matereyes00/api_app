@@ -42,23 +42,21 @@ def profile_view(request):
     item_data = None  
     profile = request.user.profile 
 
-    # Ensure watchlist_past is correctly formatted
-    if not profile.watchlist_past or not isinstance(profile.watchlist_past, dict):
-        profile.watchlist_past = {"movies": [], "games": [], "books": [], "tv": [], "video_games": []}
-    if isinstance(profile.watchlist_past, str):
-        profile.watchlist_past = json.loads(profile.watchlist_past)
-
-    past_watchlist = profile.watchlist_past
+    past_watchlist = PastWatchlist.objects.filter(user=request.user)
     four_favorites = FourFavorite.objects.filter(user=request.user)
     future_watchlist = FutureWatchlist.objects.filter(user=request.user)
+    favorites = Favorite.objects.filter(user=request.user)
+    custom_lists = CustomList.objects.filter(user=request.user)
     
     # get_media_info so that when u click on the link (from the profile), youll see the info
     
 
     return render(request, "Profile/profile.html", {
         "profile": profile,
-        "watchlist": past_watchlist,
+        "past_watchlist": past_watchlist,
         "future_watchlist": future_watchlist,
+        "favorites": favorites,
+        "custom_lists": custom_lists,
         "category": category,
         "item_id":item_id,
         "item_data": item_data,
@@ -89,19 +87,30 @@ def edit_profile(request):
 
 @login_required
 def profile_activity(request, activity):
-    profile = request.user.profile 
     favorites = Favorite.objects.filter(user=request.user)
     future_watchlist = FutureWatchlist.objects.filter(user=request.user)
     custom_watchlist = CustomList.objects.filter(user=request.user)
     past_watchlist = PastWatchlist.objects.filter(user=request.user)
-    for item in Favorite.objects.all():
-        item.save() 
+    
+    def search_activity(self):
+        results = super(profile_activity, self).search_activity()
+        query = self.request.GET.get('search')
+        context_object_name = 'all_search_results'
+        if query:
+            if activity == 'favorites':
+                postresult = Favorite.objects.filter(title__contains=query)
+                results = postresult
+        else:
+            results = None
+        return results
+    
     template = 'Profile/baseActivityView.html'
     context = {
             'future_watchlist': future_watchlist,
             'custom_watchlists': custom_watchlist,
             'past_watchlist': past_watchlist,
             'favorites':favorites,
+            'activity':activity,
         }
     return render(request, template, context)
 
