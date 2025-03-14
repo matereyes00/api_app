@@ -3,13 +3,14 @@
 {% block title %} Search Results {% endblock %}
 
 {% block content %}
-    <h2>Search Results for {{ category|title }}</h2>
-
-    <form method="post" class="d-flex" action="{% url 'review_app:search' category %}">
-        {% csrf_token %}
-        <input class="form-control me-2 text" type="search" placeholder="Search for {{ category }}..."  value="{{ query }}" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-    </form>
+    <div class="border-primary mx-auto" style="margin-top: 100px;width: 50%;">
+        <h2>Search Results for {{ category|title }}</h2>
+        <form method="post" class="d-flex flex-row" action="{% url 'review_app:search' category %}">
+            {% csrf_token %}
+            <input class="form-control me-2 text" type="search" name="query" placeholder="Search for {{ category }}..." value="{{ query }}" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+    </div>
 
     {% if results %}
         <ul>
