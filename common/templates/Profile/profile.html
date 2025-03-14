@@ -42,7 +42,7 @@
 <div>
     <div class="row">
         <div class="card col" style="width: 18rem;">
-            <img src="..." class="card-img-top" alt="...">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcp-s2bb39S49i_Xav56rQo2hB_mvY3LhDVg&s" class="card-img-top" alt="...">
             <div class="card-body">
                 <h5 class="card-title">Watchlists</h5>
                 <a href="{% url 'api_app.accounts:profile_activity' 'past_watchlist' %}" class="btn btn-primary">Past</a>
@@ -50,14 +50,14 @@
             </div>
         </div>
         <div class="card col" style="width: 18rem;">
-            <img src="..." class="card-img-top" alt="...">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcp-s2bb39S49i_Xav56rQo2hB_mvY3LhDVg&s" class="card-img-top" alt="...">
             <div class="card-body">
                 <h5 class="card-title">Favorites</h5>
                 <a href="{% url 'api_app.accounts:profile_activity' 'favorites' %}" class="btn btn-primary">View Favorites</a>
             </div>
         </div>
         <div class="card col" style="width: 18rem;">
-            <img src="..." class="card-img-top" alt="...">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcp-s2bb39S49i_Xav56rQo2hB_mvY3LhDVg&s" class="card-img-top" alt="...">
             <div class="card-body">
                 <h5 class="card-title">Custom Lists</h5>
                 <a href="{% url 'api_app.accounts:profile_activity' 'custom_watchlists' %}" class="btn btn-primary">Go to Custom Lists</a>
@@ -67,26 +67,6 @@
     </div>
 </div>
 
-
-{% comment %} <nav class="nav nav-tabs justify-content-center">
-    <a href="{% url 'api_app.accounts:profile' %}?tab=watchlist" 
-        class="nav-link {% if request.GET.tab == 'watchlist' or not request.GET.tab %}active{% endif %}" 
-        aria-current="page">
-        Watchlist
-    </a>
-    <a href="{% url 'api_app.accounts:profile' %}?tab=favorites" 
-        class="nav-link {% if request.GET.tab == 'favorites' %}active{% endif %}" 
-        aria-current="page">
-        Favorites
-    </a>
-</nav> {% endcomment %}
-
-
-{% comment %} {% if request.GET.tab == 'watchlist' or not request.GET.tab %}
-    {% include 'profile/ProfileComponents/watchlist/watchlist.html' %}
-{% elif request.GET.tab == 'favorites' %}
-    <h2> Favorites Section </h2>
-{% endif %} {% endcomment %}
 
 
 {% endblock %}
