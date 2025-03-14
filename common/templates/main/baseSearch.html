@@ -5,10 +5,10 @@
 {% block content %}
     <h2>Search Results for {{ category|title }}</h2>
 
-    <form method="post" action="{% url 'review_app:search' category %}">
+    <form method="post" class="d-flex" action="{% url 'review_app:search' category %}">
         {% csrf_token %}
-        <input type="text" name="query" placeholder="Search for {{ category }}..." value="{{ query }}">
-        <button type="submit">Search</button>
+        <input class="form-control me-2 text" type="search" placeholder="Search for {{ category }}..."  value="{{ query }}" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
     </form>
 
     {% if results %}

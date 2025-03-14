@@ -92,17 +92,17 @@ def profile_activity(request, activity):
     custom_watchlist = CustomList.objects.filter(user=request.user)
     past_watchlist = PastWatchlist.objects.filter(user=request.user)
     
-    def search_activity(self):
-        results = super(profile_activity, self).search_activity()
-        query = self.request.GET.get('search')
-        context_object_name = 'all_search_results'
-        if query:
-            if activity == 'favorites':
-                postresult = Favorite.objects.filter(title__contains=query)
-                results = postresult
-        else:
-            results = None
-        return results
+    if request.method == 'GET':
+        query = request.GET.get('query')
+        if activity == 'favorites':
+            query_results=Favorite.objects.filter(title__contains==query)
+        if activity == 'past_watchlist':
+            query_results=PastWatchlist.objects.filter(title__contains==query)
+        if activity == 'future_watchlist':
+            query_results=FutureWatchlist.objects.filter(title__contains==query)
+        if activity == 'custom_watchlists':
+            query_results=CustomList.objects.filter(title__contains==query)
+        return query_results
     
     template = 'Profile/baseActivityView.html'
     context = {
@@ -111,6 +111,8 @@ def profile_activity(request, activity):
             'past_watchlist': past_watchlist,
             'favorites':favorites,
             'activity':activity,
+            'query_results': query_results,
+            'query': query,
         }
     return render(request, template, context)
 
@@ -214,7 +216,7 @@ def add_to_four_favorites(request, category, item_id):
                 category=category_,
                 item_id=item_id,
                 defaults={"title": media_data.get("title", ""), "year": media_data.get("year", ""),
-                        "description": media_data.get("description", ""), "image_url": media_data.get("image", "")}
+                        "description": media_data.get("description", ""), "image": media_data.get("image", "")}
             )
 
         except ValidationError as e:
