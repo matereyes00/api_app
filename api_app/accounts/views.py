@@ -87,22 +87,26 @@ def edit_profile(request):
 
 @login_required
 def profile_activity(request, activity):
+    context = {}
     favorites = Favorite.objects.filter(user=request.user)
     future_watchlist = FutureWatchlist.objects.filter(user=request.user)
     custom_watchlist = CustomList.objects.filter(user=request.user)
     past_watchlist = PastWatchlist.objects.filter(user=request.user)
+    query_results = None
+    query = request.GET.get('query')
+    clear_query = request.GET.get('clear-search-result')
+    if clear_query:
+        query.delete()
     
-    if request.method == 'GET':
-        query = request.GET.get('query')
+    if query:
         if activity == 'favorites':
-            query_results=Favorite.objects.filter(title__contains==query)
+            query_results=Favorite.objects.filter(title__icontains=query)
         if activity == 'past_watchlist':
-            query_results=PastWatchlist.objects.filter(title__contains==query)
+            query_results=PastWatchlist.objects.filter(title__icontains=query)
         if activity == 'future_watchlist':
-            query_results=FutureWatchlist.objects.filter(title__contains==query)
+            query_results=FutureWatchlist.objects.filter(title__icontains=query)
         if activity == 'custom_watchlists':
-            query_results=CustomList.objects.filter(title__contains==query)
-        return query_results
+            query_results=CustomList.objects.filter(title__icontains=query)
     
     template = 'Profile/baseActivityView.html'
     context = {
@@ -111,8 +115,8 @@ def profile_activity(request, activity):
             'past_watchlist': past_watchlist,
             'favorites':favorites,
             'activity':activity,
-            'query_results': query_results,
             'query': query,
+            'query_results': query_results,
         }
     return render(request, template, context)
 

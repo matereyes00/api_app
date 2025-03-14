@@ -3,9 +3,12 @@
 {% block content %}
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
-            <form class="d-flex" method="GET" action="">
-                <input class="form-control me-2" name="query"  type="search" placeholder="Search" aria-label="Search" name'search'>
+            <form class="d-flex" method="GET">
+                <input class="form-control me-2" name="query"  type="search" placeholder="Search" aria-label="Search">
                 <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+            <form method="DELETE">
+                <button style="border:none;" class="btn-outline-dark" name="clear-search-result" type="submit"><i class="fa-solid fa-filter-circle-xmark fa-2x"></i></button>
             </form>
         </div>
     </nav>
