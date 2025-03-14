@@ -1,5 +1,4 @@
 {% comment %} {% block content %} {% endcomment %}
-
 {% if list == past_watchlist or list == future_watchlist or list == favorites %}
     {% if query is not None %}
         <h4> Search Results for '{{query}}' </h4>
@@ -37,6 +36,11 @@
                                 </a>
                                 <h6 class="card-subtitle mb-2 text-muted">{{ item.year }}</h6>
                                 <p class="card-text">{{ item.description }}</p>
+                                <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                                    <button type="button" class="btn btn-outline-danger"><i class="fa-solid fa-minus"></i></button>
+                                    <button type="button" class="btn btn-outline-success"><i class="fa-solid fa-plus">
+                                    </i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
