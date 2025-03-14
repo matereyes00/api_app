@@ -6,17 +6,7 @@ from .models import Profile, Favorite, FutureWatchlist, PastWatchlist, FourFavor
 from get import get_bgg_game_info, get_bgg_game_type,get_movietv_info,get_book_info, fetch_media_info
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "formatted_watchlist")
-
-    def formatted_watchlist(self, obj):
-        """Formats JSON data with indentation and wraps it in <pre> for better readability."""
-        if not obj.watchlist_past:
-            return "No Watchlist"
-        formatted_json = json.dumps(obj.watchlist_past, indent=2)  # Pretty-print JSON
-        return mark_safe(f"<pre>{formatted_json}</pre>")  # Preserve formatting in admin UI
-
-    formatted_watchlist.short_description = "Watchlist (Formatted)"
-
+    list_display = ("user", "bio")
 
 def get_item_name(category, item_id):
     if category == "book":

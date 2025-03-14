@@ -17,7 +17,6 @@ class Profile(models.Model):
         blank=True, 
         null=True
     )
-    watchlist_past = models.JSONField(default=dict)  # Stores movies, books, and games
     custom_lists = models.ManyToManyField(CustomList, blank=True)
     
     def __str__(self):
