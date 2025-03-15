@@ -9,7 +9,7 @@
         <div class="row">
         {% for result in list %}
             <div class="col-md-3">
-                {% include 'Profile/activityViewCard.html' with list=list remove_url=remove_url%}
+                {% include 'Profile/activityViewCard.html' with list=list remove_url=remove_url activity=activity%}
             </div>
         {% empty %}
             no results

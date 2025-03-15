@@ -21,5 +21,6 @@ urlpatterns = [
     path('remove_from_favorites/<str:category>/<str:item_id>/', v.remove_from_favorites, name="remove_from_favorites"),
     
     path('profile/<str:activity>/', v.profile_activity, name="profile_activity"),
+    path('profile/<str:activity>/<str:item_id>/', v.delete_from_profile_activity, name="delete_from_profile_activity"),
     path('profile/addToFourFavorites/<str:category>/<str:item_id>/', v.add_to_four_favorites, name="add_to_four_favorites"),
 ]

@@ -49,8 +49,6 @@ def profile_view(request):
     custom_lists = CustomList.objects.filter(user=request.user)
     
     # get_media_info so that when u click on the link (from the profile), youll see the info
-    
-
     return render(request, "Profile/profile.html", {
         "profile": profile,
         "past_watchlist": past_watchlist,
@@ -62,7 +60,6 @@ def profile_view(request):
         "item_data": item_data,
         "four_favorites":four_favorites,
     })
-
 
 @login_required
 def edit_profile(request):
@@ -83,7 +80,6 @@ def edit_profile(request):
         'profile_form': profile_form,
         'password_form': password_form
     })
-
 
 @login_required
 def profile_activity(request, activity):
@@ -119,6 +115,22 @@ def profile_activity(request, activity):
             'query_results': query_results,
         }
     return render(request, template, context)
+
+@login_required
+def delete_from_profile_activity(request, activity, item_id):
+    if request.method == 'POST':
+        if activity == 'favorites':
+            item = Favorite.objects.filter(item_id=item_id)
+            item.delete()
+        if activity == 'past_watchlist':
+            item = PastWatchlist.objects.filter(item_id=item_id)
+            item.delete()
+        if activity == 'future_watchlist':
+            item = FutureWatchlist.objects.filter(item_id=item_id)
+            item.delete()
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
 
 @login_required
 def remove_from_consumed_media(request, category, item_id):

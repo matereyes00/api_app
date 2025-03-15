@@ -8,5 +8,9 @@
         </a>
         <h6 class="card-subtitle mb-2 text-muted">{{ result.year }}</h6>
         <p class="card-text">{{ result.description }}</p>
+        <form action="{% url 'api_app.accounts:delete_from_profile_activity' activity result.item_id %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger"><i class="fa-solid fa-minus"></i></button>
+        </form>
     </div>
 </div>
