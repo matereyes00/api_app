@@ -1,0 +1,12 @@
+<div class="card" style="width: 18rem;">
+    {% if result.image and result.image != "No Image" %}
+        <img src="{{ result.image }}" class="card-img-top" alt="{{ result.title }}">
+    {% endif %}
+    <div class="card-body">
+        <a href="#" class="card-link">
+            <h5 class="card-title">{{ result.title }}</h5>
+        </a>
+        <h6 class="card-subtitle mb-2 text-muted">{{ result.year }}</h6>
+        <p class="card-text">{{ result.description }}</p>
+    </div>
+</div>
