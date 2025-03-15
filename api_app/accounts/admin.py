@@ -19,7 +19,7 @@ def get_item_name(category, item_id):
 
 
 class PastWatchlistAdmin(admin.ModelAdmin):
-    list_display = ('user', 'category', 'title', 'year', 'date_added')  # Show title and year
+    list_display = ('user', 'item_id', 'category', 'title', 'year', 'date_added')  # Show title and year
     list_filter = ('category', 'date_added')  
     search_fields = ('user__username', 'item_id', 'title')  
     ordering = ('-date_added',)  
@@ -35,7 +35,7 @@ class PastWatchlistAdmin(admin.ModelAdmin):
     readonly_fields = ("date_added",)  # Prevents modification of timestamps
 
 class FutureWatchlistAdmin(admin.ModelAdmin):
-    list_display = ('user', 'category', 'title', 'year', 'date_added')  # Show title and year
+    list_display = ('user', 'item_id', 'category', 'title', 'year', 'date_added')  # Show title and year
     list_filter = ('category', 'date_added')  
     search_fields = ('user__username', 'item_id', 'title')  
     ordering = ('-date_added',)  
@@ -56,7 +56,7 @@ class CustomWatchlistAdmin(admin.ModelAdmin):
     
 
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'category', 'title', 'year', 'date_added')  # Show title & year
+    list_display = ('user', 'item_id', 'category', 'title', 'year', 'date_added')  # Show title & year
     list_filter = ('category', 'date_added')  
     search_fields = ('user__username', 'title', 'item_id')  
     ordering = ('-date_added',)  
