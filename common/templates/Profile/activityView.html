@@ -1,54 +1,22 @@
-{% comment %} {% block content %} {% endcomment %}
 {% if list == past_watchlist or list == future_watchlist or list == favorites %}
     {% if query is not None %}
-        <h4> Search Results for '{{query}}' </h4>
-        {% for result in query_results %}
-            <div class="col-md-4 mb-3">
-                <div class="card" style="width: 18rem;">
-                    {% if result.image and result.image != "No Image" %}
-                        <img src="{{ result.image }}" class="card-img-top" alt="{{ result.title }}">
-                    {% endif %}
-                    <div class="card-body">
-                        <a href="#" class="card-link">
-                            <h5 class="card-title">{{ result.title }}</h5>
-                        </a>
-                        <h6 class="card-subtitle mb-2 text-muted">{{ result.year }}</h6>
-                        <p class="card-text">{{ result.description }}</p>
-                    </div>
-                </div>
-            </div>
-        {% empty %}
-            add something to show no results
+        <h4> Search Results for '{{query}}'</h4>
+        {% for result in query_results%}
+            {% include 'Profile/activityViewCard.html' with list=query_results%}
         {% endfor %}
     {% else %}
         <h1>{{list_name}}</h1>
-        <div class="container">
-            <div class="row">
-                {% for item in list %}
-                    <div class="col-md-4 mb-3">
-                        <div class="card" style="width: 18rem;">
-                            {% if item.image and item.image != "No Image" %}
-                                <img src="{{ item.image }}" class="card-img-top" alt="{{ item.title }}">
-                            {% endif %}
-                            <div class="card-body">
-                                <a href="#" class="card-link">
-                                    <h5 class="card-title">{{ item.title }}</h5>
-                                </a>
-                                <h6 class="card-subtitle mb-2 text-muted">{{ item.year }}</h6>
-                                <p class="card-text">{{ item.description }}</p>
-                                <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                    <button type="button" class="btn btn-outline-danger"><i class="fa-solid fa-minus"></i></button>
-                                    <button type="button" class="btn btn-outline-success"><i class="fa-solid fa-plus">
-                                    </i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
+        <div class="row">
+        {% for result in list %}
+            <div class="col-md-3">
+                {% include 'Profile/activityViewCard.html' with list=list remove_url=remove_url%}
             </div>
+        {% empty %}
+            no results
+        {% endfor %}
         </div>
-    {% endif %}
-    
+{% endif %}
+
     
 {% elif list == custom_watchlists %}
     <h1> {{list_name}} </h1>
