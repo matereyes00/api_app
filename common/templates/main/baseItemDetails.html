@@ -1,13 +1,15 @@
 {% extends "main/base.html" %}
 
 {% block content %}
+
     {% include 'main/baseItemDetails/itemDetails.html' %}
 
     <div class="btn btn-group">
         {% include 'addRemoveBtnModal/addRemoveButtonsPast.html' with category=category %}
         {% include 'addRemoveBtnModal/addRemoveButtonsFuture.html' with category=category %}
         {% include 'addRemoveBtnModal/addToFavoritesButton.html' with category=category %}
-
+        {% include 'addRemoveBtnModal/addToCustomWL.html'%}
+        
         <form action="{% url 'api_app.accounts:add_to_four_favorites' category item_id %}" method="POST">
             {% csrf_token %}
             <button type="submit" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target=".modal"><i class="fa-solid fa-plus">
@@ -18,7 +20,6 @@
 
     {% include 'addRemoveBtnModal/addRemoveModal.html' %}
     
-
     <script>
         document.getElementById("openModalBtn").addEventListener("click", function(event) {
             event.preventDefault(); // Prevent form submission

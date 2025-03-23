@@ -1,6 +1,5 @@
 {% if book %}
     <h1>{{ book.title }}</h1>
-
     {% if book.authors %}
         <p>Author(s): 
             {% for author in book.authors %}

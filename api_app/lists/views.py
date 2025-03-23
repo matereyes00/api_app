@@ -23,3 +23,7 @@ def create_custom_watchlist(request):
     }
 
     return render(request, template, context)
+
+def add_to_custom_watchlist(request, category, itemid):
+    if request.method == 'POST':
+        pass

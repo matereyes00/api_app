@@ -134,7 +134,6 @@ def delete_from_profile_activity(request, activity, item_id):
 
 @login_required
 def remove_from_consumed_media(request, category, item_id):
-    past_watchlist = PastWatchlist.objects.filter(user=request.user) 
     if request.method == 'POST':
         category_ = get_media_category(category, item_id)
         media_data = fetch_media_info(category_, item_id)  # Fetch media info
